@@ -40,6 +40,7 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.graphics.drawable.GradientDrawable;
@@ -47,6 +48,9 @@ import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -61,11 +65,16 @@ import com.code.android.vibevault.R;
 
 import org.json.JSONObject;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class HomeScreen extends Activity {
 	
 	private static final String LOG_TAG = HomeScreen.class.getName();
 	
 	private static final int UPGRADE_DB = 20;
+
+	private final int EXTERNAL_STORAGE_PERMISSION = 1;
+	private final String[] REQUIRED_PERMISSIONS = new String[]{WRITE_EXTERNAL_STORAGE};
 
 	private ImageButton searchButton;
 	private ImageButton recentButton;
@@ -175,7 +184,34 @@ public class HomeScreen extends Activity {
 			this.showDialog(this.getResources().getString(R.string.splash_screen), "Welcome to Vibe Vault 4");
 		}
 	}
-	
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (!storagePermissionGranted()) {
+			ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == EXTERNAL_STORAGE_PERMISSION){
+			if (storagePermissionGranted()){
+				Logging.Log(LOG_TAG, "Permission granted");
+
+				// do the thing
+			} else {
+				Logging.Log(LOG_TAG, "Permission not granted");
+			}
+		}
+	}
+
+	private boolean storagePermissionGranted() {
+		return ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+	}
+
 	private void setImageButtonToToast() {
 		searchButton.setOnClickListener(new OnClickListener() {
 			@Override

@@ -63,8 +63,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.code.android.vibevault.R;
-
 public class NowPlayingFragment extends Fragment {
 	
 	private static final String LOG_TAG = NowPlayingFragment.class.getName();
@@ -174,7 +172,7 @@ public class NowPlayingFragment extends Fragment {
 				dialogAndNavigationListener.goHome();
 				return true;
 			case R.id.DownloadButton:
-				NowPlayingFragment.this.getActivity().startService(new Intent(PlaybackService.ACTION_DOWNLOAD));
+				NowPlayingFragment.this.getActivity().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_DOWNLOAD));
 				return true;
 			case R.id.BookmarkButton:
 				if(currentPos>=0&&currentPos<this.adapter.getCount()){
@@ -198,7 +196,7 @@ public class NowPlayingFragment extends Fragment {
 	}
 	
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the fragment and grab a reference to it.
 		View v = inflater.inflate(R.layout.now_playing, container, false);
 		
@@ -226,7 +224,8 @@ public class NowPlayingFragment extends Fragment {
 		songsListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-				Intent intent = new Intent(PlaybackService.ACTION_PLAY_POSITION);
+				Intent intent = defaultPlaybackServiceIntent()
+						.setAction(PlaybackService.ACTION_PLAY_POSITION);
 				intent.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, position);
 				v.getContext().startService(intent);
 			}
@@ -250,17 +249,19 @@ public class NowPlayingFragment extends Fragment {
 		songsListView.setDropListener(new DraggableListView.DropListener() {
 			@Override
 			public void drop(int from, int to) {
-				Intent intent = new Intent(PlaybackService.ACTION_MOVE);
-				intent.putExtra(PlaybackService.EXTRA_MOVE_FROM, from);
-				intent.putExtra(PlaybackService.EXTRA_MOVE_TO, to);
+				Intent intent = defaultPlaybackServiceIntent()
+						.setAction(PlaybackService.ACTION_MOVE)
+						.putExtra(PlaybackService.EXTRA_MOVE_FROM, from)
+						.putExtra(PlaybackService.EXTRA_MOVE_TO, to);
 				NowPlayingFragment.this.getActivity().startService(intent);
 			}
 		});
 		songsListView.setRemoveListener(new DraggableListView.RemoveListener() {
 			@Override
 			public void remove(int which) {
-				Intent intent = new Intent(PlaybackService.ACTION_DELETE);
-				intent.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, which);
+				Intent intent = defaultPlaybackServiceIntent()
+						.setAction(PlaybackService.ACTION_DELETE)
+						.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, which);
 				NowPlayingFragment.this.getActivity().startService(intent);
 			}
 		});
@@ -277,7 +278,7 @@ public class NowPlayingFragment extends Fragment {
 		this.previous.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.getContext().startService(new Intent(PlaybackService.ACTION_PREV));
+				v.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_PREV));
 				if(currentPos < songsListView.getFirstVisiblePosition() || currentPos > songsListView.getLastVisiblePosition()){
 					if(currentPos <= 0){
 						songsListView.setSelection(0);
@@ -292,21 +293,21 @@ public class NowPlayingFragment extends Fragment {
 		this.stop.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.getContext().startService(new Intent(PlaybackService.ACTION_STOP));
+				v.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_STOP));
 			}
 		});
 
 		this.pause.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.getContext().startService(new Intent(PlaybackService.ACTION_TOGGLE));
+				v.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_TOGGLE));
 			}
 		});
 
 		this.next.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.getContext().startService(new Intent(PlaybackService.ACTION_NEXT));
+				v.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_NEXT));
 				if(currentPos < songsListView.getFirstVisiblePosition() || currentPos > songsListView.getLastVisiblePosition()){
 					if(currentPos <= 0){
 						songsListView.setSelection(currentPos);
@@ -325,8 +326,8 @@ public class NowPlayingFragment extends Fragment {
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
 				if (fromUser) {
-					Intent intent = new Intent(PlaybackService.ACTION_SEEK);
-					intent.putExtra(PlaybackService.EXTRA_SEEK_POSITON, progress);
+					Intent intent = defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_SEEK)
+							.putExtra(PlaybackService.EXTRA_SEEK_POSITON, progress);
 					NowPlayingFragment.this.getActivity().startService(intent);
 				}
 			}
@@ -365,6 +366,10 @@ public class NowPlayingFragment extends Fragment {
 		super.onStop();
 	}
 
+	private Intent defaultPlaybackServiceIntent(){
+		return new Intent(getActivity(), PlaybackService.class);
+	}
+	
 	private void refreshTrackList(ArrayList<ArchiveSongObj> list){
 		Logging.Log(LOG_TAG, "Refresh called...");
 		adapter = new PlaylistAdapter(getActivity(), R.layout.playlist_row, list);
@@ -416,8 +421,7 @@ public class NowPlayingFragment extends Fragment {
 
 	private void attachToPlaybackService() {
 		playerListener.registerReceivers(stateChangedReceiver, positionChangedReceiver);
-		Intent intent = new Intent(PlaybackService.ACTION_POLL);
-		this.getActivity().startService(intent);
+		this.getActivity().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_POLL));
 		Logging.Log(LOG_TAG, "Attached to Playback Service");
 	}
 
@@ -435,10 +439,11 @@ public class NowPlayingFragment extends Fragment {
 			}
 			ArrayList<ArchiveSongObj>showSongs = (ArrayList<ArchiveSongObj>)this.getArguments().getSerializable("showsongs");
 			if(showSongs!=null){
-				Intent intent = new Intent(PlaybackService.ACTION_QUEUE_SHOW);
-				intent.putExtra(PlaybackService.EXTRA_PLAYLIST, showSongs);
-				intent.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, currentPos);
-				intent.putExtra(PlaybackService.EXTRA_DO_PLAY, true);
+				Intent intent = defaultPlaybackServiceIntent()
+						.setAction(PlaybackService.ACTION_QUEUE_SHOW)
+						.putExtra(PlaybackService.EXTRA_PLAYLIST, showSongs)
+						.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, currentPos)
+						.putExtra(PlaybackService.EXTRA_DO_PLAY, true);
 				NowPlayingFragment.this.getActivity().startService(intent);
 				this.getArguments().remove("showsongs");
 			}
@@ -644,14 +649,15 @@ public class NowPlayingFragment extends Fragment {
 			return convertView;
 		}
 	}
-	
+
 	public boolean onContextItemSelected(MenuItem item){
 		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo)item.getMenuInfo();
 		if(menuInfo!=null){
 			switch(item.getItemId()){
 				case(MENU_REMOVE):
-					Intent intent = new Intent(PlaybackService.ACTION_DELETE);
-					intent.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, menuInfo.position);
+					Intent intent = defaultPlaybackServiceIntent()
+							.setAction(PlaybackService.ACTION_DELETE)
+							.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, menuInfo.position);
 					this.getActivity().startService(intent);
 					break;
 				default:
