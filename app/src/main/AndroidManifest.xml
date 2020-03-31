@@ -2,10 +2,10 @@
 <manifest xmlns:tools="http://schemas.android.com/tools"
 	package="com.code.android.vibevault"
 	android:installLocation="auto"
-	xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="4.1" android:versionCode="37">
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<uses-sdk android:minSdkVersion="15" android:targetSdkVersion="18"/>
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
 		android:debuggable="false" android:theme="@style/HoloBlack"
 		tools:ignore="HardcodedDebugMode">
@@ -61,8 +61,8 @@
 		        <action android:name="com.code.android.vibevault.playbackservice.ACTION_POLL"/>
 		    </intent-filter>
 		</service>
-		<activity android:name="VotesScreen" android:theme="@style/HoloBlack"></activity>
-		<activity android:name="ShowsStoredScreen"></activity>
+<!--		<activity android:name="VotesScreen" android:theme="@style/HoloBlack"></activity>-->
+<!--		<activity android:name="ShowsStoredScreen"></activity>-->
 		<receiver android:name="DownloadReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
