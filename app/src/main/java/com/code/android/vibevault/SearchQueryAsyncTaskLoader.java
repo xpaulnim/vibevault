@@ -1,8 +1,10 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
+
+import androidx.loader.content.AsyncTaskLoader;
+
+import java.util.ArrayList;
 
 public class SearchQueryAsyncTaskLoader extends AsyncTaskLoader<ArrayList<ArchiveShowObj>> {
 	

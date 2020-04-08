@@ -28,9 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
@@ -45,9 +43,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -60,7 +63,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ShowDetailsFragment extends Fragment  {
+public class ShowDetailsFragment extends Fragment {
 
 	protected static final String LOG_TAG = ShowDetailsFragment.class.getName();
 	
@@ -107,9 +110,10 @@ public class ShowDetailsFragment extends Fragment  {
 		
 		// Control whether a fragment instance is retained across Activity re-creation (such as from a configuration change).
 		this.setRetainInstance(true);
-		
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActivity().getActionBar().setTitle("Show Details");
+
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        appCompatActivity.getSupportActionBar().setTitle("Show Details");
 		db = StaticDataStore.getInstance(getActivity());
 
 	}
@@ -146,10 +150,11 @@ public class ShowDetailsFragment extends Fragment  {
 	    
 	    // Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
         setHasOptionsMenu(true);
-        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        getActivity().getActionBar().setListNavigationCallbacks(null, null);
-		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActivity().getActionBar().setTitle("Show Details");
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		appCompatActivity.getSupportActionBar().setTitle("Show Details");
 	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
 		if(this.getArguments()!=null){
 			ArchiveShowObj passedShow = (ArchiveShowObj)this.getArguments().getSerializable("show");
@@ -364,7 +369,7 @@ public class ShowDetailsFragment extends Fragment  {
 		menu.clear();
 		inflater.inflate(R.menu.help_bookmark_share_download_vote, menu);
 		MenuItem item = menu.findItem(R.id.ShareButton);
-	    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+	    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 //	    mShareActionProvider.setShareHistoryFileName(null);
 		super.onCreateOptionsMenu(menu, inflater);
 	}

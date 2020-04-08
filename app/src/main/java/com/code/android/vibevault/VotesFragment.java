@@ -4,13 +4,9 @@ import java.util.ArrayList;
 
 import com.code.android.vibevault.SearchFragment.SearchActionListener;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
@@ -31,9 +27,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 public class VotesFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<?>>, ActionBar.OnNavigationListener {
 	
@@ -243,11 +246,12 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			this.voteType = Voting.VOTES_SHOWS_BY_ARTIST;
 			this.voteResultType = Voting.VOTES_ALL_TIME;
 			this.artistId = artist.getArtistId();
-	        getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-	        getActivity().getActionBar().setTitle("Shows By Artist");
-	        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+			AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+			appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
+	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
-	        getActivity().getActionBar().setListNavigationCallbacks(adapter, this);
+	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 		}
 	}
 	
@@ -260,11 +264,12 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActivity().getActionBar().setTitle("Top Voted");
-        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        appCompatActivity.getSupportActionBar().setTitle("Top Voted");
+        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);
-        getActivity().getActionBar().setListNavigationCallbacks(adapter, this);		        
+        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 		Bundle b = new Bundle();
 		b.putIntArray("queryArray", new int[] {this.voteType, this.voteResultType, numResults, this.offset, artistId});
 		
@@ -323,19 +328,20 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			this.refreshVoteList();
 
 		}
-		CharSequence title = getActivity().getActionBar().getTitle();
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+		CharSequence title = appCompatActivity.getSupportActionBar().getTitle();
 		if (voteType == Voting.VOTES_SHOWS_BY_ARTIST && title == "Top Voted") {
-	        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-	        getActivity().getActionBar().setTitle("Shows By Artist");
-	        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
+	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
-	        getActivity().getActionBar().setListNavigationCallbacks(adapter, this);		
+	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 		} else if (voteType != Voting.VOTES_SHOWS_BY_ARTIST && title == "Shows By Artist") {
-	        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-	        getActivity().getActionBar().setTitle("Top Voted");
-	        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	        appCompatActivity.getSupportActionBar().setTitle("Top Voted");
+	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);
-	        getActivity().getActionBar().setListNavigationCallbacks(adapter, this);	
+	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 		}
 		moreButton.setVisibility(this.votes.size()>0?View.VISIBLE:View.GONE);
 
@@ -453,7 +459,7 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 								i.putExtra(Intent.EXTRA_TEXT, show.getShowArtist() + " " + show.getShowTitle() + " " + show.getShowURL()
 										+ "\n\nSent using #VibeVault for Android.");
 								MenuItem share = menu.getMenu().findItem(R.id.ShareButton);
-							    mShareActionProvider = (ShareActionProvider) share.getActionProvider();
+							    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
 								if(mShareActionProvider!=null){
 									mShareActionProvider.setShareIntent(i);
 								}

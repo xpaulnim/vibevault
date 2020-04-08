@@ -3,9 +3,7 @@ package com.code.android.vibevault;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,7 +18,11 @@ import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 
-public class BrowseArtistsFragment extends Fragment{
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
+public class BrowseArtistsFragment extends Fragment {
 	
 	//private static final String LOG_TAG = BrowseArtistsFragment.class.getName();
 
@@ -123,10 +125,11 @@ public class BrowseArtistsFragment extends Fragment{
 		// Must call in order to get callback to onOptionsItemSelected()
 		// and thereby create an ActionBar.
 	    setHasOptionsMenu(true);
-	    getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-	    getActivity().getActionBar().setListNavigationCallbacks(null, null);
-	    getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-	    getActivity().getActionBar().setTitle("Browse");
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+	    appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+	    appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+	    appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	    appCompatActivity.getSupportActionBar().setTitle("Browse");
 	}
 	
 	// This is what the ActionBar is created from.

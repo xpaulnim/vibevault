@@ -27,9 +27,7 @@ package com.code.android.vibevault;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +44,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
-import android.widget.ShareActionProvider;
 import android.widget.TableLayout;
 import android.widget.Toast;
 import android.view.LayoutInflater;
@@ -62,6 +59,12 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
 
 public class NowPlayingFragment extends Fragment {
 	
@@ -143,10 +146,11 @@ public class NowPlayingFragment extends Fragment {
 		}		
 		// Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
         setHasOptionsMenu(true);
-        getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        getActivity().getActionBar().setListNavigationCallbacks(null, null);
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActivity().getActionBar().setTitle("Now Playing");
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        appCompatActivity.getSupportActionBar().setTitle("Now Playing");
 	}
 	
 	@Override
@@ -154,7 +158,7 @@ public class NowPlayingFragment extends Fragment {
 		menu.clear();
 		inflater.inflate(R.menu.help_bookmark_share_download_vote, menu);
 		MenuItem item = menu.findItem(R.id.ShareButton);
-	    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+	    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_search"
+        android:title="@string/Search"
+        android:icon="@drawable/searchbutton_normal" />
+    <item
+        android:id="@+id/menu_your_shows"
+        android:title="@string/Your_Shows"
+        android:icon="@drawable/recentbutton_normal" />
+    <item
+        android:id="@+id/menu_downloads"
+        android:title="@string/Downloads"
+        android:icon="@drawable/downloadbutton_normal" />
+
+    <item
+        android:id="@+id/menu_now_playing"
+        android:title="@string/Now_Playing"
+        android:icon="@drawable/nowplayingbutton" />
+
+    <item
+        android:id="@+id/menu_browse_artists"
+        android:title="@string/Browse_Artists"
+        android:icon="@drawable/browsebutton_normal" />
+</menu>

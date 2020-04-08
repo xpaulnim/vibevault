@@ -49,13 +49,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -66,6 +68,12 @@ import com.code.android.vibevault.R;
 import org.json.JSONObject;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static com.code.android.vibevault.SearchScreen.ARTISTS_FRAGMENT;
+import static com.code.android.vibevault.SearchScreen.DOWNLOADS_FRAGMENT;
+import static com.code.android.vibevault.SearchScreen.NOW_PLAYING_FRAGMENT;
+import static com.code.android.vibevault.SearchScreen.SEARCH_FRAGMENT;
+import static com.code.android.vibevault.SearchScreen.SHOWS_STORED_FRAGMENT;
+import static com.code.android.vibevault.SearchScreen.VOTES_FRAGMENT;
 
 public class HomeScreen extends Activity {
 	
@@ -139,7 +147,7 @@ public class HomeScreen extends Activity {
 		} else{
 			//upgradeTask = new UpgradeTask(this);
 		}
-		
+
 		int[] gradientColors = {0, 0xFF127DD4, 0};
 		int curOrientation = this.getResources().getConfiguration().orientation;
 		// FIXME
@@ -152,7 +160,7 @@ public class HomeScreen extends Activity {
 		separator3 = (ImageView)findViewById(R.id.separator3);
 		separator3.setBackgroundDrawable(new GradientDrawable(curOrientation==Configuration.ORIENTATION_PORTRAIT?Orientation.TOP_BOTTOM:Orientation.TOP_BOTTOM, gradientColors));
 		//separator3.setBackground(new GradientDrawable(Orientation.TOP_BOTTOM, gradientColors));
-		
+
 		searchButton = (ImageButton) findViewById(R.id.HomeSearch);
 		recentButton = (ImageButton) findViewById(R.id.HomeRecent);
 		downloadButton = (ImageButton) findViewById(R.id.HomeDownload);
@@ -256,7 +264,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 0);
+				i.putExtra("type", SEARCH_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -267,7 +275,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 3);
+				i.putExtra("type", SHOWS_STORED_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -278,7 +286,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 6);
+				i.putExtra("type", DOWNLOADS_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -289,7 +297,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 2);
+				i.putExtra("type", NOW_PLAYING_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -300,7 +308,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 4);
+				i.putExtra("type", VOTES_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -311,7 +319,7 @@ public class HomeScreen extends Activity {
 			@Override
 			public void onClick(View v){
 				Intent i = new Intent(HomeScreen.this, SearchScreen.class);
-				i.putExtra("type", 5);
+				i.putExtra("type", ARTISTS_FRAGMENT);
 				i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

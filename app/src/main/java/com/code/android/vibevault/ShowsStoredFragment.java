@@ -4,11 +4,7 @@ import java.util.ArrayList;
 
 import com.code.android.vibevault.SearchFragment.SearchActionListener;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.LoaderManager;
-import android.content.Loader;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
@@ -22,6 +18,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 public class ShowsStoredFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
@@ -100,15 +102,15 @@ public class ShowsStoredFragment extends Fragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		setHasOptionsMenu(true);
-		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActivity().getActionBar().setTitle("Your Shows");
-		Logging.Log(LOG_TAG, "ACTION MODE: " + getActivity().getActionBar().getNavigationMode());
-		getActivity().getActionBar().setNavigationMode(
-				ActionBar.NAVIGATION_MODE_LIST);
+		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		appCompatActivity.getSupportActionBar().setTitle("Your Shows");
+		Logging.Log(LOG_TAG, "ACTION MODE: " + appCompatActivity.getSupportActionBar().getNavigationMode());
+		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				getActivity(), R.array.stored_array,
+				appCompatActivity, R.array.stored_array,
 				android.R.layout.simple_spinner_dropdown_item);
-		getActivity().getActionBar().setListNavigationCallbacks(adapter, this);
+		appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 	}
 
 	@Override

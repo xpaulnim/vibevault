@@ -10,10 +10,7 @@ import com.code.android.vibevault.VotesFragment.VotesActionListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +18,14 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class SearchScreen extends Activity implements SearchActionListener, DialogAndNavigationListener, SearchSettingsDialogInterface, ShowDetailsActionListener, NowPlayingFragment.PlayerListener, BrowseActionListener, VotesActionListener {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+public class SearchScreen extends AppCompatActivity implements SearchActionListener, DialogAndNavigationListener, SearchSettingsDialogInterface, ShowDetailsActionListener, NowPlayingFragment.PlayerListener, BrowseActionListener, VotesActionListener {
 
 	private static final String LOG_TAG = SearchScreen.class.getName();
 	
@@ -60,35 +64,43 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 			this.setIntent(i);
 			if(i.hasExtra("type")){
 				int type = i.getExtras().getInt("type");
-				if(type!=2){
+				if(type!=NOW_PLAYING_FRAGMENT){
 					this.clearBackStack();
 				}
 				instantiateFragment(i.getExtras().getInt("type"));
 			}
 		}
 	}
-	
+
+	public static final int SEARCH_FRAGMENT = 0;
+	public static final int DETAILS_FRAGMENT = 1;
+	public static final int NOW_PLAYING_FRAGMENT = 2;
+	public static final int SHOWS_STORED_FRAGMENT = 3;
+	public static final int VOTES_FRAGMENT = 4;
+	public static final int ARTISTS_FRAGMENT = 5;
+	public static final int DOWNLOADS_FRAGMENT = 6;
+
 	private void instantiateFragment(int type){
 		switch(type){
-	    	case 0:
+	    	case SEARCH_FRAGMENT: // Search
 	    		this.instantiateSearchFragmentForActivity(null);
 	    		break;
-	    	case 1:
+	    	case DETAILS_FRAGMENT: // Show Details
 	    		this.instantiateShowDetailsFragmentForActivity(null);
 	    		break;
-	    	case 2:
+	    	case NOW_PLAYING_FRAGMENT: // Now Playing
 	    		this.instantiateNowPlayingFragmentForActivity(-1, null);
 	    		break;
-	    	case 3:
+	    	case SHOWS_STORED_FRAGMENT: // Shows Stored
 	    		this.instantiateShowsStoredFragmentForActivity();
 	    		break;
-	    	case 4:
+	    	case VOTES_FRAGMENT: // Votes
 	    		this.instantiateVotesFragmentForActivity(null);
 	    		break;
-	    	case 5:
+	    	case ARTISTS_FRAGMENT: // Browse Artists
 	    		this.instantiateBrowseArtistsFragmentForActivity();
 	    		break;
-	    	case 6:
+	    	case DOWNLOADS_FRAGMENT: // Downloads
 	    		this.instantiateShowsDownloadedFramentForActivity();
 	    		break;
 	    	default:
@@ -99,16 +111,16 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // See what type of Fragment we want to launch.
+
+		// See what type of Fragment we want to launch.
         int type = this.getIntent().getExtras().getInt("type");
         
 		// See if this Screen was spawned by the user clicking on a link.
 		// If so, form an ArchiveShowObj from the URL.
-		if (this.getIntent().getScheme()!=null&&this.getIntent().getScheme().equals("http")) {
+		if (this.getIntent().getScheme()!=null&&this.getIntent().getScheme().equals("https")) {
 	        ArchiveShowObj show = null;
 			Logging.Log(LOG_TAG, "User clicked on link.");
-			type = 1;
+			type = DETAILS_FRAGMENT;
 			String linkString =  this.getIntent().getData().toString();
 			Logging.Log(LOG_TAG, "URL: " + linkString);
 			if (linkString.contains("/download/")) {
@@ -137,8 +149,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	 */
 	
 	private void instantiateSearchFragmentForActivity(String artist){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		SearchFragment frag = (SearchFragment) fm.findFragmentByTag("searchfrag");
 		
 		Logging.Log(LOG_TAG, "BACK STACK COUNT: " + fm.getBackStackEntryCount());
@@ -162,11 +174,11 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 	    ft.commit();
 	}
-	
+
 	// This can take a null show object.
 	private void instantiateShowDetailsFragmentForActivity(ArchiveShowObj show){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ShowDetailsFragment frag = (ShowDetailsFragment) fm.findFragmentByTag("showdetails");
 		if(frag==null){
 			frag = new ShowDetailsFragment();
@@ -205,8 +217,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	}
 	
 	private void instantiateNowPlayingFragmentForActivity(int pos, ArrayList<ArchiveSongObj> showSongs){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		NowPlayingFragment frag = (NowPlayingFragment) fm.findFragmentByTag("nowplaying");
 		
 		Bundle b = this.getIntent().getExtras();
@@ -237,8 +249,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	}
 	
 	private void instantiateShowsStoredFragmentForActivity(){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ShowsStoredFragment frag = (ShowsStoredFragment) fm.findFragmentByTag("showsstored");
 		if(frag==null){
 			frag = new ShowsStoredFragment();
@@ -258,8 +270,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	}
 	
 	private void instantiateBrowseArtistsFragmentForActivity(){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		BrowseArtistsFragment frag = (BrowseArtistsFragment) fm.findFragmentByTag("browsefrag");
 		if(frag==null){
 			frag = new BrowseArtistsFragment();
@@ -279,8 +291,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	}
 	
 	private void instantiateVotesFragmentForActivity(ArchiveArtistObj artist){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		VotesFragment frag = (VotesFragment) fm.findFragmentByTag("votesfrag");
 		
 		Bundle b = this.getIntent().getExtras();
@@ -308,8 +320,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 	}
 	
 	private void instantiateShowsDownloadedFramentForActivity(){
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ShowsDownloadedFragment frag = (ShowsDownloadedFragment) fm.findFragmentByTag("downloadfrag");
 		if(frag==null){
 			frag = new ShowsDownloadedFragment();
@@ -347,8 +359,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 		// Note that if there was a previous dialog, it might still be
 		// being removed from the Activity, in which case we don't try
 		// to remove it again, because we would get an error.
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
 		if (prev != null) {
 			if (prev.isRemoving()) {
 			} else {
@@ -369,8 +381,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 		// Note that if there was a previous dialog, it might still be
 		// being removed from the Activity, in which case we don't try
 		// to remove it again, because we would get an error.
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
 		if (prev != null) {
 			if (prev.isRemoving()) {
 			} else {
@@ -389,8 +401,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 		// Note that if there was a previous dialog, it might still be
 		// being removed from the Activity, in which case we don't try
 		// to remove it again, because we would get an error.
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
 		if (prev != null) {
 			if (prev.isRemoving()) {
 			} else {
@@ -419,8 +431,8 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 		// It would be nice to be able to call dismiss but Android will crash if you commit
 		// (which calling dismiss will do) without allowing state loss.  See this post:
 		// https://groups.google.com/forum/#!topic/android-developers/dXZZjhRjkMk/discussion
-	    FragmentTransaction ft = getFragmentManager().beginTransaction();
-		LoadingDialog prev = (LoadingDialog)getFragmentManager().findFragmentByTag("dialog");
+	    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		LoadingDialog prev = (LoadingDialog)getSupportFragmentManager().findFragmentByTag("dialog");
 	    if (prev != null) {
 	    	if(prev.isRemoving()){
 	    	} else{
@@ -439,7 +451,7 @@ public class SearchScreen extends Activity implements SearchActionListener, Dial
 
 	@Override
 	public void onSettingsOkayButtonPressed(String searchType, int numResults, int dateTypePos, int month, int day, int year) {
-		SearchFragment searchFrag = (SearchFragment)this.getFragmentManager().findFragmentByTag("searchfrag");
+		SearchFragment searchFrag = (SearchFragment)this.getSupportFragmentManager().findFragmentByTag("searchfrag");
 		if(searchFrag!=null){
 			searchFrag.onSettingsOkayButtonPressed(searchType, numResults, dateTypePos, month, day, year);
 		}

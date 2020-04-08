@@ -15,10 +15,12 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
 
 public class ScrollingShowAdapter extends ArrayAdapter<ArchiveShowObj> {
 	
@@ -116,7 +118,7 @@ public class ScrollingShowAdapter extends ArrayAdapter<ArchiveShowObj> {
 						i.putExtra(Intent.EXTRA_TEXT, show.getShowArtist() + " " + show.getShowTitle() + " " + show.getShowURL()
 								+ "\n\nSent using #VibeVault for Android.");
 						MenuItem share = menu.getMenu().findItem(R.id.ShareButton);
-					    mShareActionProvider = (ShareActionProvider) share.getActionProvider();
+					    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
 						if(mShareActionProvider!=null){
 							mShareActionProvider.setShareIntent(i);
 						}

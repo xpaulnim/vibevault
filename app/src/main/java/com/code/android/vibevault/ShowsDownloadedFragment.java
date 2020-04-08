@@ -7,14 +7,10 @@ import java.util.regex.Pattern;
 
 import com.code.android.vibevault.SearchFragment.SearchActionListener;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Loader;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -31,6 +27,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 public class ShowsDownloadedFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>, OnItemClickListener, ActionBar.OnNavigationListener {
 	
@@ -97,10 +99,11 @@ public class ShowsDownloadedFragment extends Fragment implements LoaderManager.L
 		super.onActivityCreated(savedInstanceState);
 		
 		setHasOptionsMenu(true);
-		getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        getActivity().getActionBar().setListNavigationCallbacks(null, null);
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActivity().getActionBar().setTitle("Downloaded");
+        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		appCompatActivity.getSupportActionBar().setTitle("Downloaded");
 		
 		LoaderManager lm = this.getLoaderManager();
 		lm.initLoader(1, null, this);

@@ -2,10 +2,11 @@ package com.code.android.vibevault;
 
 import java.util.ArrayList;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-public class ShowsDownloadedAsyncTaskLoader extends AsyncTaskLoader<ArrayList<ArchiveShowObj>>{
+import androidx.loader.content.AsyncTaskLoader;
+
+public class ShowsDownloadedAsyncTaskLoader extends AsyncTaskLoader<ArrayList<ArchiveShowObj>> {
 	
 	private static final String LOG_TAG = ShowsDownloadedAsyncTaskLoader.class.getName();
 

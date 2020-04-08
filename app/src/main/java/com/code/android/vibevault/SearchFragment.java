@@ -29,11 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
-import android.content.Loader;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -45,13 +42,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.view.View.OnCreateContextMenuListener;
-import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -61,14 +53,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.app.LoaderManager;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 import com.code.android.vibevault.R;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 
-public class SearchFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<ArchiveShowObj>>, SearchSettingsDialogInterface {
+public class SearchFragment extends Fragment
+		implements LoaderManager.LoaderCallbacks<List<ArchiveShowObj>>,
+		SearchSettingsDialogInterface {
 
 	private static final String LOG_TAG = SearchFragment.class.getName();
 
@@ -149,6 +147,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 		pageNum = 1;
 		// Control whether a fragment instance is retained across Activity re-creation (such as from a configuration change).
 		this.setRetainInstance(true);
+		setHasOptionsMenu(true);
 		// Create the directory for our app if it don't exist.
 		// FIXME should we move this elsewhere?  Maybe to the home screen?
 //		appRootDir = new File(Environment.getExternalStorageDirectory(),Downloading.APP_DIRECTORY);
@@ -173,10 +172,10 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 		// Initialize the various elements of the SearchScreen.
 		this.searchList = (ListView) v.findViewById(R.id.ResultsListView);
 		this.searchButton = (ImageButton) v.findViewById(R.id.SearchButton);
-		searchList.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+		searchList.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 			@Override
 			public void onCreateContextMenu(ContextMenu menu, View v,
-					ContextMenu.ContextMenuInfo menuInfo) {
+											ContextMenu.ContextMenuInfo menuInfo) {
 				menu.add(Menu.NONE, MENU_EMAIL, Menu.NONE,
 						"Email Link to Show");
 				menu.add(Menu.NONE, MENU_INFO, Menu.NONE,
@@ -187,7 +186,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 		});
 		searchList.setFooterDividersEnabled(false);
 		int[] gradientColors = {0, 0xFF127DD4, 0};
-		searchList.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, gradientColors));
+		searchList.setDivider(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, gradientColors));
 		searchList.setDividerHeight(1);
 		this.searchMoreButton = new Button(getActivity());
 		this.searchMoreButton.setText("Get More Results");
@@ -213,7 +212,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 		} else {
 			this.searchMoreButton.setVisibility(View.GONE);
 		}
-		searchList.setOnItemClickListener(new OnItemClickListener() {
+		searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 				ArchiveShowObj show = (ArchiveShowObj) searchList.getItemAtPosition(position);
@@ -271,8 +270,9 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActivity().getActionBar().setTitle("Search");
+		AppCompatActivity myActivity = (AppCompatActivity) getActivity();
+		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		myActivity.getSupportActionBar().setTitle("Search");
 		LoaderManager lm = this.getLoaderManager();
 		if(lm.getLoader(0)!=null){
 			// The second argument is the query for a new loader, but here we are trying to
@@ -329,7 +329,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 			inflater.inflate(R.menu.search_help_options, menu);
 			MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
 			// Ridiculous code to automatically open the keyboard when the search button is pressed.
-			menuItem.setOnMenuItemClickListener(new OnMenuItemClickListener(){
+			menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
 					artistSearchInput.post(new Runnable(){
@@ -383,7 +383,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 		// This is not guaranteed to work for soft keyboards because they are IME devices (read online).
 		// Analogous code is in the onTextChanged() method overriden in the artistSearchInput's
 		// TextChangedListener.
-		this.artistSearchInput.setOnKeyListener(new OnKeyListener() {
+		this.artistSearchInput.setOnKeyListener(new View.OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				Logging.Log(LOG_TAG, event.toString());
@@ -434,7 +434,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 
 			}
 		});
-		menuItem.setOnActionExpandListener(new OnActionExpandListener() {
+		menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
 	        @Override
 	        public boolean onMenuItemActionCollapse(MenuItem item) {
 	            return true;  // Return true to collapse action view

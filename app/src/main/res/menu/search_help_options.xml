@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:id="@+id/SearchActionBarButton" android:title="Search" android:icon="@drawable/searchbutton_plain1" android:actionLayout="@layout/search_bar" android:showAsAction="ifRoom|collapseActionView"></item>
-  <item android:id="@+id/SettingsButton" android:title="Settings" android:icon="@drawable/settingsbutton" android:showAsAction="ifRoom"></item>
-  <item android:id="@+id/HelpButton" android:title="Help" android:icon="@drawable/helpbutton" android:showAsAction="ifRoom"></item>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/SearchActionBarButton"
+        android:icon="@drawable/searchbutton_plain1"
+        android:title="Search"
+        app:actionLayout="@layout/search_bar"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/SettingsButton"
+        android:icon="@drawable/settingsbutton"
+        android:title="Settings"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/HelpButton"
+        android:icon="@drawable/helpbutton"
+        android:title="Help"
+        app:showAsAction="ifRoom" />
 </menu>
