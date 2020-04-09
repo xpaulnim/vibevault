@@ -5,19 +5,19 @@
     <item
         android:id="@+id/SearchActionBarButton"
         android:icon="@drawable/searchbutton_plain1"
-        android:title="Search"
+        android:title="@string/Search"
         app:actionLayout="@layout/search_bar"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/SettingsButton"
         android:icon="@drawable/settingsbutton"
-        android:title="Settings"
-        app:showAsAction="ifRoom" />
+        android:title="@string/settings_text"
+        app:showAsAction="collapseActionView" />
 
     <item
         android:id="@+id/HelpButton"
         android:icon="@drawable/helpbutton"
-        android:title="Help"
-        app:showAsAction="ifRoom" />
+        android:title="@string/help_text"
+        app:showAsAction="collapseActionView" />
 </menu>

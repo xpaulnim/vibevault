@@ -1,29 +1,54 @@
 package com.code.android.vibevault;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.code.android.vibevault.BrowseArtistsFragment.BrowseActionListener;
 import com.code.android.vibevault.SearchFragment.SearchActionListener;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 import com.code.android.vibevault.ShowDetailsFragment.ShowDetailsActionListener;
 import com.code.android.vibevault.VotesFragment.VotesActionListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.SQLException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import org.json.JSONObject;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class SearchScreen extends AppCompatActivity implements SearchActionListener, DialogAndNavigationListener, SearchSettingsDialogInterface, ShowDetailsActionListener, NowPlayingFragment.PlayerListener, BrowseActionListener, VotesActionListener {
 
@@ -40,6 +65,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 //		if(nowPlayingFrag==null){
 //			getFragmentManager().
 //		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
 	}
 	
 	private void clearBackStack(){
@@ -80,6 +110,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	public static final int ARTISTS_FRAGMENT = 5;
 	public static final int DOWNLOADS_FRAGMENT = 6;
 
+	private static final int UPGRADE_DB = 20;
+
+	private final int EXTERNAL_STORAGE_PERMISSION = 1;
+	private final String[] REQUIRED_PERMISSIONS = new String[]{WRITE_EXTERNAL_STORAGE};
+
 	private void instantiateFragment(int type){
 		switch(type){
 	    	case SEARCH_FRAGMENT: // Search
@@ -107,13 +142,125 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		}
 		Logging.Log(LOG_TAG, "BACK STACK COUNT: " + this.getFragmentManager().getBackStackEntryCount());
 	}
-	
+
+	private void setImageButtonToFragments(MenuItem menuItem) {
+		Intent i = new Intent(SearchScreen.this, SearchScreen.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		switch (menuItem.getItemId()) {
+			case R.id.menu_search:
+				i.putExtra("type", SEARCH_FRAGMENT);
+				break;
+			case R.id.menu_your_shows:
+				i.putExtra("type", SHOWS_STORED_FRAGMENT);
+				break;
+			case R.id.menu_downloads:
+				i.putExtra("type", DOWNLOADS_FRAGMENT);
+				break;
+			case R.id.menu_now_playing:
+				i.putExtra("type", NOW_PLAYING_FRAGMENT);
+				break;
+			case R.id.menu_browse_artists:
+				i.putExtra("type", ARTISTS_FRAGMENT);
+				break;
+		}
+		startActivity(i);
+	}
+
+	private boolean storagePermissionGranted() {
+		return ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+	}
+
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (!storagePermissionGranted()) {
+			ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == EXTERNAL_STORAGE_PERMISSION){
+			if (storagePermissionGranted()){
+				Logging.Log(LOG_TAG, "Permission granted");
+
+				// do the thing
+			} else {
+				Logging.Log(LOG_TAG, "Permission not granted");
+			}
+		}
+	}
+
+	private UpgradeTask upgradeTask;
+
+	private boolean dialogShown;
+
+	private StaticDataStore db;
+
+	MenuItem  searchButton;
+	MenuItem  recentButton;
+	MenuItem  downloadButton;
+	MenuItem  playingButton;
+	MenuItem  featuredShowsButton;
+	MenuItem browseArtistsButton;
+
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		setContentView(R.layout.search_screen);
+
+		Object retained = getLastNonConfigurationInstance();
+
+		if(retained instanceof UpgradeTask){
+			Logging.Log(LOG_TAG,"UpgradeTask retained");
+			upgradeTask = (SearchScreen.UpgradeTask)retained;
+			upgradeTask.setActivity(this);
+		} else{
+			//upgradeTask = new UpgradeTask(this);
+		}
+		db = StaticDataStore.getInstance(this);
+
+		BottomNavigationView bottomBarView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
+
+		bottomBarView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(@androidx.annotation.NonNull MenuItem item) {
+				if (db.needsUpgrade && upgradeTask == null) { //DB needs updating
+					Toast.makeText(SearchScreen.this, R.string.db_upgrade_message_text, Toast.LENGTH_SHORT).show();
+					upgradeTask = new UpgradeTask(SearchScreen.this);
+					upgradeTask.execute();
+				} else { // DB Up to date, check artist date
+					setImageButtonToFragments(item);
+
+					if (needsArtistFetching() && upgradeTask == null) {
+						upgradeTask = new UpgradeTask(SearchScreen.this);
+						upgradeTask.execute();
+					}
+				}
+
+				return true;
+			}
+		});
+		Menu bottomNavMenu = bottomBarView.getMenu();
+
+//		getMenuInflater().inflate(R.menu.bottom_nav_items, bottomNavMenu);
+		searchButton = bottomNavMenu.findItem(R.id.menu_search);
+		recentButton = bottomNavMenu.findItem(R.id.menu_your_shows);
+		downloadButton = bottomNavMenu.findItem(R.id.menu_downloads);
+		playingButton = bottomNavMenu.findItem(R.id.menu_now_playing);
+		featuredShowsButton = bottomNavMenu.findItem(R.id.menu_browse_artists);
+		browseArtistsButton = bottomNavMenu.findItem(R.id.menu_browse_artists);
+
+
 
 		// See what type of Fragment we want to launch.
-        int type = this.getIntent().getExtras().getInt("type");
+        int type = SEARCH_FRAGMENT;
         
 		// See if this Screen was spawned by the user clicking on a link.
 		// If so, form an ArchiveShowObj from the URL.
@@ -137,9 +284,37 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 			}
 			this.instantiateShowDetailsFragmentForActivity(show);
 		} else if(savedInstanceState==null){
-        instantiateFragment(type);
+        	instantiateFragment(type);
 		}
     }
+
+	private boolean needsArtistFetching() {
+		String dateString = db.getPref("artistUpdate");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		try {
+			Logging.Log(LOG_TAG, "Trying date parse: " + dateString);
+			Date dbDate = format.parse(dateString);
+			GregorianCalendar cal1 = new GregorianCalendar();
+			cal1.add(Calendar.MONTH, -2);
+			Date upgradeDate = cal1.getTime();
+			GregorianCalendar cal2 = new GregorianCalendar();
+			cal2.add(Calendar.YEAR, 1);
+			Date yearLater = cal2.getTime();
+			Logging.Log(LOG_TAG, "Comparing " + upgradeDate.toString() + " .after(" + dbDate.toString());
+			if (upgradeDate.after(dbDate) || yearLater.before(dbDate)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch (java.text.ParseException e) {
+			Logging.Log(LOG_TAG, "Error Getting Artists");
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+
 	/**
 	 * The instantiate___Activity() methods could be combined into one larger method,
 	 * but I am keeping it like this for now in case we want to customize the actions
@@ -147,7 +322,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	 * this one large method would save some lines of code, but be harder to read, in my opinion.
 	 * @param artist 
 	 */
-	
 	private void instantiateSearchFragmentForActivity(String artist){
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -162,11 +336,12 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		if(frag==null){
 			frag = new SearchFragment();
 			frag.setArguments(b);
-			ft.replace(android.R.id.content, frag,"searchfrag");
+			ft.replace(R.id.fragment_container, frag,"searchfrag");
 			ft.addToBackStack(null);
 		} else{
-			frag.getArguments().putAll(b);
-			ft.replace(android.R.id.content, frag,"searchfrag");
+			// TODO: is this needed
+//			frag.getArguments().putAll(b);
+			ft.replace(R.id.fragment_container, frag,"searchfrag");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -188,7 +363,7 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
     			frag.setArguments(b);
 			}
 			if(!frag.isAdded()){
-				ft.replace(android.R.id.content, frag,"showdetails");
+				ft.replace(R.id.fragment_container, frag,"showdetails");
 				ft.addToBackStack(null);
 			}
 			
@@ -205,7 +380,7 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
     			frag.getArguments().putAll(this.getIntent().getExtras());
     		}
 			if(!frag.isAdded()){
-				ft.replace(android.R.id.content, frag,"showdetails");
+				ft.replace(R.id.fragment_container, frag,"showdetails");
 			}
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
@@ -233,12 +408,12 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 			Logging.Log(LOG_TAG, "Making a new NowPlayingFragment.");
 			frag = new NowPlayingFragment();
 			frag.setArguments(b);
-			ft.replace(android.R.id.content, frag,"nowplaying");
+			ft.replace(R.id.fragment_container, frag,"nowplaying");
 			ft.addToBackStack(null);
 		} else{
 			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
 			frag.getArguments().putAll(b);
-			ft.replace(android.R.id.content, frag,"nowplaying");
+			ft.replace(R.id.fragment_container, frag,"nowplaying");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -255,11 +430,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		if(frag==null){
 			frag = new ShowsStoredFragment();
 			frag.setArguments(this.getIntent().getExtras());
-			ft.replace(android.R.id.content, frag,"showsstored");
+			ft.replace(R.id.fragment_container, frag,"showsstored");
 			ft.addToBackStack(null);
 		} else{
 			frag.getArguments().putAll(this.getIntent().getExtras());
-			ft.replace(android.R.id.content, frag,"showsstored");
+			ft.replace(R.id.fragment_container, frag,"showsstored");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -276,11 +451,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		if(frag==null){
 			frag = new BrowseArtistsFragment();
 			frag.setArguments(this.getIntent().getExtras());
-			ft.replace(android.R.id.content, frag,"browsefrag");
+			ft.replace(R.id.fragment_container, frag,"browsefrag");
 			ft.addToBackStack(null);
 		} else{
 			frag.getArguments().putAll(this.getIntent().getExtras());
-			ft.replace(android.R.id.content, frag,"browsefrag");
+			ft.replace(R.id.fragment_container, frag,"browsefrag");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -305,11 +480,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		if(frag==null || artist != null){
 			frag = new VotesFragment();
 			frag.setArguments(b);
-			ft.replace(android.R.id.content, frag,"votesfrag");
+			ft.replace(R.id.fragment_container, frag,"votesfrag");
 			ft.addToBackStack(null);
 		} else{
 			frag.getArguments().putAll(b);
-			ft.replace(android.R.id.content, frag,"votesfrag");
+			ft.replace(R.id.fragment_container, frag,"votesfrag");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -325,10 +500,10 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		ShowsDownloadedFragment frag = (ShowsDownloadedFragment) fm.findFragmentByTag("downloadfrag");
 		if(frag==null){
 			frag = new ShowsDownloadedFragment();
-			ft.replace(android.R.id.content, frag,"downloadfrag");
+			ft.replace(R.id.fragment_container, frag,"downloadfrag");
 			ft.addToBackStack(null);
 		} else {
-			ft.replace(android.R.id.content, frag,"downloadfrag");
+			ft.replace(R.id.fragment_container, frag,"downloadfrag");
 			if(fm.getBackStackEntryCount()==0){
 				ft.addToBackStack(null);
 			}
@@ -444,7 +619,7 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 
 	@Override
 	public void goHome() {
-		Intent i = new Intent(SearchScreen.this, HomeScreen.class);
+		Intent i = new Intent(SearchScreen.this, SearchScreen.class);
 		startActivity(i);
 		this.finish();
 	}
@@ -486,7 +661,184 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	}
 
 
+	private class UpgradeTask extends AsyncTask<String, Integer, String> {
 
+		private SearchScreen parentScreen;
+		private boolean success = false;
+		private boolean completed = false;
 
+		private UpgradeTask(SearchScreen activity){
+			this.parentScreen = activity;
+		}
+
+		protected void onPreExecute(){
+			Logging.Log(LOG_TAG, "Starting UpgradeTask");
+			if (db.needsUpgrade) {
+				parentScreen.showDialog(UPGRADE_DB);
+			}
+		}
+
+		@Override
+		protected String doInBackground(String... upgradeString) {
+			/*Upgrade or copy*/
+			//Upgrade existing
+			if (db.needsUpgrade) {
+				Logging.Log(LOG_TAG, "Upgrading DB");
+				success = db.upgradeDB();
+				//Copy new one if failure upgrading
+
+				if(!success){
+					try {
+						db.copyDB();
+					} catch (IOException e) {
+						throw new Error("Error copying database");
+					}
+				}
+				//Finally open DB
+				try {
+					db.openDataBase();
+				} catch (SQLException e) {
+					Logging.Log(LOG_TAG, "Unable to open database");
+					Logging.Log(LOG_TAG, e.getStackTrace().toString());
+				}
+				//DB is now ready to use
+				db.updatePref("splashShown", "true");
+				publishProgress(25);
+			}
+
+			//Fix bad shows
+			ArrayList<ArchiveShowObj> shows = db.getBadShows();
+			Logging.Log(LOG_TAG, "Looking for shows to fix, found "  + shows.size());
+			if (shows.size() > 0) {
+				Logging.Log(LOG_TAG, "Starting to fix shows");
+				for (final ArchiveShowObj s : shows) {
+					JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, "https://archive.org/metadata/" + s.getIdentifier(), null,
+							new Response.Listener<JSONObject>() {
+								@Override
+								public void onResponse(JSONObject response) {
+									Logging.Log(LOG_TAG, "JSON for show with bad DB entry...  Size: " + response.toString().length());
+									ArrayList<ArchiveSongObj> showSongs = ShowDetailsFragment.parseShowJSON(response);
+									if(!showSongs.isEmpty()){
+										db.setShowExists(s);
+										db.insertRecentShow(s);
+									}
+								}
+							},
+							new Response.ErrorListener() {
+								@Override
+								public void onErrorResponse(VolleyError error) {
+
+								}
+							});
+					RequestQueueSingleton.getInstance(getApplicationContext()).addToRequestQueue(jsObjRequest);
+
+				}
+				publishProgress(50);
+			}
+
+			//Update Artists if necessary
+			if (needsArtistFetching()) {
+				Searching.updateArtists(db);
+				publishProgress(75);
+			}
+
+			Downloading.syncFilesDirectory(parentScreen, db);
+
+			return "Completed";
+		}
+
+		protected void onPostExecute(String upgradeString) {
+		}
+
+		protected void onProgressUpdate(Integer... progress) {
+			if (progress[0] == 25) {
+				parentScreen.dismissDialog(UPGRADE_DB);
+//				setImageButtonToFragments();
+				completed=true;
+				notifyActivityTaskCompleted();
+			}
+			if (progress[0] == 50) {
+				Logging.Log(LOG_TAG, "Finished fixing shows");
+			}
+			if (progress[0] == 75) {
+				String message = "Updated Artists";
+				Toast.makeText(SearchScreen.this, message, Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		// The parent could be null if you changed orientations
+		// and this method was called before the new SearchScreen
+		// could set itself as this Thread's parent.
+		private void notifyActivityTaskCompleted(){
+			if(parentScreen!=null){
+				parentScreen.onTaskCompleted();
+			}
+		}
+
+		// When a SearchScreen is reconstructed (like after an orientation change),
+		// we call this method on the retained SearchScreen (if one exists) to set
+		// its parent Activity as the new SearchScreen because the old one has been destroyed.
+		// This prevents leaking any of the data associated with the old SearchScreen.
+		private void setActivity(SearchScreen activity){
+			this.parentScreen = activity;
+			if(completed){
+				notifyActivityTaskCompleted();
+			}
+		}
+
+	}
+
+	/** Persist worker Thread across orientation changes.
+	 *
+	 * Includes Thread bookkeeping to prevent not leaking Views on orientation changes.
+	 */
+//	@Override
+//	public Object onRetainNonConfigurationInstance(){
+//		if (upgradeTask != null) {
+//			upgradeTask.setActivity(null);
+//		}
+//		return upgradeTask;
+//	}
+
+	/** Dialog preparation method.
+	 *
+	 * Includes Thread bookkeeping to prevent not leaking Views on orientation changes.
+	 */
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog){
+		super.onPrepareDialog(id, dialog);
+		if(id==UPGRADE_DB){
+			dialogShown = true;
+		}
+	}
+
+	/** Dialog creation method.
+	 *
+	 * Includes Thread bookkeeping to prevent not leaking Views on orientation changes.
+	 */
+	@Override
+	protected Dialog onCreateDialog(int id){
+		switch(id){
+			case UPGRADE_DB:
+
+				ProgressDialog dialog = new ProgressDialog(this);
+				dialog.setMessage("Updating Database, ");
+				return dialog;
+			default:
+				return super.onCreateDialog(id);
+		}
+	}
+
+	private void onTaskCompleted(){
+		if(dialogShown){
+			try{
+				dismissDialog(UPGRADE_DB);
+			} catch(IllegalArgumentException e){
+
+				e.printStackTrace();
+			}
+
+		}
+	}
 	
 }

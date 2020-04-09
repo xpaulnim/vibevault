@@ -14,19 +14,13 @@
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
 		android:debuggable="false" android:theme="@style/HoloBlack"
 		tools:ignore="HardcodedDebugMode">
-		<activity android:name="com.code.android.vibevault.HomeScreen"
-		    android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-		    android:launchMode="singleInstance">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
 		<activity android:name=".SearchScreen"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
 			android:launchMode="singleTop">
 			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
@@ -107,14 +101,14 @@
 		</receiver>
 		<receiver android:name="WidgetIntentReceiver">
 		    <intent-filter>
-		        <action android:name="com.code.android.vibevault.playbackservice.STATE" />      
+		        <action android:name="com.code.android.vibevault.playbackservice.STATE" />
 		    </intent-filter>
 		    <meta-data android:name="android.appwidget.provider"
 		               android:resource="@xml/appwidget_row" />
 		</receiver>
 		<service android:name="WidgetListService"
 		    android:permission="android.permission.BIND_REMOTEVIEWS" />
-		    		
+
 	</application>
 
 

@@ -261,7 +261,7 @@ public class SearchFragment extends Fragment
 		sortPref = db.getPref("sortOrder");
 		
 		
-		if(this.getArguments().containsKey("Artist")){
+		if(this.getArguments() != null && this.getArguments().containsKey("Artist")){
 			String artist = this.getArguments().getString("Artist");
 			if(artist!=null){
 				this.browseArtist(artist);
