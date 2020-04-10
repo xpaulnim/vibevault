@@ -6,7 +6,6 @@ import com.code.android.vibevault.SearchFragment.SearchActionListener;
 
 import android.app.Activity;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,20 +13,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ShowsStoredFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
-		OnItemClickListener, ActionBar.OnNavigationListener {
+		AdapterView.OnItemClickListener, ActionBar.OnNavigationListener {
 	
 	private static final String LOG_TAG = ShowsStoredFragment.class.getName();
 
@@ -90,7 +93,7 @@ public class ShowsStoredFragment extends Fragment implements
 				false);
 		storedList = (ListView) v.findViewById(R.id.StoredListView);
 		int[] gradientColors = { 0, 0xFF127DD4, 0 };
-		storedList.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT,
+		storedList.setDivider(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,
 				gradientColors));
 		storedList.setDividerHeight(1);
 		storedList.setOnItemClickListener(this);
@@ -103,7 +106,7 @@ public class ShowsStoredFragment extends Fragment implements
 
 		setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		appCompatActivity.getSupportActionBar().setTitle("Your Shows");
 		Logging.Log(LOG_TAG, "ACTION MODE: " + appCompatActivity.getSupportActionBar().getNavigationMode());
 		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -129,8 +132,8 @@ public class ShowsStoredFragment extends Fragment implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.HelpButton:
-			dialogAndNavigationListener.showDialog(this.getResources()
-					.getString(R.string.recent_shows_screen_help),
+			dialogAndNavigationListener.showDialog(
+					this.getResources().getString(R.string.recent_shows_screen_help),
 					"Help");
 			break;
 		case android.R.id.home:
@@ -150,28 +153,26 @@ public class ShowsStoredFragment extends Fragment implements
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		searchActionListener.onShowSelected((ArchiveShowObj) arg0.getAdapter()
-				.getItem(arg2));
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		searchActionListener.onShowSelected((ArchiveShowObj) parent.getAdapter().getItem(position));
 	}
 
 	@Override
 	public Loader<ArrayList<ArchiveShowObj>> onCreateLoader(int id, Bundle args) {
-		this.dialogAndNavigationListener
-				.showLoadingDialog("Getting stored shows...");
+		this.dialogAndNavigationListener.showLoadingDialog("Getting stored shows...");
 		int storedType = args.getInt("storedType");
 		Logging.Log("Stored Frag", "Created Loader");
 		return new ShowsStoredAsyncTaskLoader(getActivity(), storedType);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<ArchiveShowObj>> arg0,
-			ArrayList<ArchiveShowObj> arg1) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<ArchiveShowObj>> loader,
+			ArrayList<ArchiveShowObj> data) {
 		Logging.Log("Stored Frag", "Loader Finished");
 		this.dialogAndNavigationListener.hideDialog();
 
 		ScrollingShowAdapter showAdapter = new ScrollingShowAdapter(
-				getActivity(), R.id.StoredListView, arg1, db, stored_type);
+				getActivity(), R.id.StoredListView, data, db, stored_type);
 		storedList.setAdapter(showAdapter);
 	}
 

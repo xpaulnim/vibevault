@@ -30,10 +30,10 @@ public class ScrollingShowAdapter extends ArrayAdapter<ArchiveShowObj> {
 	public static final int MENU_BOOKMARK = 1;
 	public static final int MENU_DOWNLOAD = 2;
 
-	Context context;
-	int textResourceId;
-	List<ArchiveShowObj> shows = null;
-	LayoutInflater inflater;
+	private Context context;
+	private int textResourceId;
+	private List<ArchiveShowObj> shows = null;
+	private LayoutInflater inflater;
 	private StaticDataStore db = null;	
 	private int menu_type = -1;
 	

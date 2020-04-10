@@ -247,7 +247,7 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			this.voteResultType = Voting.VOTES_ALL_TIME;
 			this.artistId = artist.getArtistId();
 			AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-			appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+//			appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
 	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
@@ -265,7 +265,7 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         appCompatActivity.getSupportActionBar().setTitle("Top Voted");
         appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);
@@ -331,13 +331,13 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 		CharSequence title = appCompatActivity.getSupportActionBar().getTitle();
 		if (voteType == Voting.VOTES_SHOWS_BY_ARTIST && title == "Top Voted") {
-	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
 	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
 	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 		} else if (voteType != Voting.VOTES_SHOWS_BY_ARTIST && title == "Shows By Artist") {
-	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	        appCompatActivity.getSupportActionBar().setTitle("Top Voted");
 	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);

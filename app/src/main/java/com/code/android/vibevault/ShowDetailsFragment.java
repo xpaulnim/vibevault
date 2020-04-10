@@ -112,7 +112,7 @@ public class ShowDetailsFragment extends Fragment {
 		this.setRetainInstance(true);
 
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         appCompatActivity.getSupportActionBar().setTitle("Show Details");
 		db = StaticDataStore.getInstance(getActivity());
 
@@ -153,7 +153,7 @@ public class ShowDetailsFragment extends Fragment {
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		appCompatActivity.getSupportActionBar().setTitle("Show Details");
 	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
 		if(this.getArguments()!=null){

@@ -50,7 +50,13 @@ import org.json.JSONObject;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class SearchScreen extends AppCompatActivity implements SearchActionListener, DialogAndNavigationListener, SearchSettingsDialogInterface, ShowDetailsActionListener, NowPlayingFragment.PlayerListener, BrowseActionListener, VotesActionListener {
+public class SearchScreen extends AppCompatActivity implements SearchActionListener,
+		DialogAndNavigationListener,
+		SearchSettingsDialogInterface,
+		ShowDetailsActionListener,
+		NowPlayingFragment.PlayerListener,
+		BrowseActionListener,
+		VotesActionListener {
 
 	private static final String LOG_TAG = SearchScreen.class.getName();
 	
@@ -203,13 +209,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 
 	private StaticDataStore db;
 
-	MenuItem  searchButton;
-	MenuItem  recentButton;
-	MenuItem  downloadButton;
-	MenuItem  playingButton;
-	MenuItem  featuredShowsButton;
-	MenuItem browseArtistsButton;
-
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,7 +226,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		db = StaticDataStore.getInstance(this);
 
 		BottomNavigationView bottomBarView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
-
 		bottomBarView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 			@Override
 			public boolean onNavigationItemSelected(@androidx.annotation.NonNull MenuItem item) {
@@ -247,17 +245,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 				return true;
 			}
 		});
-		Menu bottomNavMenu = bottomBarView.getMenu();
-
-//		getMenuInflater().inflate(R.menu.bottom_nav_items, bottomNavMenu);
-		searchButton = bottomNavMenu.findItem(R.id.menu_search);
-		recentButton = bottomNavMenu.findItem(R.id.menu_your_shows);
-		downloadButton = bottomNavMenu.findItem(R.id.menu_downloads);
-		playingButton = bottomNavMenu.findItem(R.id.menu_now_playing);
-		featuredShowsButton = bottomNavMenu.findItem(R.id.menu_browse_artists);
-		browseArtistsButton = bottomNavMenu.findItem(R.id.menu_browse_artists);
-
-
 
 		// See what type of Fragment we want to launch.
         int type = SEARCH_FRAGMENT;
@@ -274,7 +261,7 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 				String[] paths = linkString.split("/");
 				for (int i = 0; i < paths.length; i++) {
 					if (paths[i].equals("download")) {
-						show = new ArchiveShowObj(new String("http://www.archive.org/details/" + paths[i + 1]), true);
+						show = new ArchiveShowObj(new String("https://www.archive.org/details/" + paths[i + 1]), true);
 						show.setSelectedSong(linkString);
 					}
 				}

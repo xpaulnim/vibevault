@@ -236,7 +236,6 @@ public class SearchFragment extends Fragment
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.refreshSearchList();
 	}
 
 	@Override	
@@ -271,7 +270,7 @@ public class SearchFragment extends Fragment
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
 		AppCompatActivity myActivity = (AppCompatActivity) getActivity();
-		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		myActivity.getSupportActionBar().setTitle("Search");
 		LoaderManager lm = this.getLoaderManager();
 		if(lm.getLoader(0)!=null){

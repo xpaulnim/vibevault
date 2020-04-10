@@ -149,7 +149,7 @@ public class NowPlayingFragment extends Fragment {
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         appCompatActivity.getSupportActionBar().setTitle("Now Playing");
 	}
 	

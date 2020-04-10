@@ -3,21 +3,21 @@
     <item
         android:id="@+id/menu_search"
         android:title="@string/Search"
-        android:icon="@drawable/searchbutton" />
+        android:icon="@drawable/ic_search_24px" />
     <item
         android:id="@+id/menu_your_shows"
         android:title="@string/Your_Shows"
-        android:icon="@drawable/recentshowsbutton" />
+        android:icon="@drawable/ic_library_music_24px" />
     <item
         android:id="@+id/menu_downloads"
         android:title="@string/Downloads"
-        android:icon="@drawable/downloadsbutton" />
+        android:icon="@drawable/ic_get_app_24px" />
     <item
         android:id="@+id/menu_now_playing"
         android:title="@string/Now_Playing"
-        android:icon="@drawable/nowplayingbutton" />
+        android:icon="@drawable/ic_play_arrow_24px" />
     <item
         android:id="@+id/menu_browse_artists"
         android:title="@string/Browse_Artists"
-        android:icon="@drawable/browsebutton" />
+        android:icon="@drawable/ic_list_alt_24px" />
 </menu>
