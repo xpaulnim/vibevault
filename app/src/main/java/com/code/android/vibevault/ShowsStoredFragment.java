@@ -25,12 +25,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ShowsStoredFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
-		AdapterView.OnItemClickListener, ActionBar.OnNavigationListener {
+		AdapterView.OnItemClickListener,
+		ActionBar.OnNavigationListener
+{
 	
 	private static final String LOG_TAG = ShowsStoredFragment.class.getName();
 
@@ -51,12 +54,6 @@ public class ShowsStoredFragment extends Fragment implements
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement DialogListener");
-		}
-		try {
-			searchActionListener = (SearchActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement ActionListener");
 		}
 	}
 
@@ -150,7 +147,14 @@ public class ShowsStoredFragment extends Fragment implements
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		searchActionListener.onShowSelected((ArchiveShowObj) parent.getAdapter().getItem(position));
+
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("show", (ArchiveShowObj) parent.getAdapter().getItem(position));
+
+		NavHostFragment
+				.findNavController(ShowsStoredFragment.this)
+				.navigate(R.id.action_menu_your_shows_to_frag_show_details, bundle);
+
 	}
 
 	@Override

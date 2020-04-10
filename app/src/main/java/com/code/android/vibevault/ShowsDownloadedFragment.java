@@ -33,8 +33,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.fragment.NavHostFragment;
 
-public class ShowsDownloadedFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>, OnItemClickListener, ActionBar.OnNavigationListener {
+public class ShowsDownloadedFragment extends Fragment implements
+		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
+		AdapterView.OnItemClickListener,
+		ActionBar.OnNavigationListener {
 	
 	private static final String LOG_TAG = ShowsDownloadedFragment.class.getName();
 
@@ -53,11 +57,6 @@ public class ShowsDownloadedFragment extends Fragment implements LoaderManager.L
 			dialogAndNavigationListener = (DialogAndNavigationListener) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString() + " must implement DialogListener");
-		}
-		try {
-			searchActionListener = (SearchActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement ActionListener");
 		}
 	}
 	
@@ -210,9 +209,13 @@ public class ShowsDownloadedFragment extends Fragment implements LoaderManager.L
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		
-		searchActionListener.onShowSelected((ArchiveShowObj)arg0.getAdapter().getItem(arg2));
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("show", (ArchiveShowObj) parent.getAdapter().getItem(position));
+
+		NavHostFragment
+				.findNavController(ShowsDownloadedFragment.this)
+				.navigate(R.id.action_menu_downloads_to_frag_show_details, bundle);
 	}
 
 	@Override

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/menu_browse_artists">
+    <fragment
+        android:id="@id/menu_search"
+        android:name="com.code.android.vibevault.SearchFragment"
+        android:label="SearchFragment" >
+        <action
+            android:id="@+id/action_menu_search_to_frag_show_details"
+            app:destination="@id/frag_show_details" />
+    </fragment>
+    <fragment
+        android:id="@id/menu_your_shows"
+        android:name="com.code.android.vibevault.ShowsStoredFragment"
+        android:label="ShowsStoredFragment" >
+        <action
+            android:id="@+id/action_menu_your_shows_to_frag_show_details"
+            app:destination="@id/frag_show_details" />
+    </fragment>
+    <fragment
+        android:id="@id/menu_downloads"
+        android:name="com.code.android.vibevault.ShowsDownloadedFragment"
+        android:label="ShowsDownloadedFragment" >
+        <action
+            android:id="@+id/action_menu_downloads_to_frag_show_details"
+            app:destination="@id/frag_show_details" />
+    </fragment>
+    <fragment
+        android:id="@id/menu_now_playing"
+        android:name="com.code.android.vibevault.NowPlayingFragment"
+        android:label="NowPlayingFragment" />
+    <fragment
+        android:id="@id/menu_browse_artists"
+        android:name="com.code.android.vibevault.BrowseArtistsFragment"
+        android:label="BrowseArtistsFragment" />
+    <fragment
+        android:id="@+id/frag_show_details"
+        android:name="com.code.android.vibevault.ShowDetailsFragment"
+        android:label="ShowDetailsFragment" >
+        <action
+            android:id="@+id/action_frag_show_details_to_menu_now_playing"
+            app:destination="@id/menu_now_playing" />
+    </fragment>
+</navigation>

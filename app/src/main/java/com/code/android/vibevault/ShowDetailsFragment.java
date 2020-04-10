@@ -51,6 +51,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -96,11 +97,6 @@ public class ShowDetailsFragment extends Fragment {
 			dialogAndNavigationListener = (DialogAndNavigationListener) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString() + " must implement DialogListener");
-		}
-		try{
-			showDetailsActionListener = (ShowDetailsActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement ShowDetailsActionListener");
 		}
 	}
 	
@@ -148,8 +144,8 @@ public class ShowDetailsFragment extends Fragment {
 	    // Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
         setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+//        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+//        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
 //		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		appCompatActivity.getSupportActionBar().setTitle("Show Details");
 	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
@@ -432,7 +428,18 @@ public class ShowDetailsFragment extends Fragment {
 	}
 	
 	private void playShow(int pos) {
-		showDetailsActionListener.playShow(pos, showSongs);
+		Bundle bundle = new Bundle();
+
+		if(pos >=0 && showSongs != null){
+			bundle = new Bundle();
+			bundle.putSerializable("position", pos);
+			bundle.putSerializable("showsongs", showSongs);
+			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
+		}
+
+		NavHostFragment
+				.findNavController(ShowDetailsFragment.this)
+				.navigate(R.id.action_frag_show_details_to_menu_now_playing, bundle);
 	}
 
 	/**

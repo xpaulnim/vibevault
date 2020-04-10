@@ -60,6 +60,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.code.android.vibevault.R;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
@@ -184,10 +186,6 @@ public class SearchFragment extends Fragment
 						Menu.NONE, "Bookmark Show");
 			}
 		});
-		searchList.setFooterDividersEnabled(false);
-		int[] gradientColors = {0, 0xFF127DD4, 0};
-		searchList.setDivider(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, gradientColors));
-		searchList.setDividerHeight(1);
 		this.searchMoreButton = new Button(getActivity());
 		this.searchMoreButton.setText("Get More Results");
 		this.searchMoreButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
@@ -217,7 +215,13 @@ public class SearchFragment extends Fragment
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 				ArchiveShowObj show = (ArchiveShowObj) searchList.getItemAtPosition(position);
 				Logging.Log(LOG_TAG, show.getArtistAndTitle());
-				searchActionListener.onShowSelected(show);
+
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("show", show);
+
+				NavHostFragment
+						.findNavController(SearchFragment.this)
+						.navigate(R.id.action_menu_search_to_frag_show_details, bundle);
 			}
 		});
 		

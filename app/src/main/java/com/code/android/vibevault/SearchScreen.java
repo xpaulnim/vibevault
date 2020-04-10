@@ -45,6 +45,9 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import org.json.JSONObject;
 
@@ -53,12 +56,24 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class SearchScreen extends AppCompatActivity implements SearchActionListener,
 		DialogAndNavigationListener,
 		SearchSettingsDialogInterface,
-		ShowDetailsActionListener,
 		NowPlayingFragment.PlayerListener,
 		BrowseActionListener,
 		VotesActionListener {
 
 	private static final String LOG_TAG = SearchScreen.class.getName();
+
+	public static final int SEARCH_FRAGMENT = 0;
+	public static final int DETAILS_FRAGMENT = 1;
+	public static final int NOW_PLAYING_FRAGMENT = 2;
+	public static final int SHOWS_STORED_FRAGMENT = 3;
+	public static final int VOTES_FRAGMENT = 4;
+	public static final int ARTISTS_FRAGMENT = 5;
+	public static final int DOWNLOADS_FRAGMENT = 6;
+
+	private static final int UPGRADE_DB = 20;
+
+	private final int EXTERNAL_STORAGE_PERMISSION = 1;
+	private final String[] REQUIRED_PERMISSIONS = new String[]{WRITE_EXTERNAL_STORAGE};
 	
 	@Override
 	protected void onResume(){
@@ -85,14 +100,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	}
 	
 	@Override
-	public void onBackPressed(){
-		super.onBackPressed();
-		if(this.getFragmentManager().getBackStackEntryCount()==0){
-			this.finish();
-		}
-	}
-	
-	@Override
 	protected void onNewIntent(Intent i){
 		super.onNewIntent(i);
 		this.setIntent(i);
@@ -107,19 +114,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 			}
 		}
 	}
-
-	public static final int SEARCH_FRAGMENT = 0;
-	public static final int DETAILS_FRAGMENT = 1;
-	public static final int NOW_PLAYING_FRAGMENT = 2;
-	public static final int SHOWS_STORED_FRAGMENT = 3;
-	public static final int VOTES_FRAGMENT = 4;
-	public static final int ARTISTS_FRAGMENT = 5;
-	public static final int DOWNLOADS_FRAGMENT = 6;
-
-	private static final int UPGRADE_DB = 20;
-
-	private final int EXTERNAL_STORAGE_PERMISSION = 1;
-	private final String[] REQUIRED_PERMISSIONS = new String[]{WRITE_EXTERNAL_STORAGE};
 
 	private void instantiateFragment(int type){
 		switch(type){
@@ -147,32 +141,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	    	default:
 		}
 		Logging.Log(LOG_TAG, "BACK STACK COUNT: " + this.getFragmentManager().getBackStackEntryCount());
-	}
-
-	private void setImageButtonToFragments(MenuItem menuItem) {
-		Intent i = new Intent(SearchScreen.this, SearchScreen.class);
-		i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		switch (menuItem.getItemId()) {
-			case R.id.menu_search:
-				i.putExtra("type", SEARCH_FRAGMENT);
-				break;
-			case R.id.menu_your_shows:
-				i.putExtra("type", SHOWS_STORED_FRAGMENT);
-				break;
-			case R.id.menu_downloads:
-				i.putExtra("type", DOWNLOADS_FRAGMENT);
-				break;
-			case R.id.menu_now_playing:
-				i.putExtra("type", NOW_PLAYING_FRAGMENT);
-				break;
-			case R.id.menu_browse_artists:
-				i.putExtra("type", ARTISTS_FRAGMENT);
-				break;
-		}
-		startActivity(i);
 	}
 
 	private boolean storagePermissionGranted() {
@@ -226,25 +194,24 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		db = StaticDataStore.getInstance(this);
 
 		BottomNavigationView bottomBarView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
-		bottomBarView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-			@Override
-			public boolean onNavigationItemSelected(@androidx.annotation.NonNull MenuItem item) {
-				if (db.needsUpgrade && upgradeTask == null) { //DB needs updating
-					Toast.makeText(SearchScreen.this, R.string.db_upgrade_message_text, Toast.LENGTH_SHORT).show();
-					upgradeTask = new UpgradeTask(SearchScreen.this);
-					upgradeTask.execute();
-				} else { // DB Up to date, check artist date
-					setImageButtonToFragments(item);
 
-					if (needsArtistFetching() && upgradeTask == null) {
-						upgradeTask = new UpgradeTask(SearchScreen.this);
-						upgradeTask.execute();
-					}
-				}
+		if (db.needsUpgrade && upgradeTask == null) { //DB needs updating
+			bottomBarView.setClickable(false);
+			Toast.makeText(SearchScreen.this, R.string.db_upgrade_message_text, Toast.LENGTH_SHORT).show();
+			upgradeTask = new UpgradeTask(SearchScreen.this);
+			upgradeTask.execute();
+		} else { // DB Up to date, check artist date
+//			setImageButtonToFragments(item);
+			bottomBarView.setClickable(true);
 
-				return true;
+			if (needsArtistFetching() && upgradeTask == null) {
+				upgradeTask = new UpgradeTask(SearchScreen.this);
+				upgradeTask.execute();
 			}
-		});
+		}
+
+		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+		NavigationUI.setupWithNavController(bottomBarView, navController);
 
 		// See what type of Fragment we want to launch.
         int type = SEARCH_FRAGMENT;
@@ -265,13 +232,12 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 						show.setSelectedSong(linkString);
 					}
 				}
+				instantiateFragment(type);
 			// Show link clicked on (not an individual song link).
 			} else {
 				show = new ArchiveShowObj(linkString, false);
 			}
 			this.instantiateShowDetailsFragmentForActivity(show);
-		} else if(savedInstanceState==null){
-        	instantiateFragment(type);
 		}
     }
 
@@ -301,6 +267,10 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		}
 	}
 
+	@Override
+	public boolean onSupportNavigateUp() {
+		return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp();
+	}
 
 	/**
 	 * The instantiate___Activity() methods could be combined into one larger method,
@@ -310,35 +280,40 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	 * @param artist 
 	 */
 	private void instantiateSearchFragmentForActivity(String artist){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		SearchFragment frag = (SearchFragment) fm.findFragmentByTag("searchfrag");
-		
-		Logging.Log(LOG_TAG, "BACK STACK COUNT: " + fm.getBackStackEntryCount());
-		Bundle b = this.getIntent().getExtras();
-		if(artist!=null){
-			b = new Bundle();
-			b.putString("Artist", artist);
-		}
-		if(frag==null){
-			frag = new SearchFragment();
-			frag.setArguments(b);
-			ft.replace(R.id.fragment_container, frag,"searchfrag");
-			ft.addToBackStack(null);
-		} else{
-			// TODO: is this needed
-//			frag.getArguments().putAll(b);
-			ft.replace(R.id.fragment_container, frag,"searchfrag");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateSearchFragmentForActivity using fragment manager");
+
+		// TODO: remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		SearchFragment frag = (SearchFragment) fm.findFragmentByTag("searchfrag");
+//
+//		Logging.Log(LOG_TAG, "BACK STACK COUNT: " + fm.getBackStackEntryCount());
+//		Bundle b = this.getIntent().getExtras();
+//		if(artist!=null){
+//			b = new Bundle();
+//			b.putString("Artist", artist);
+//		}
+//		if(frag==null){
+//			frag = new SearchFragment();
+//			frag.setArguments(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"searchfrag");
+//			ft.addToBackStack(null);
+//		} else{
+//			// TODO: is this needed
+////			frag.getArguments().putAll(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"searchfrag");
+//			if(fm.getBackStackEntryCount()==0){
+////				ft.addToBackStack(null);
+//			}
+//		}
+////		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 	}
 
 	// This can take a null show object.
 	private void instantiateShowDetailsFragmentForActivity(ArchiveShowObj show){
+		Logging.Log(LOG_TAG, "instantiateShowDetailsFragmentForActivity using fragment manager");
+
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ShowDetailsFragment frag = (ShowDetailsFragment) fm.findFragmentByTag("showdetails");
@@ -348,12 +323,13 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
     			Bundle b = new Bundle();
     			b.putSerializable("show", show);
     			frag.setArguments(b);
+
 			}
 			if(!frag.isAdded()){
-				ft.replace(R.id.fragment_container, frag,"showdetails");
-				ft.addToBackStack(null);
+				ft.replace(R.id.nav_host_fragment, frag,"showdetails");
+//				ft.addToBackStack(null);
 			}
-			
+
 		} else{
 			if(show!=null){
     			Bundle b = new Bundle();
@@ -367,136 +343,151 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
     			frag.getArguments().putAll(this.getIntent().getExtras());
     		}
 			if(!frag.isAdded()){
-				ft.replace(R.id.fragment_container, frag,"showdetails");
+				ft.replace(R.id.nav_host_fragment, frag,"showdetails");
 			}
 			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
+//				ft.addToBackStack(null);
 			}
 		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 	    ft.commit();
 	    Logging.Log(LOG_TAG, "BACK STACK COUNT : " + fm.getBackStackEntryCount());
 	}
 	
 	private void instantiateNowPlayingFragmentForActivity(int pos, ArrayList<ArchiveSongObj> showSongs){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		NowPlayingFragment frag = (NowPlayingFragment) fm.findFragmentByTag("nowplaying");
-		
-		Bundle b = this.getIntent().getExtras();
-		if(pos >=0 && showSongs != null){
-			b = new Bundle();
-			b.putSerializable("position", pos);
-			b.putSerializable("showsongs", showSongs);
-			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
-		}
-		
-		if(frag==null){
-			Logging.Log(LOG_TAG, "Making a new NowPlayingFragment.");
-			frag = new NowPlayingFragment();
-			frag.setArguments(b);
-			ft.replace(R.id.fragment_container, frag,"nowplaying");
-			ft.addToBackStack(null);
-		} else{
-			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
-			frag.getArguments().putAll(b);
-			ft.replace(R.id.fragment_container, frag,"nowplaying");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateNowPlayingFragmentForActivity using fragment manager");
+
+		// TODO: remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		NowPlayingFragment frag = (NowPlayingFragment) fm.findFragmentByTag("nowplaying");
+//
+//		Bundle b = this.getIntent().getExtras();
+//		if(pos >=0 && showSongs != null){
+//			b = new Bundle();
+//			b.putSerializable("position", pos);
+//			b.putSerializable("showsongs", showSongs);
+//			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
+//		}
+//
+//		if(frag==null){
+//			Logging.Log(LOG_TAG, "Making a new NowPlayingFragment.");
+//			frag = new NowPlayingFragment();
+//			frag.setArguments(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"nowplaying");
+////			ft.addToBackStack(null);
+//		} else{
+//			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
+//			frag.getArguments().putAll(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"nowplaying");
+//			if(fm.getBackStackEntryCount()==0){
+////				ft.addToBackStack(null);
+//			}
+//		}
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 
 	}
 	
 	private void instantiateShowsStoredFragmentForActivity(){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ShowsStoredFragment frag = (ShowsStoredFragment) fm.findFragmentByTag("showsstored");
-		if(frag==null){
-			frag = new ShowsStoredFragment();
-			frag.setArguments(this.getIntent().getExtras());
-			ft.replace(R.id.fragment_container, frag,"showsstored");
-			ft.addToBackStack(null);
-		} else{
-			frag.getArguments().putAll(this.getIntent().getExtras());
-			ft.replace(R.id.fragment_container, frag,"showsstored");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateShowsStoredFragmentForActivity using fragment manager");
+
+		// TODO: Remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		ShowsStoredFragment frag = (ShowsStoredFragment) fm.findFragmentByTag("showsstored");
+//		if(frag==null){
+//			frag = new ShowsStoredFragment();
+//			frag.setArguments(this.getIntent().getExtras());
+//			ft.replace(R.id.nav_host_fragment, frag,"showsstored");
+////			ft.addToBackStack(null);
+//		} else{
+//			frag.getArguments().putAll(this.getIntent().getExtras());
+//			ft.replace(R.id.nav_host_fragment, frag,"showsstored");
+////			if(fm.getBackStackEntryCount()==0){
+////				ft.addToBackStack(null);
+////			}
+//		}
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 
 	}
 	
 	private void instantiateBrowseArtistsFragmentForActivity(){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		BrowseArtistsFragment frag = (BrowseArtistsFragment) fm.findFragmentByTag("browsefrag");
-		if(frag==null){
-			frag = new BrowseArtistsFragment();
-			frag.setArguments(this.getIntent().getExtras());
-			ft.replace(R.id.fragment_container, frag,"browsefrag");
-			ft.addToBackStack(null);
-		} else{
-			frag.getArguments().putAll(this.getIntent().getExtras());
-			ft.replace(R.id.fragment_container, frag,"browsefrag");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateBrowseArtistsFragmentForActivity using fragment manager");
+
+		// TODO: Remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		BrowseArtistsFragment frag = (BrowseArtistsFragment) fm.findFragmentByTag("browsefrag");
+//		if(frag==null){
+//			frag = new BrowseArtistsFragment();
+//			frag.setArguments(this.getIntent().getExtras());
+//			ft.replace(R.id.nav_host_fragment, frag,"browsefrag");
+//			ft.addToBackStack(null);
+//		} else{
+//			frag.getArguments().putAll(this.getIntent().getExtras());
+//			ft.replace(R.id.nav_host_fragment, frag,"browsefrag");
+//			if(fm.getBackStackEntryCount()==0){
+//				ft.addToBackStack(null);
+//			}
+//		}
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 
 	}
 	
 	private void instantiateVotesFragmentForActivity(ArchiveArtistObj artist){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		VotesFragment frag = (VotesFragment) fm.findFragmentByTag("votesfrag");
-		
-		Bundle b = this.getIntent().getExtras();
-		// This means that we are opening up a VotingFragment with
-		// an artist and not a show.  Ths requires creating a new VotesFragment.
-		if(artist!=null){
-			b = new Bundle();
-			b.putSerializable("ArchiveArtist", artist);
-		}
-		if(frag==null || artist != null){
-			frag = new VotesFragment();
-			frag.setArguments(b);
-			ft.replace(R.id.fragment_container, frag,"votesfrag");
-			ft.addToBackStack(null);
-		} else{
-			frag.getArguments().putAll(b);
-			ft.replace(R.id.fragment_container, frag,"votesfrag");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateVotesFragmentForActivity using fragment manager");
+
+		// TODO: Remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		VotesFragment frag = (VotesFragment) fm.findFragmentByTag("votesfrag");
+//
+//		Bundle b = this.getIntent().getExtras();
+//		// This means that we are opening up a VotingFragment with
+//		// an artist and not a show.  Ths requires creating a new VotesFragment.
+//		if(artist!=null){
+//			b = new Bundle();
+//			b.putSerializable("ArchiveArtist", artist);
+//		}
+//		if(frag==null || artist != null){
+//			frag = new VotesFragment();
+//			frag.setArguments(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"votesfrag");
+//			ft.addToBackStack(null);
+//		} else{
+//			frag.getArguments().putAll(b);
+//			ft.replace(R.id.nav_host_fragment, frag,"votesfrag");
+//			if(fm.getBackStackEntryCount()==0){
+//				ft.addToBackStack(null);
+//			}
+//		}
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 
 	}
 	
 	private void instantiateShowsDownloadedFramentForActivity(){
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ShowsDownloadedFragment frag = (ShowsDownloadedFragment) fm.findFragmentByTag("downloadfrag");
-		if(frag==null){
-			frag = new ShowsDownloadedFragment();
-			ft.replace(R.id.fragment_container, frag,"downloadfrag");
-			ft.addToBackStack(null);
-		} else {
-			ft.replace(R.id.fragment_container, frag,"downloadfrag");
-			if(fm.getBackStackEntryCount()==0){
-				ft.addToBackStack(null);
-			}
-		}
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-	    ft.commit();
+		Logging.Log(LOG_TAG, "instantiateVotesFragmentForActivity using fragment manager");
+
+		// TODO: Remove
+//		FragmentManager fm = getSupportFragmentManager();
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		ShowsDownloadedFragment frag = (ShowsDownloadedFragment) fm.findFragmentByTag("downloadfrag");
+//		if(frag==null){
+//			frag = new ShowsDownloadedFragment();
+//			ft.replace(R.id.nav_host_fragment, frag,"downloadfrag");
+//			ft.addToBackStack(null);
+//		} else {
+//			ft.replace(R.id.nav_host_fragment, frag,"downloadfrag");
+//			if(fm.getBackStackEntryCount()==0){
+//				ft.addToBackStack(null);
+//			}
+//		}
+//		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//	    ft.commit();
 
 	}
 	
@@ -619,11 +610,11 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		}
 	}
 
-	@Override
-	public void playShow(int pos, ArrayList<ArchiveSongObj> showSongs) {
-		
-		this.instantiateNowPlayingFragmentForActivity(pos, showSongs);
-	}
+//	@Override
+//	public void playShow(int pos, ArrayList<ArchiveSongObj> showSongs) {
+//
+//		this.instantiateNowPlayingFragmentForActivity(pos, showSongs);
+//	}
 
 	@Override
 	public void registerReceivers(BroadcastReceiver stateChangedBroadcast, BroadcastReceiver positionChangedBroadcast) {

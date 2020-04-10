@@ -147,8 +147,8 @@ public class NowPlayingFragment extends Fragment {
 		// Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
         setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
+//        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+//        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
 //        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         appCompatActivity.getSupportActionBar().setTitle("Now Playing");
 	}
