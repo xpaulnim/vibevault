@@ -36,7 +36,7 @@ public class SearchQueryAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Archiv
 	@Override
 	public ArrayList<ArchiveShowObj> loadInBackground() {
 		Logging.Log(LOG_TAG, "HERE.");
-		if(mSearchResults == null || sameArtist == false){
+		if(mSearchResults == null || !sameArtist){
 			mSearchResults = new ArrayList<ArchiveShowObj>();
 		}
 		Searching.getShows(mQuery, mSearchResults);

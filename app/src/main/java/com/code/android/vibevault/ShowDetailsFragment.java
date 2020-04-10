@@ -125,9 +125,6 @@ public class ShowDetailsFragment extends Fragment {
 		// Initialize the show's label and its list of tracks.  Set the appropriate listeners.
 		showLabel = (TextView) v.findViewById(R.id.ShowLabel);
 		trackList = (ListView) v.findViewById(R.id.SongsListView);
-		int[] gradientColors = {0, 0xFF127DD4, 0};
-		trackList.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, gradientColors));
-		trackList.setDividerHeight(1);
 		trackList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position,	long id) {

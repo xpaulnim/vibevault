@@ -344,7 +344,7 @@ public class SearchFragment extends Fragment
 				}	
 			});
 
-		final ImageButton b = (ImageButton)menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
+		final ImageButton artistSearchButton = (ImageButton)menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
 		artistSearchInput = (AutoCompleteTextView)menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.ArtistSearchBox);
 		// Set the adapter for autocomplete.
 		if (!db.getPref("artistUpdate").equals("2010-01-01")) {
@@ -370,7 +370,7 @@ public class SearchFragment extends Fragment
 					int count) {
 				if(s.toString().contains("\n")){
 					artistSearchInput.setText(s.toString().replace("\n", ""));
-					b.callOnClick();
+					artistSearchButton.callOnClick();
 				}
 			}
 		});
@@ -390,7 +390,7 @@ public class SearchFragment extends Fragment
 					if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
 						if (event.getAction() == KeyEvent.ACTION_UP) {
 							// Act like the search button has been pressed.
-							return b.callOnClick();
+							return artistSearchButton.callOnClick();
 						} else {
 							return true;
 						}
@@ -399,7 +399,7 @@ public class SearchFragment extends Fragment
 				return false;
 			}
 		});
-		b.setOnClickListener(new OnClickListener(){
+		artistSearchButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				// Blank
@@ -411,7 +411,8 @@ public class SearchFragment extends Fragment
 				// Search more
 				else if (isMoreSearch(artistSearchInput.getText().toString())) {
 					Logging.Log(LOG_TAG, "MORE SEARCH.");
-					((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
+					((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+							.hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
 
 					isSearchMore=true;
 					// pageNum is incremented then searched with to get the next page.
@@ -525,23 +526,23 @@ public class SearchFragment extends Fragment
 
 	// Set the search results to those returned by the loader, and refresh the search list.
 	@Override
-	public void onLoadFinished(Loader<List<ArchiveShowObj>> arg0, List<ArchiveShowObj> arg1) {
+	public void onLoadFinished(Loader<List<ArchiveShowObj>> loader, List<ArchiveShowObj> data) {
 		Logging.Log(LOG_TAG, "LOADER FINISHED.");
 		if(isSearchMore){
 			isSearchMore=false;
 			Parcelable state = this.searchList.onSaveInstanceState();
-			searchResults.addAll(arg1);
+			searchResults.addAll(data);
 			this.refreshSearchList();
 			this.searchList.onRestoreInstanceState(state);
 		} else if(!searchResults.containsAll(searchResults)||searchResults.isEmpty()){
 			// The containsAll() call above is necessary because onLoadFinished() is being called on rotations,
 			// and otherwise it will replace the searchResults with whatever the Loader most recently returned.
-			searchResults = (ArrayList<ArchiveShowObj>) arg1;
+			searchResults = (ArrayList<ArchiveShowObj>) data;
 			this.refreshSearchList();
 		}
 		dialogAndNavigationListener.hideDialog();
 		if (searchResults.size() != 0) {
-			if (arg1.size() > 5) {
+			if (data.size() > 5) {
 				this.searchMoreButton.setVisibility(View.VISIBLE);
 			} else {
 				this.searchMoreButton.setVisibility(View.GONE);

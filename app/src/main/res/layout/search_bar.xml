@@ -16,10 +16,9 @@
         android:id="@+id/ArtistSearchBox"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/SearchButton"
-        android:hint="Search..."
+        android:layout_toStartOf="@id/SearchButton"
+        android:hint="@string/Search"
         android:maxLines="1"
-        android:popupBackground="#127DD4"
         android:textSize="@dimen/text_height_tall" />
 
 </RelativeLayout>

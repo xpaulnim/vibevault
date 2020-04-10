@@ -218,13 +218,7 @@ public class NowPlayingFragment extends Fragment {
 		
 		// Initialize the DraggableListView of songs, settings listeners for clicking,
 		// long-pressing, dragging, and removing.
-		int[] gradientBackground = {0xFF041625, 0};
-		playerLayout.setBackgroundDrawable(new GradientDrawable(Orientation.TOP_BOTTOM, gradientBackground));
-		buttonHolder.setBackgroundDrawable(new GradientDrawable(Orientation.TOP_BOTTOM, gradientBackground));
 		songsListView = (DraggableListView) v.findViewById(R.id.PlayListListView);
-		int[] gradientColors = {0, 0xFF127DD4, 0};
-		songsListView.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, gradientColors));
-		songsListView.setDividerHeight(1);
 		songsListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
@@ -458,7 +452,7 @@ public class NowPlayingFragment extends Fragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Logging.Log(LOG_TAG, "StateChangeReceiver...");
-			int pauseIcon = R.drawable.mediapausebutton;
+			int pauseIcon = R.drawable.ic_pause_24px;
 			
 			int status = intent.getIntExtra(PlaybackService.EXTRA_STATUS, PlaybackService.STATUS_STOPPED);
 			switch(status) {
@@ -467,7 +461,7 @@ public class NowPlayingFragment extends Fragment {
 					progressBar.setEnabled(false);
 					break;
 				case PlaybackService.STATUS_PAUSED:
-					pauseIcon = R.drawable.mediaplaybutton;
+					pauseIcon = R.drawable.ic_play_arrow_24px;
 					progressBar.setEnabled(true);
 					nowPlaying = intent.getStringExtra(PlaybackService.EXTRA_TITLE);
 					break;
@@ -477,7 +471,7 @@ public class NowPlayingFragment extends Fragment {
 					break;
 				case PlaybackService.STATUS_STOPPED:
 					nowPlaying = "";
-					pauseIcon = R.drawable.mediaplaybutton;
+					pauseIcon = R.drawable.ic_play_arrow_24px;
 					progressBar.setEnabled(false);
 					break;
 			}
@@ -584,12 +578,13 @@ public class NowPlayingFragment extends Fragment {
 				songText.setText(song.toString());
 				artistText.setText(song.getShowArtist());
 				if(position == currentPos){
-					songText.setTextColor(Color.YELLOW);
-					artistText.setTextColor(Color.YELLOW);
+					// TODO: Use better color
+					songText.setTextColor(Color.RED);
+					artistText.setTextColor(Color.RED);
 				}
 				else{
-					songText.setTextColor(Color.rgb(18, 125, 212));
-					artistText.setTextColor(Color.WHITE);
+//					songText.setTextColor(Color.rgb(18, 125, 212));
+//					artistText.setTextColor(Color.WHITE);
 				}
 			}
 			artistText.setSelected(true);

@@ -97,7 +97,7 @@ public class BrowseArtistsFragment extends Fragment {
 		View v = inflater.inflate(R.layout.browse_artists_fragment, container, false);
 		// Initialize the ExpandableListView
 		expandableList = (ExpandableListView) v.findViewById(R.id.BrowseArtistsExpandableListView);
-		expandableAdapter expAdapter = new expandableAdapter();		
+		ExpandableAdapter expAdapter = new ExpandableAdapter();
 		expandableList.setAdapter(expAdapter);
 		expandableList.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
@@ -186,7 +186,7 @@ public class BrowseArtistsFragment extends Fragment {
 	 * Gives more control over the appearance of the ExpandableListView,
 	 * and allows us to add more functionality down the road if we want to.
 	 */
-	private class expandableAdapter extends BaseExpandableListAdapter{
+	private class ExpandableAdapter extends BaseExpandableListAdapter{
 		// Make sure to close any other expanded groups because if you have multiple
 		// groups open and scroll fast, we get a weird index out of bounds exception.
 		@Override

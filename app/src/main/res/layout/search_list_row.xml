@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:descendantFocusability="blocksDescendants">
-       	<ImageView
-        	android:id="@+id/rating"
-        	android:layout_marginTop="2dip"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:src="@drawable/star5"
-        	android:layout_alignParentTop="true"
-        	android:layout_alignParentRight="true" />
-        	<TextView
-            android:id="@+id/ArtistText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/rating"
-            android:textSize="@dimen/text_height_small"
-            android:textColor="#127DD4"
-            android:textStyle="bold|italic"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:lines="1"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"/>
-		<TextView
-            android:id="@+id/ShowText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/rating"
-            android:textSize="@dimen/text_height_tall"
-            android:textColor="#FFFFFF"
-            android:layout_alignParentLeft="true"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:lines="1"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:layout_below="@id/ArtistText"/>
-				<TextView
-            android:id="@+id/SourceText"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/text_height_small"
-            android:textColor="#FFFFFF"
-            android:layout_alignParentLeft="true"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:lines="1"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:layout_below="@id/ShowText"/>
+
+    <ImageView
+        android:id="@+id/rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="2dip"
+        android:src="@drawable/star5" />
+
+    <TextView
+        android:id="@+id/ArtistText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/rating"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textColor="#127DD4"
+        android:textSize="@dimen/text_height_small"
+        android:textStyle="bold|italic"
+        tools:text="Artist text" />
+
+    <TextView
+        android:id="@+id/ShowText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ArtistText"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/rating"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textSize="@dimen/text_height_tall"
+        tools:text="Description" />
+
+    <TextView
+        android:id="@+id/SourceText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ShowText"
+        android:layout_alignParentStart="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textSize="@dimen/text_height_small"
+        tools:text="source text" />
 </RelativeLayout>
