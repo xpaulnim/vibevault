@@ -1,13 +1,7 @@
 package com.code.android.vibevault;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.regex.Pattern;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,18 +15,20 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.NodeList;
 
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;

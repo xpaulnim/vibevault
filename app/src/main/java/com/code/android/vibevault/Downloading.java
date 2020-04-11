@@ -1,8 +1,5 @@
 package com.code.android.vibevault;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +14,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
 
 public class Downloading{
 	

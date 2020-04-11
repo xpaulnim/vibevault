@@ -31,8 +31,8 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.media.RemoteControlClient.MetadataEditor;
 import android.media.RemoteControlClient;
+import android.media.RemoteControlClient.MetadataEditor;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.Build;
@@ -44,7 +44,6 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import com.code.android.vibevault.R;
 
 public class PlaybackService extends Service implements 
 		OnPreparedListener, OnBufferingUpdateListener, OnCompletionListener,

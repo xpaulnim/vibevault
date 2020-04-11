@@ -1,12 +1,12 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+
+import java.util.ArrayList;
 
 public class WidgetIntentReceiver extends BroadcastReceiver{
 	

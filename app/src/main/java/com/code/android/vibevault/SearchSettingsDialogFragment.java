@@ -1,7 +1,5 @@
 package com.code.android.vibevault;
 
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+
+import java.util.Calendar;
 
 public class SearchSettingsDialogFragment extends DialogFragment {
 

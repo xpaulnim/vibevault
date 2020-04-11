@@ -1,11 +1,6 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-
 import android.app.Activity;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,9 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -26,8 +19,10 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import com.code.android.vibevault.SearchFragment.SearchActionListener;
+
+import java.util.ArrayList;
 
 public class ShowsStoredFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,

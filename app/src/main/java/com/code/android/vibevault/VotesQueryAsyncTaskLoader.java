@@ -1,10 +1,10 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 
 import androidx.loader.content.AsyncTaskLoader;
+
+import java.util.ArrayList;
 
 public class VotesQueryAsyncTaskLoader<T> extends AsyncTaskLoader<ArrayList<?>> {
 	

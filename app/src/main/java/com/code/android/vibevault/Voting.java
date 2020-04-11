@@ -1,10 +1,6 @@
 package com.code.android.vibevault;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
+import android.text.format.DateUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,7 +17,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.text.format.DateUtils;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 
 public class Voting {
 		

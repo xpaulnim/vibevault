@@ -24,28 +24,15 @@
 
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,18 +40,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class NowPlayingFragment extends Fragment {
 	

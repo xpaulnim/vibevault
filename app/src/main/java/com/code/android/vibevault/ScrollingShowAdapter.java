@@ -1,8 +1,5 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,17 +7,20 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.view.MenuItemCompat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScrollingShowAdapter extends ArrayAdapter<ArchiveShowObj> {
 	

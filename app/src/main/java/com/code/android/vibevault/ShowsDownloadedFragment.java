@@ -1,12 +1,5 @@
 package com.code.android.vibevault;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -24,9 +17,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +26,13 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.code.android.vibevault.SearchFragment.SearchActionListener;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ShowsDownloadedFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,

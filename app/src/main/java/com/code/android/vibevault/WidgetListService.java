@@ -1,13 +1,12 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+
+import java.util.ArrayList;
 
 public class WidgetListService extends RemoteViewsService{
 

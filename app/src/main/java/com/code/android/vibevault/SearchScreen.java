@@ -1,25 +1,6 @@
 package com.code.android.vibevault;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
-import com.code.android.vibevault.ShowDetailsFragment.ShowDetailsActionListener;
-import com.code.android.vibevault.VotesFragment.VotesActionListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import android.app.AlertDialog;
-
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -32,9 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.Menu;
-import android.view.MenuItem;
-
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,7 +26,24 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.code.android.vibevault.SearchFragment.SearchActionListener;
+import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
+import com.code.android.vibevault.VotesFragment.VotesActionListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 

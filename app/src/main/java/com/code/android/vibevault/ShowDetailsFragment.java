@@ -24,15 +24,8 @@
 
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -41,13 +34,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.view.MenuItemCompat;
@@ -55,15 +47,17 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.code.android.vibevault.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ShowDetailsFragment extends Fragment {
 

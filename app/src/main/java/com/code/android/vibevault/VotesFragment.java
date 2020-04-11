@@ -1,9 +1,5 @@
 package com.code.android.vibevault;
 
-import java.util.ArrayList;
-
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,16 +13,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +33,10 @@ import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+
+import com.code.android.vibevault.SearchFragment.SearchActionListener;
+
+import java.util.ArrayList;
 
 public class VotesFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<?>>, ActionBar.OnNavigationListener {
 	

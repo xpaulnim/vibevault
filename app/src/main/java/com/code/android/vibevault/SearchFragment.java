@@ -24,13 +24,8 @@
 
 package com.code.android.vibevault;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -43,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -53,7 +49,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,10 +56,12 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
-import com.code.android.vibevault.R;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchFragment extends Fragment
 		implements LoaderManager.LoaderCallbacks<List<ArchiveShowObj>>,

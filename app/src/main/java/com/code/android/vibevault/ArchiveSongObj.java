@@ -24,12 +24,12 @@
 
 package com.code.android.vibevault;
 
+import android.os.Environment;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import android.os.Environment;
 
 public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
 	
