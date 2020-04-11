@@ -8,16 +8,4 @@
         android:title="@string/Search"
         app:actionLayout="@layout/search_bar"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/SettingsButton"
-        android:icon="@drawable/ic_settings_24px"
-        android:title="@string/settings_text"
-        app:showAsAction="collapseActionView" />
-
-    <item
-        android:id="@+id/HelpButton"
-        android:icon="@drawable/ic_help_outline_24px"
-        android:title="@string/help_text"
-        app:showAsAction="collapseActionView" />
 </menu>

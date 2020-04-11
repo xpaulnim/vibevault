@@ -51,6 +51,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
@@ -218,7 +220,7 @@ public class SearchFragment extends Fragment
 
 				NavHostFragment
 						.findNavController(SearchFragment.this)
-						.navigate(R.id.action_menu_search_to_frag_show_details, bundle);
+						.navigate(R.id.action_frag_search_to_frag_show_details, bundle);
 			}
 		});
 		
@@ -316,41 +318,29 @@ public class SearchFragment extends Fragment
 		}
 		return true;
 	}
-	
 
-	
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+	}
+
 	// Must call in order to get callback to onOptionsItemSelected()
 	// and thereby create an ActionBar.
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		if(!menu.hasVisibleItems()){
-			Logging.Log(LOG_TAG, "Creating actionbar.");
-			this.actionBarMenu = menu;
-			inflater.inflate(R.menu.search_help_options, menu);
-			MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
-			// Ridiculous code to automatically open the keyboard when the search button is pressed.
-			menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					artistSearchInput.post(new Runnable(){
-						@Override
-						public void run() {
-							Logging.Log(LOG_TAG, "Requesting focus.");
-							artistSearchInput.requestFocus();
-							InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-							imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);
-						}
-					});
-					return true;
-				}	
-			});
-
-		final ImageButton artistSearchButton = (ImageButton)menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
-		artistSearchInput = (AutoCompleteTextView)menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.ArtistSearchBox);
-		// Set the adapter for autocomplete.
-		if (!db.getPref("artistUpdate").equals("2010-01-01")) {
-			artistSearchInput.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.artist_search_row, db.getArtistsStrings()));
+		if (menu.hasVisibleItems()) {
+			refreshSearchList();
+			return;
 		}
+
+		Logging.Log(LOG_TAG, "Creating actionbar.");
+		this.actionBarMenu = menu;
+		inflater.inflate(R.menu.search_help_options, menu);
+		MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
+
+		final ImageButton artistSearchButton = (ImageButton) menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
+		artistSearchInput = (AutoCompleteTextView) menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.ArtistSearchBox);
+
 		artistSearchInput.setText(artistSearchText);
 		// This changes the appearance of the search button to reflect whether or not we are searching for "more" shows with the same query.
 		artistSearchInput.addTextChangedListener(new TextWatcher() {
@@ -362,19 +352,32 @@ public class SearchFragment extends Fragment
 					searchMoreButton.setVisibility(View.GONE);
 				}
 			}
+
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 			}
+
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				if(s.toString().contains("\n")){
+									  int count) {
+				if (s.toString().contains("\n")) {
 					artistSearchInput.setText(s.toString().replace("\n", ""));
 					artistSearchButton.callOnClick();
 				}
 			}
 		});
-		
+
+		artistSearchInput.post(new Runnable() {
+			@Override
+			public void run() {
+				Logging.Log(LOG_TAG, "Requesting focus.");
+				artistSearchInput.requestFocus();
+				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);
+			}
+		});
+
+		// Set the adapter for autocomplete.
 		if (!db.getPref("artistUpdate").equals("2010-01-01")) {
 			artistSearchInput.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.artist_search_row, db.getArtistsStrings()));
 		}
@@ -387,7 +390,7 @@ public class SearchFragment extends Fragment
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				Logging.Log(LOG_TAG, event.toString());
 				if ((event != null)) {
-					if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+					if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 						if (event.getAction() == KeyEvent.ACTION_UP) {
 							// Act like the search button has been pressed.
 							return artistSearchButton.callOnClick();
@@ -399,7 +402,7 @@ public class SearchFragment extends Fragment
 				return false;
 			}
 		});
-		artistSearchButton.setOnClickListener(new OnClickListener(){
+		artistSearchButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// Blank
@@ -411,48 +414,47 @@ public class SearchFragment extends Fragment
 				// Search more
 				else if (isMoreSearch(artistSearchInput.getText().toString())) {
 					Logging.Log(LOG_TAG, "MORE SEARCH.");
-					((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+					((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
 							.hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
 
-					isSearchMore=true;
+					isSearchMore = true;
 					// pageNum is incremented then searched with to get the next page.
-					executeSearch(Searching.makeSearchURLString(++pageNum, month, day, year, artistSearchText,  numResultsPref, sortPref, dateSearchModifierPos));
+					executeSearch(Searching.makeSearchURLString(++pageNum, month, day, year, artistSearchText, numResultsPref, sortPref, dateSearchModifierPos));
 					// vibrator.vibrate(50);
 				}
 				// New search
 				else {
 					artistSearchText = artistSearchInput.getText().toString();
-					isSearchMore=false;
+					isSearchMore = false;
 					Logging.Log(LOG_TAG, "NEW SEARCH.");
-					((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
+					((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
 					searchResults.clear();
 					pageNum = 1;
 					// "1" is passed to retrieve page number 1.
 					// vibrator.vibrate(50);
-					executeSearch(Searching.makeSearchURLString(pageNum, month, day, year, artistSearchText,  numResultsPref, sortPref, dateSearchModifierPos));
+					executeSearch(Searching.makeSearchURLString(pageNum, month, day, year, artistSearchText, numResultsPref, sortPref, dateSearchModifierPos));
 				}
 
 			}
 		});
 		menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-	        @Override
-	        public boolean onMenuItemActionCollapse(MenuItem item) {
-	            return true;  // Return true to collapse action view
-	        }
-	        @Override
-	        public boolean onMenuItemActionExpand(MenuItem item) {
-	            return true;  // Return true to expand action view
-	        }
-	    });
-		}
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				return true;  // Return true to collapse action view
+			}
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				return true;  // Return true to expand action view
+			}
+		});
+
 		// FIXME I really do not like having this here, but it is necessary in order to have
 		// the ActionBar MenuItem for searching being expanded into its action layout by default.
 		// Calling refreshSearchList() at other points in the code (like at the end of onActivityCreated()
 		// or something), ends up being reached before the ActionBar is created, so that there is no
 		// MenuItem to expand to the search action view.
-		if(this.searchResults.size()==0){
-			refreshSearchList();
-		}
+		refreshSearchList();
 	}
 	
 

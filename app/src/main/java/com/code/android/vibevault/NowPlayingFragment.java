@@ -59,6 +59,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -163,6 +164,11 @@ public class NowPlayingFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.SearchActionBarButton:
+				NavHostFragment
+						.findNavController(NowPlayingFragment.this)
+						.navigate(R.id.frag_search);
+				return true;
 			case R.id.VoteButton:
 				vote();
 				return true;

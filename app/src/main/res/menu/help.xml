@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:id="@+id/HelpButton" android:title="@string/help_text" android:icon="@drawable/helpbutton" android:showAsAction="ifRoom"></item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/SearchActionBarButton"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/Search"
+        app:showAsAction="ifRoom" />
+  <item
+      android:id="@+id/HelpButton"
+      android:icon="@drawable/helpbutton"
+      android:title="@string/help_text"
+      app:showAsAction="never" />
 </menu>

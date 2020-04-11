@@ -105,7 +105,7 @@ public class BrowseArtistsFragment extends Fragment {
 
 				NavHostFragment
 						.findNavController(BrowseArtistsFragment.this)
-						.navigate(R.id.action_menu_browse_artists_to_menu_search, bundle);
+						.navigate(R.id.frag_search, bundle);
 
 				return false;
 			}
@@ -141,6 +141,11 @@ public class BrowseArtistsFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected (MenuItem item){
 		switch (item.getItemId()){
+			case R.id.SearchActionBarButton:
+				NavHostFragment
+						.findNavController(BrowseArtistsFragment.this)
+						.navigate(R.id.frag_search);
+				break;
 			case android.R.id.home:
 				dialogAndNavigationListener.goHome();
 				break;

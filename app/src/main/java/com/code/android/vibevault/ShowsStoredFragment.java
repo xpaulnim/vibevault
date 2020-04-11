@@ -99,8 +99,9 @@ public class ShowsStoredFragment extends Fragment implements
 		Logging.Log(LOG_TAG, "ACTION MODE: " + appCompatActivity.getSupportActionBar().getNavigationMode());
 		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				appCompatActivity, R.array.stored_array,
-				android.R.layout.simple_spinner_dropdown_item);
+				appCompatActivity,
+				R.array.stored_array,
+				R.layout.spinner_dropdown_layout_item);
 		appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
 	}
 
@@ -119,6 +120,11 @@ public class ShowsStoredFragment extends Fragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.SearchActionBarButton:
+			NavHostFragment
+					.findNavController(ShowsStoredFragment.this)
+					.navigate(R.id.frag_search);
+			break;
 		case R.id.HelpButton:
 			dialogAndNavigationListener.showDialog(
 					this.getResources().getString(R.string.recent_shows_screen_help),

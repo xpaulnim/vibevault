@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:id="@+id/scrollableDialog" android:title="@string/help_text" android:icon="@drawable/helpbutton" android:showAsAction="ifRoom"></item>
-<item android:id="@+id/SyncFolder" android:title="@string/scan_folder_text" android:icon="@drawable/searchbutton_plain1" android:showAsAction="never"></item>
-<item android:id="@+id/ChangeFolder" android:title="@string/change_folder_text" android:icon="@drawable/savebutton" android:showAsAction="never"></item>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/SearchActionBarButton"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/Search"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/SyncFolder"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="@string/scan_folder_text"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/ChangeFolder"
+        android:icon="@drawable/savebutton"
+        android:title="@string/change_folder_text"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/scrollableDialog"
+        android:icon="@drawable/helpbutton"
+        android:title="@string/help_text"
+        app:showAsAction="never" />
 </menu>

@@ -111,6 +111,11 @@ public class ShowsDownloadedFragment extends Fragment implements
 	@Override
 	public boolean onOptionsItemSelected (MenuItem item){
 		switch (item.getItemId()){
+			case R.id.SearchActionBarButton:
+				NavHostFragment
+						.findNavController(ShowsDownloadedFragment.this)
+						.navigate(R.id.frag_search);
+				break;
 			case R.id.scrollableDialog:
 				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.downloaded_show_screen_help), "Help");
 				break;
