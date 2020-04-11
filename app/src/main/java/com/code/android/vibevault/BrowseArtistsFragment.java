@@ -21,6 +21,7 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class BrowseArtistsFragment extends Fragment {
 	
@@ -37,26 +38,16 @@ public class BrowseArtistsFragment extends Fragment {
 	private final String[] symbols = { "1,2,3,#,!,etc...", "A", "B", "C", "D", "E", "F", "G",
 			"H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
 			"U", "V", "W", "X", "Y", "Z" };
-	
-	private BrowseActionListener browseActionListener;
-	
+
 	private DialogAndNavigationListener dialogAndNavigationListener;
-	
-	public interface BrowseActionListener{
-		public void browse(String artist);
-	}	
 	
 	// Called right before onCreate(), which is right before onCreateView().
 	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
 	@Override
 	public void onAttach(Activity activity) {
-		
 		super.onAttach(activity);
+
 		try{
-			browseActionListener = (BrowseActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement BrowseActionListener");
-		} try{
 			dialogAndNavigationListener = (DialogAndNavigationListener) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString() + " must implement DialogListener");
@@ -109,7 +100,13 @@ public class BrowseArtistsFragment extends Fragment {
 		expandableList.setOnChildClickListener(new OnChildClickListener() {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-				browseActionListener.browse(alphaArtistsList.get(groupPosition).get(childPosition).get("artist"));
+				Bundle bundle = new Bundle();
+				bundle.putString("Artist", alphaArtistsList.get(groupPosition).get(childPosition).get("artist"));
+
+				NavHostFragment
+						.findNavController(BrowseArtistsFragment.this)
+						.navigate(R.id.action_menu_browse_artists_to_menu_search, bundle);
+
 				return false;
 			}
 		});

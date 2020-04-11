@@ -34,7 +34,11 @@
     <fragment
         android:id="@id/menu_browse_artists"
         android:name="com.code.android.vibevault.BrowseArtistsFragment"
-        android:label="BrowseArtistsFragment" />
+        android:label="BrowseArtistsFragment" >
+        <action
+            android:id="@+id/action_menu_browse_artists_to_menu_search"
+            app:destination="@id/menu_search" />
+    </fragment>
     <fragment
         android:id="@+id/frag_show_details"
         android:name="com.code.android.vibevault.ShowDetailsFragment"

@@ -5,7 +5,7 @@
     android:layout_height="50dip">
 
     <TextView android:id="@+id/childname"
-		 android:paddingLeft="50dip"
+		 android:paddingStart="50dip"
          android:textSize="22sp"
          android:textStyle="bold"
          android:textColor="#127DD4"

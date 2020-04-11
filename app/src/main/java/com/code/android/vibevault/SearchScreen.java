@@ -12,7 +12,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.code.android.vibevault.BrowseArtistsFragment.BrowseActionListener;
 import com.code.android.vibevault.SearchFragment.SearchActionListener;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 import com.code.android.vibevault.ShowDetailsFragment.ShowDetailsActionListener;
@@ -57,7 +56,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		DialogAndNavigationListener,
 		SearchSettingsDialogInterface,
 		NowPlayingFragment.PlayerListener,
-		BrowseActionListener,
 		VotesActionListener {
 
 	private static final String LOG_TAG = SearchScreen.class.getName();
@@ -597,11 +595,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 	public void unregisterReceivers(BroadcastReceiver stateChangedBroadcast, BroadcastReceiver positionChangedBroadcast) {
 		unregisterReceiver(stateChangedBroadcast);
 		unregisterReceiver(positionChangedBroadcast);
-	}
-	
-	@Override
-	public void browse(String artist) {
-		this.instantiateSearchFragmentForActivity(artist);
 	}
 	
 	@Override

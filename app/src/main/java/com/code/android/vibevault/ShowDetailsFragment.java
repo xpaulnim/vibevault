@@ -111,7 +111,6 @@ public class ShowDetailsFragment extends Fragment {
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         appCompatActivity.getSupportActionBar().setTitle("Show Details");
 		db = StaticDataStore.getInstance(getActivity());
-
 	}
 	
 	@Override
@@ -456,7 +455,6 @@ public class ShowDetailsFragment extends Fragment {
 		Bundle bundle = new Bundle();
 
 		if(pos >=0 && showSongs != null){
-			bundle = new Bundle();
 			bundle.putSerializable("position", pos);
 			bundle.putSerializable("showsongs", showSongs);
 			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");

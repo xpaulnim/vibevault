@@ -13,10 +13,13 @@
         android:focusableInTouchMode="true"
         android:marqueeRepeatLimit="marquee_forever"
         android:paddingStart="10dip"
+        android:paddingEnd="10dip"
         android:paddingTop="4dip"
         android:paddingBottom="4dip"
         android:scrollHorizontally="true"
         android:singleLine="true"
         android:textSize="18sp"
-        tools:text="Artist name" />
+        tools:text="Artist name"
+        android:clickable="false"
+        android:focusable="false"/>
 </LinearLayout>
