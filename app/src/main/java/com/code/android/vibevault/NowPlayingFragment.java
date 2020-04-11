@@ -318,7 +318,6 @@ public class NowPlayingFragment extends Fragment {
 			}			
 		});
 		
-		progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.nowplayingbar));
 		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,

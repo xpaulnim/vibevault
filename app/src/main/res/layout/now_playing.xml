@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -53,7 +54,7 @@
                 android:layout_height="50dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
-                android:layout_toRightOf="@id/PrevButton"
+                android:layout_toEndOf="@id/PrevButton"
                 android:background="@drawable/ic_stop_24px" />
 
             <Button
@@ -62,7 +63,7 @@
                 android:layout_height="50dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
-                android:layout_toRightOf="@id/StopButton"
+                android:layout_toEndOf="@id/StopButton"
                 android:background="@drawable/ic_pause_24px" />
 
             <Button
@@ -71,48 +72,52 @@
                 android:layout_height="50dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
-                android:layout_toRightOf="@id/PauseButton"
+                android:layout_toEndOf="@id/PauseButton"
                 android:background="@drawable/ic_skip_next_black_18dp" />
         </RelativeLayout>
 
-        <TableLayout
-            android:id="@+id/ProgressBarNowPlayingScreen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dip"
-            android:orientation="vertical"
-            android:stretchColumns="1">
-
-            <TableRow>
-
-                <TextView
-                    android:id="@+id/TimeCurrent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dip"
-                    android:layout_column="0"
-                    android:layout_span="1"
-                    android:text="0:00"
-                    android:textStyle="bold" />
-
-                <SeekBar
-                    android:id="@+id/SeekBarNowPlaying"
-                    android:layout_width="fill_parent"
-                    android:layout_height="30dip"
-                    android:layout_column="1"
-                    android:layout_marginBottom="5dip"
-                    android:layout_span="2" />
-
-                <TextView
-                    android:id="@+id/TimeTotal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="30dip"
-                    android:layout_column="3"
-                    android:layout_span="1"
-                    android:text="0:00"
-                    android:textStyle="bold" />
-            </TableRow>
-        </TableLayout>
     </TableLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="fill_parent"
+        android:layout_height="30dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginHorizontal="10dip"
+        android:layout_marginBottom="5dip">
+
+        <TextView
+            android:id="@+id/TimeCurrent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="0:00"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/SeekBarNowPlaying"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <SeekBar
+            android:id="@+id/SeekBarNowPlaying"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/TimeTotal"
+            app:layout_constraintStart_toEndOf="@id/TimeCurrent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/TimeTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="0:00"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/SeekBarNowPlaying"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </LinearLayout>
