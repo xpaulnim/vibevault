@@ -38,9 +38,21 @@
     <fragment
         android:id="@+id/frag_show_details"
         android:name="com.code.android.vibevault.ShowDetailsFragment"
-        android:label="ShowDetailsFragment" >
+        android:label="ShowDetailsFragment">
         <action
             android:id="@+id/action_frag_show_details_to_menu_now_playing"
             app:destination="@id/menu_now_playing" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="www.archive.org/details/" />
+        <deepLink
+            android:id="@+id/deepLink2"
+            app:uri="archive.org/details/{id}" />
+        <deepLink
+            android:id="@+id/deepLink4"
+            app:uri="www.archive.org/download/" />
+        <deepLink
+            android:id="@+id/deepLink5"
+            app:uri="archive.org/download/" />
     </fragment>
 </navigation>

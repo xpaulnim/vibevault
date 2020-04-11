@@ -99,23 +99,25 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		}
 	}
 	
-	@Override
-	protected void onNewIntent(Intent i){
-		super.onNewIntent(i);
-		this.setIntent(i);
-		if(i!=null){
-			this.setIntent(i);
-			if(i.hasExtra("type")){
-				int type = i.getExtras().getInt("type");
-				if(type!=NOW_PLAYING_FRAGMENT){
-					this.clearBackStack();
-				}
-				instantiateFragment(i.getExtras().getInt("type"));
-			}
-		}
-	}
+//	@Override
+//	protected void onNewIntent(Intent i){
+//		Logging.Log(LOG_TAG, "onNewIntent : handling new intent");
+//		super.onNewIntent(i);
+//		this.setIntent(i);
+//		if(i!=null){
+//			this.setIntent(i);
+//			if(i.hasExtra("type")){
+//				int type = i.getExtras().getInt("type");
+//				if(type!=NOW_PLAYING_FRAGMENT){
+//					this.clearBackStack();
+//				}
+//				instantiateFragment(i.getExtras().getInt("type"));
+//			}
+//		}
+//	}
 
 	private void instantiateFragment(int type){
+		Logging.Log(LOG_TAG, "instantiateFragment : with type " + type);
 		switch(type){
 	    	case SEARCH_FRAGMENT: // Search
 	    		this.instantiateSearchFragmentForActivity(null);
@@ -147,7 +149,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		return ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
 	}
 
-
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -163,8 +164,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 		if (requestCode == EXTERNAL_STORAGE_PERMISSION){
 			if (storagePermissionGranted()){
 				Logging.Log(LOG_TAG, "Permission granted");
-
-				// do the thing
 			} else {
 				Logging.Log(LOG_TAG, "Permission not granted");
 			}
@@ -201,7 +200,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 			upgradeTask = new UpgradeTask(SearchScreen.this);
 			upgradeTask.execute();
 		} else { // DB Up to date, check artist date
-//			setImageButtonToFragments(item);
 			bottomBarView.setClickable(true);
 
 			if (needsArtistFetching() && upgradeTask == null) {
@@ -212,33 +210,6 @@ public class SearchScreen extends AppCompatActivity implements SearchActionListe
 
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		NavigationUI.setupWithNavController(bottomBarView, navController);
-
-		// See what type of Fragment we want to launch.
-        int type = SEARCH_FRAGMENT;
-        
-		// See if this Screen was spawned by the user clicking on a link.
-		// If so, form an ArchiveShowObj from the URL.
-		if (this.getIntent().getScheme()!=null&&this.getIntent().getScheme().equals("https")) {
-	        ArchiveShowObj show = null;
-			Logging.Log(LOG_TAG, "User clicked on link.");
-			type = DETAILS_FRAGMENT;
-			String linkString =  this.getIntent().getData().toString();
-			Logging.Log(LOG_TAG, "URL: " + linkString);
-			if (linkString.contains("/download/")) {
-				String[] paths = linkString.split("/");
-				for (int i = 0; i < paths.length; i++) {
-					if (paths[i].equals("download")) {
-						show = new ArchiveShowObj(new String("https://www.archive.org/details/" + paths[i + 1]), true);
-						show.setSelectedSong(linkString);
-					}
-				}
-				instantiateFragment(type);
-			// Show link clicked on (not an individual song link).
-			} else {
-				show = new ArchiveShowObj(linkString, false);
-			}
-			this.instantiateShowDetailsFragmentForActivity(show);
-		}
     }
 
 	private boolean needsArtistFetching() {

@@ -30,6 +30,7 @@ import java.util.Comparator;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.AsyncTask;
@@ -108,7 +109,6 @@ public class ShowDetailsFragment extends Fragment {
 		this.setRetainInstance(true);
 
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         appCompatActivity.getSupportActionBar().setTitle("Show Details");
 		db = StaticDataStore.getInstance(getActivity());
 
@@ -140,8 +140,8 @@ public class ShowDetailsFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState){
 	    super.onActivityCreated(savedInstanceState);
-	    
-	    // Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
+
+		// Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
         setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 //        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -150,7 +150,32 @@ public class ShowDetailsFragment extends Fragment {
 		appCompatActivity.getSupportActionBar().setTitle("Show Details");
 	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
 		if(this.getArguments()!=null){
-			ArchiveShowObj passedShow = (ArchiveShowObj)this.getArguments().getSerializable("show");
+			ArchiveShowObj passedShow = null;
+
+			// See if this Fragment was spawned by the user clicking on a link.
+			// If so, form an ArchiveShowObj from the URL.
+			Object deepLinkObj = getArguments().get("android-support-nav:controller:deepLinkIntent");
+			if (deepLinkObj != null) {
+				String linkString = ((Intent) deepLinkObj).getDataString();
+
+				if(linkString != null) {
+					if (linkString.contains("/download/")) {
+						String[] paths = linkString.split("/");
+						for (int i = 0; i < paths.length; i++) {
+							if (paths[i].equals("download")) {
+								passedShow = new ArchiveShowObj("https://www.archive.org/details/" + paths[i + 1], true);
+								passedShow.setSelectedSong(linkString);
+							}
+						}
+						// Show link clicked on (not an individual song link).
+					} else {
+						passedShow = new ArchiveShowObj(linkString, false);
+					}
+				}
+			} else if (getArguments().getSerializable("show") != null) {
+				passedShow = (ArchiveShowObj) getArguments().getSerializable("show");
+			}
+
 			// If This ShowDetailsFragment's show object is null, set it to the passed show.
 			// FIXME Maybe put in a check for a null passedShow?
 			if(show==null){
