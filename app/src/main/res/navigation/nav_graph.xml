@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/frag_search"
         android:name="com.code.android.vibevault.SearchFragment"
-        android:label="SearchFragment"
+        android:label="Search"
         tools:layout="@layout/search_fragment">
         <action
             android:id="@+id/action_frag_search_to_frag_show_details"
@@ -16,7 +16,7 @@
     <fragment
         android:id="@id/menu_your_shows"
         android:name="com.code.android.vibevault.ShowsStoredFragment"
-        android:label="ShowsStoredFragment"
+        android:label="Shows Stored"
         tools:layout="@layout/shows_stored_fragment">
         <action
             android:id="@+id/action_menu_your_shows_to_frag_show_details"
@@ -28,7 +28,7 @@
     <fragment
         android:id="@id/menu_downloads"
         android:name="com.code.android.vibevault.ShowsDownloadedFragment"
-        android:label="ShowsDownloadedFragment"
+        android:label="Downloaded"
         tools:layout="@layout/downloaded_shows_fragment">
         <action
             android:id="@+id/action_menu_downloads_to_frag_show_details"
@@ -40,7 +40,7 @@
     <fragment
         android:id="@id/menu_now_playing"
         android:name="com.code.android.vibevault.NowPlayingFragment"
-        android:label="NowPlayingFragment"
+        android:label="Now Playing"
         tools:layout="@layout/now_playing">
         <action
             android:id="@+id/action_menu_now_playing_to_frag_search"
@@ -49,7 +49,7 @@
     <fragment
         android:id="@id/menu_browse_artists"
         android:name="com.code.android.vibevault.BrowseArtistsFragment"
-        android:label="BrowseArtistsFragment"
+        android:label="Browse Artists"
         tools:layout="@layout/browse_artists_fragment">
         <action
             android:id="@+id/action_menu_browse_artists_to_frag_search"
@@ -58,7 +58,7 @@
     <fragment
         android:id="@+id/frag_show_details"
         android:name="com.code.android.vibevault.ShowDetailsFragment"
-        android:label="ShowDetailsFragment"
+        android:label="Show Details"
         tools:layout="@layout/show_details_fragment">
         <action
             android:id="@+id/action_frag_show_details_to_menu_now_playing"
@@ -79,7 +79,7 @@
     <fragment
         android:id="@id/menu_votes"
         android:name="com.code.android.vibevault.VotesFragment"
-        android:label="VotesFragment"
+        android:label="Votes"
         tools:layout="@layout/votes_fragment">
         <action
             android:id="@+id/action_menu_votes_to_frag_show_details"
