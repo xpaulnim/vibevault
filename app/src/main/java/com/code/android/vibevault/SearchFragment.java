@@ -279,8 +279,6 @@ public class SearchFragment extends Fragment
 			}
 		});
 
-		initTopAppBar();
-
 		return view;
 	}
 
@@ -414,6 +412,8 @@ public class SearchFragment extends Fragment
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		initTopAppBar();
 
 		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
 

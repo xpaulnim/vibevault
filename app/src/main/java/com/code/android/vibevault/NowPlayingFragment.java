@@ -44,7 +44,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import com.google.android.material.button.MaterialButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
@@ -89,10 +89,10 @@ public class NowPlayingFragment extends Fragment {
 	protected TableLayout playerLayout;
 	protected RelativeLayout buttonHolder;
 	
-	protected Button previous;
-	protected Button stop;
-	protected Button pause;
-	protected Button next;
+	protected MaterialButton previous;
+	protected MaterialButton stop;
+	protected MaterialButton pause;
+	protected MaterialButton next;
 	
 	protected SeekBar progressBar;
 	protected TextView timeCurrent;
@@ -158,10 +158,10 @@ public class NowPlayingFragment extends Fragment {
 		
 		// Initialize the interface.
 		playerLayout = (TableLayout) view.findViewById(R.id.PlayerBackground);
-		previous = (Button) view.findViewById(R.id.PrevButton);
-		stop = (Button) view.findViewById(R.id.StopButton);
-		pause = (Button) view.findViewById(R.id.PauseButton);
-		next = (Button) view.findViewById(R.id.NextButton);
+		previous = (MaterialButton) view.findViewById(R.id.PrevButton);
+		stop = (MaterialButton) view.findViewById(R.id.StopButton);
+		pause = (MaterialButton) view.findViewById(R.id.PauseButton);
+		next = (MaterialButton) view.findViewById(R.id.NextButton);
 		progressBar = (SeekBar) view.findViewById(R.id.SeekBarNowPlaying);
 		timeCurrent = (TextView) view.findViewById(R.id.TimeCurrent);
 		timeTotal = (TextView) view.findViewById(R.id.TimeTotal);
@@ -505,7 +505,7 @@ public class NowPlayingFragment extends Fragment {
 				nowPlayingTextView.setHorizontallyScrolling(true);
 			}
 
-			pause.setBackgroundResource(pauseIcon);
+			pause.setIconResource(pauseIcon);
 			hideGUIFeaturesIfOldSDK(status);
 		}
 	}
@@ -574,7 +574,7 @@ public class NowPlayingFragment extends Fragment {
 		}
 		
 		@Override 
-		public View getView(int position, View convertView, ViewGroup parent){
+		public View getView(int position, View convertView, @NonNull ViewGroup parent){
 			final ArchiveSongObj song = this.getItem(position);
 			if(convertView==null){
 				LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -590,8 +590,8 @@ public class NowPlayingFragment extends Fragment {
 				artistText.setText(song.getShowArtist());
 				if(position == currentPos){
 					// TODO: Use better color
-					songText.setTextColor(Color.RED);
-					artistText.setTextColor(Color.RED);
+					songText.setTextColor(getResources().getColor(R.color.colorPrimary));
+					artistText.setTextColor(getResources().getColor(R.color.colorPrimary));
 				}
 				else{
 //					songText.setTextColor(Color.rgb(18, 125, 212));
