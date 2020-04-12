@@ -55,11 +55,18 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -141,87 +148,29 @@ public class NowPlayingFragment extends Fragment {
 		// If this ShowDetailsFragment has arguments (a passed show), grab it and parse it.
 		if (this.getArguments() != null) {
 			this.attachToPlaybackService();
-		}		
-		// Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
-        setHasOptionsMenu(true);
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-//        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        appCompatActivity.getSupportActionBar().setTitle("Now Playing");
-	}
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		menu.clear();
-		inflater.inflate(R.menu.help_bookmark_share_download_vote, menu);
-		MenuItem item = menu.findItem(R.id.ShareButton);
-	    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-	
-	// These are the callbacks for the ActionBar buttons.
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.SearchActionBarButton:
-				NavHostFragment
-						.findNavController(NowPlayingFragment.this)
-						.navigate(R.id.frag_search);
-				return true;
-			case R.id.VoteButton:
-				vote();
-				return true;
-			case R.id.HelpButton:
-				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.now_playing_screen_help), "Help");
-				return true;
-			case android.R.id.home:
-				dialogAndNavigationListener.goHome();
-				return true;
-			case R.id.DownloadButton:
-				NowPlayingFragment.this.getActivity().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_DOWNLOAD));
-				return true;
-			case R.id.BookmarkButton:
-				if(currentPos>=0&&currentPos<this.adapter.getCount()){
-					ArchiveSongObj voteSong = this.adapter.getItem(currentPos);
-					if(voteSong!=null){
-						ArchiveShowObj bookmarkShow = db.getShow(voteSong.getShowIdentifier());
-						if(bookmarkShow!=null){
-							db.openDataBase();
-							db.insertFavoriteShow(bookmarkShow);
-							db.close();
-							Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
-							return true;
-						}
-					}
-				}
-				Toast.makeText(getActivity().getBaseContext(), R.string.error_no_song_bookmark_message_text, Toast.LENGTH_SHORT).show();
-				return false;
-			default:
-				return false;
 		}
 	}
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the fragment and grab a reference to it.
-		View v = inflater.inflate(R.layout.now_playing, container, false);
+		View view = inflater.inflate(R.layout.now_playing, container, false);
 		
 		// Initialize the interface.
-		playerLayout = (TableLayout) v.findViewById(R.id.PlayerBackground);
-		previous = (Button) v.findViewById(R.id.PrevButton);
-		stop = (Button) v.findViewById(R.id.StopButton);
-		pause = (Button) v.findViewById(R.id.PauseButton);
-		next = (Button) v.findViewById(R.id.NextButton);
-		progressBar = (SeekBar) v.findViewById(R.id.SeekBarNowPlaying);
-		timeCurrent = (TextView) v.findViewById(R.id.TimeCurrent);
-		timeTotal = (TextView) v.findViewById(R.id.TimeTotal);
-		nowPlayingTextView = (TextView) v.findViewById(R.id.PlayingLabelTextView);
-		buttonHolder = (RelativeLayout) v.findViewById(R.id.ButtonHolder);
+		playerLayout = (TableLayout) view.findViewById(R.id.PlayerBackground);
+		previous = (Button) view.findViewById(R.id.PrevButton);
+		stop = (Button) view.findViewById(R.id.StopButton);
+		pause = (Button) view.findViewById(R.id.PauseButton);
+		next = (Button) view.findViewById(R.id.NextButton);
+		progressBar = (SeekBar) view.findViewById(R.id.SeekBarNowPlaying);
+		timeCurrent = (TextView) view.findViewById(R.id.TimeCurrent);
+		timeTotal = (TextView) view.findViewById(R.id.TimeTotal);
+		nowPlayingTextView = (TextView) view.findViewById(R.id.PlayingLabelTextView);
+		buttonHolder = (RelativeLayout) view.findViewById(R.id.ButtonHolder);
 		
 		// Initialize the DraggableListView of songs, settings listeners for clicking,
 		// long-pressing, dragging, and removing.
-		songsListView = (DraggableListView) v.findViewById(R.id.PlayListListView);
+		songsListView = (DraggableListView) view.findViewById(R.id.PlayListListView);
 		songsListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
@@ -233,7 +182,7 @@ public class NowPlayingFragment extends Fragment {
 		});
 //		songsListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 //			@Override
-//			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+//			public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
 //				menu.add(Menu.NONE, MENU_REMOVE, Menu.NONE, "Remove from playlist");
 //			}
 //		});
@@ -270,7 +219,67 @@ public class NowPlayingFragment extends Fragment {
 		initPlayControls();
 //		songsListView.setBackgroundColor(Color.BLACK);
 
-		return v;
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.SearchActionBarButton:
+						NavHostFragment
+								.findNavController(NowPlayingFragment.this)
+								.navigate(R.id.frag_search);
+						return true;
+					case R.id.VoteButton:
+						vote();
+						return true;
+					case R.id.HelpButton:
+						dialogAndNavigationListener.showDialog(NowPlayingFragment.this.getResources().getString(R.string.now_playing_screen_help), "Help");
+						return true;
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+						return true;
+					case R.id.DownloadButton:
+						NowPlayingFragment.this.getActivity().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_DOWNLOAD));
+						return true;
+					case R.id.BookmarkButton:
+						if(currentPos>=0&&currentPos<NowPlayingFragment.this.adapter.getCount()){
+							ArchiveSongObj voteSong = NowPlayingFragment.this.adapter.getItem(currentPos);
+							if(voteSong!=null){
+								ArchiveShowObj bookmarkShow = db.getShow(voteSong.getShowIdentifier());
+								if(bookmarkShow!=null){
+									db.openDataBase();
+									db.insertFavoriteShow(bookmarkShow);
+									db.close();
+									Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
+									return true;
+								}
+							}
+						}
+						Toast.makeText(getActivity().getBaseContext(), R.string.error_no_song_bookmark_message_text, Toast.LENGTH_SHORT).show();
+						return false;
+					default:
+						return false;
+				}
+			}
+		});
+
+		MenuItem item = topAppBar.getMenu().findItem(R.id.ShareButton);
+		mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	
@@ -536,14 +545,14 @@ public class NowPlayingFragment extends Fragment {
 			ArchiveSongObj song = (ArchiveSongObj)this.songsListView.getAdapter().getItem(this.currentPos>=0&&this.currentPos<this.songsListView.getAdapter().getCount()?this.currentPos:0);
 			if(song!=null){
 				Logging.Log(LOG_TAG, "Song is not null, setting new Intent for sharing.");
-				Intent i = new Intent(Intent.ACTION_SEND);
-				i.setType("text/plain");
+				Intent intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("text/plain");
 				// Add data to the intent, the receiving app will decide what to do with it.
-				i.putExtra(Intent.EXTRA_SUBJECT, "Vibe Vault");
-				i.putExtra(Intent.EXTRA_TEXT, "Listen to " + song.getSongTitle() + " by " + song.getShowArtist() + ": " + song.getLowBitRate()
+				intent.putExtra(Intent.EXTRA_SUBJECT, "Vibe Vault");
+				intent.putExtra(Intent.EXTRA_TEXT, "Listen to " + song.getSongTitle() + " by " + song.getShowArtist() + ": " + song.getLowBitRate()
 						+ "\n\nSent using #VibeVault for Android.");
 				if(mShareActionProvider!=null){
-					mShareActionProvider.setShareIntent(i);
+					mShareActionProvider.setShareIntent(intent);
 				}
 			}
 		}

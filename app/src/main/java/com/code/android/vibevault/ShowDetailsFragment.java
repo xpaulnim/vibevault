@@ -40,11 +40,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -102,18 +109,16 @@ public class ShowDetailsFragment extends Fragment {
 		// Control whether a fragment instance is retained across Activity re-creation (such as from a configuration change).
 		this.setRetainInstance(true);
 
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setTitle("Show Details");
 		db = StaticDataStore.getInstance(getActivity());
 	}
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the fragment and grab a reference to it.
-		View v = inflater.inflate(R.layout.show_details_fragment, container, false);
+		View view = inflater.inflate(R.layout.show_details_fragment, container, false);
 		// Initialize the show's label and its list of tracks.  Set the appropriate listeners.
-		showLabel = (TextView) v.findViewById(R.id.ShowLabel);
-		trackList = (ListView) v.findViewById(R.id.SongsListView);
+		showLabel = (TextView) view.findViewById(R.id.ShowLabel);
+		trackList = (ListView) view.findViewById(R.id.SongsListView);
 		trackList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position,	long id) {
@@ -124,7 +129,56 @@ public class ShowDetailsFragment extends Fragment {
 		if(showSongs!=null && !showSongs.isEmpty()){
 			refreshTrackList();
 		}
-		return v;
+
+		Toolbar topAppBar = (Toolbar) view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.VoteButton:
+						if (!showSongs.isEmpty()) {
+							new VoteTask().execute(show);
+						} else {
+							Toast.makeText(getActivity(), R.string.error_empty_show_vote, Toast.LENGTH_SHORT).show();
+						}
+						return true;
+					case R.id.BookmarkButton:
+						Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
+						db.insertFavoriteShow(show);
+						return true;
+					case R.id.HelpButton:
+						dialogAndNavigationListener.showDialog(ShowDetailsFragment.this.getResources().getString(R.string.show_details_screen_help), "Help");
+						return true;
+					case R.id.DownloadButton:
+						DownloadingAsyncTask task = new DownloadingAsyncTask(getActivity());
+						task.execute(showSongs.toArray(new ArchiveSongObj[showSongs.size()]));
+						return true;
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+					default:
+						return false;
+				}
+			}
+		});
+
+		MenuItem item = topAppBar.getMenu().findItem(R.id.ShareButton);
+		mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+//	    mShareActionProvider.setShareHistoryFileName(null);
+
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	// This method is called right after onCreateView() is called.  "Called when the
@@ -134,13 +188,6 @@ public class ShowDetailsFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState){
 	    super.onActivityCreated(savedInstanceState);
 
-		// Must call in order to get callback to onOptionsItemSelected() and thereby create an ActionBar.
-        setHasOptionsMenu(true);
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-//        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-//		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		appCompatActivity.getSupportActionBar().setTitle("Show Details");
 	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
 		if(this.getArguments()!=null){
 			ArchiveShowObj passedShow = null;
@@ -373,45 +420,6 @@ public class ShowDetailsFragment extends Fragment {
 		super.onResume();
 		Logging.Log(LOG_TAG,"ONRESUME.");
 		refreshTrackList();
-	}
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		menu.clear();
-		inflater.inflate(R.menu.help_bookmark_share_download_vote, menu);
-		MenuItem item = menu.findItem(R.id.ShareButton);
-	    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-//	    mShareActionProvider.setShareHistoryFileName(null);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-	
-	// These are the callbacks for the ActionBar buttons.
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.VoteButton:
-			if (!showSongs.isEmpty()) {
-				new VoteTask().execute(show);
-			} else {
-				Toast.makeText(getActivity(), R.string.error_empty_show_vote, Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		case R.id.BookmarkButton:
-			Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
-			db.insertFavoriteShow(show);
-			return true;
-		case R.id.HelpButton:
-			dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.show_details_screen_help), "Help");
-			return true;
-		case R.id.DownloadButton:
-			DownloadingAsyncTask task = new DownloadingAsyncTask(getActivity());
-			task.execute(showSongs.toArray(new ArchiveSongObj[showSongs.size()]));
-			return true;
-		case android.R.id.home:
-			dialogAndNavigationListener.goHome();
-		default:
-			return false;
-		}
 	}
 
 	@Override

@@ -11,22 +11,27 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
 
 public class ShowsStoredFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
-		AdapterView.OnItemClickListener,
-		ActionBar.OnNavigationListener
-{
+		AdapterView.OnItemClickListener {
 	
 	private static final String LOG_TAG = ShowsStoredFragment.class.getName();
 
@@ -75,71 +80,87 @@ public class ShowsStoredFragment extends Fragment implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.shows_stored_fragment, container,
-				false);
-		storedList = (ListView) v.findViewById(R.id.StoredListView);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.shows_stored_fragment, container, false);
+		storedList = (ListView) view.findViewById(R.id.StoredListView);
 		storedList.setOnItemClickListener(this);
-		return v;
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.SearchActionBarButton:
+						NavHostFragment
+								.findNavController(ShowsStoredFragment.this)
+								.navigate(R.id.frag_search);
+						break;
+					case R.id.HelpButton:
+						dialogAndNavigationListener.showDialog(
+								ShowsStoredFragment.this.getResources().getString(R.string.recent_shows_screen_help),
+								"Help");
+						break;
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+		});
+
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				getActivity(),
+				R.array.stored_array,
+				android.R.layout.simple_spinner_dropdown_item);
+
+		Spinner spinner = (Spinner) topAppBar.getMenu()
+				.findItem(R.id.ShowsStoredSpinner)
+				.getActionView()
+				.findViewById(R.id.planets_spinner);
+
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				LoaderManager lm = getLoaderManager();
+				Bundle bundle = new Bundle();
+				bundle.putInt("storedType", position);
+				lm.restartLoader(2, bundle, ShowsStoredFragment.this);
+
+				if (position == ShowsStoredAsyncTaskLoader.STORED_RECENT_SHOWS) {
+					stored_type = ScrollingShowAdapter.MENU_RECENT;
+				} else {
+					stored_type = ScrollingShowAdapter.MENU_BOOKMARK;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
+
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		setHasOptionsMenu(true);
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//		appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		appCompatActivity.getSupportActionBar().setTitle("Your Shows");
-		Logging.Log(LOG_TAG, "ACTION MODE: " + appCompatActivity.getSupportActionBar().getNavigationMode());
-		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				appCompatActivity,
-				R.array.stored_array,
-				R.layout.spinner_dropdown_layout_item);
-		appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
-	}
-
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		LoaderManager lm = getLoaderManager();
-		Bundle b = new Bundle();
-		b.putInt("storedType", itemPosition);
-		lm.restartLoader(2, b, ShowsStoredFragment.this);
-		stored_type = (itemPosition == ShowsStoredAsyncTaskLoader.STORED_RECENT_SHOWS ?
-				ScrollingShowAdapter.MENU_RECENT : ScrollingShowAdapter.MENU_BOOKMARK);
-				
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.SearchActionBarButton:
-			NavHostFragment
-					.findNavController(ShowsStoredFragment.this)
-					.navigate(R.id.frag_search);
-			break;
-		case R.id.HelpButton:
-			dialogAndNavigationListener.showDialog(
-					this.getResources().getString(R.string.recent_shows_screen_help),
-					"Help");
-			break;
-		case android.R.id.home:
-			dialogAndNavigationListener.goHome();
-			break;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if (!menu.hasVisibleItems()) {
-			inflater.inflate(R.menu.help, menu);
-		}
 	}
 
 	@Override
@@ -176,7 +197,6 @@ public class ShowsStoredFragment extends Fragment implements
 	@Override
 	public void onLoaderReset(Loader<ArrayList<ArchiveShowObj>> arg0) {
 		// TODO Auto-generated method stub
-
 	}
 
 }

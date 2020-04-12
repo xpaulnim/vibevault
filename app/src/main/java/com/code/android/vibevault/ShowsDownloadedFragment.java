@@ -20,12 +20,19 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,8 +41,7 @@ import java.util.regex.Pattern;
 
 public class ShowsDownloadedFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<ArchiveShowObj>>,
-		AdapterView.OnItemClickListener,
-		ActionBar.OnNavigationListener {
+		AdapterView.OnItemClickListener {
 	
 	private static final String LOG_TAG = ShowsDownloadedFragment.class.getName();
 
@@ -82,109 +88,111 @@ public class ShowsDownloadedFragment extends Fragment implements
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-		View v = inflater.inflate(R.layout.downloaded_shows_fragment, container, false);
-		downloadedList = (ListView) v.findViewById(R.id.DownloadedListView);
+		View view = inflater.inflate(R.layout.downloaded_shows_fragment, container, false);
+		downloadedList = (ListView) view.findViewById(R.id.DownloadedListView);
 		downloadedList.setOnItemClickListener(this);
-		return v;
+
+		Toolbar topAppBar = (Toolbar) view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()){
+					case R.id.SearchActionBarButton:
+						NavHostFragment
+								.findNavController(ShowsDownloadedFragment.this)
+								.navigate(R.id.frag_search);
+						break;
+					case R.id.scrollableDialog:
+						dialogAndNavigationListener.showDialog(ShowsDownloadedFragment.this.getResources().getString(R.string.downloaded_show_screen_help), "Help");
+						break;
+					case R.id.SyncFolder:
+						DirectorySyncTask t = new DirectorySyncTask(ShowsDownloadedFragment.this);
+						t.execute("");
+						break;
+					case R.id.ChangeFolder:
+						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+						builder.setTitle("Enter New Folder Name");
+						final EditText input = new EditText(getActivity());
+						input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+						String path = Downloading.getAppDirectory(db);
+						input.setText(path.substring(1, (path.length() - 1)));
+						builder.setView(input);
+						builder.setPositiveButton("OK", null); //set listener below
+						builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						});
+						final AlertDialog dialog = builder.create();
+						dialog.show();
+						dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(input.getWindowToken(), 0);
+								String inputText = input.getText().toString();
+								String newPath = "/" + inputText + "/";
+								String rawText = inputText.replace("/", "");
+								Pattern pattern = Pattern.compile("[A-Za-z0-9]+(?:[\\s-][A-Za-z0-9]+)*");
+								Matcher matcher = pattern.matcher(rawText);
+								String error = "";
+								if (rawText.equalsIgnoreCase(Downloading.getAppDirectory(db).replace("/", ""))) {
+									error = getString(R.string.error_directory_name_match_message_text);
+								} else if (inputText.charAt(0) == '/' || inputText.charAt(inputText.length()-1) == '/') {
+									error = getString(R.string.error_directory_name_slash_message_text);
+								} else if (rawText.length() == 0) {
+									error = getString(R.string.error_directory_name_blank_message_text);
+								} else if (rawText.length() > 32) {
+									error = getString(R.string.error_directory_name_length_message_text);
+								} else if (!matcher.matches()) {
+									error = getString(R.string.error_directory_name_characters_message_text);
+								}
+								if (error.equals("")) {
+									((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(input.getWindowToken(), 0);
+									dialog.dismiss();
+									ChangeDirectoryTask c = new ChangeDirectoryTask(getActivity());
+									c.execute(newPath);
+								} else {
+									((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
+									Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
+								}
+							}
+						});
+						break;
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+		});
+
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		setHasOptionsMenu(true);
-        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-		appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		appCompatActivity.getSupportActionBar().setTitle("Downloaded");
-		
+
 		LoaderManager lm = this.getLoaderManager();
 		lm.initLoader(1, null, this);
 		Logging.Log(LOG_TAG, "Activity Created");
 	}
-	
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item){
-		switch (item.getItemId()){
-			case R.id.SearchActionBarButton:
-				NavHostFragment
-						.findNavController(ShowsDownloadedFragment.this)
-						.navigate(R.id.frag_search);
-				break;
-			case R.id.scrollableDialog:
-				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.downloaded_show_screen_help), "Help");
-				break;
-			case R.id.SyncFolder:
-				DirectorySyncTask t = new DirectorySyncTask(this);
-				t.execute("");
-				break;
-			case R.id.ChangeFolder:
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setTitle("Enter New Folder Name");
-				final EditText input = new EditText(getActivity());
-				input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-				String path = Downloading.getAppDirectory(db);
-				input.setText(path.substring(1, (path.length() - 1)));
-				builder.setView(input);
-				builder.setPositiveButton("OK", null); //set listener below
-				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();						
-					}
-				});
-				final AlertDialog dialog = builder.create();
-				dialog.show();
-				dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(input.getWindowToken(), 0);
-						String inputText = input.getText().toString();
-						String newPath = "/" + inputText + "/";
-						String rawText = inputText.replace("/", "");
-						Pattern pattern = Pattern.compile("[A-Za-z0-9]+(?:[\\s-][A-Za-z0-9]+)*");
-						Matcher matcher = pattern.matcher(rawText);
-						String error = "";
-						if (rawText.equalsIgnoreCase(Downloading.getAppDirectory(db).replace("/", ""))) {
-							error = getString(R.string.error_directory_name_match_message_text);
-						} else if (inputText.charAt(0) == '/' || inputText.charAt(inputText.length()-1) == '/') {
-							error = getString(R.string.error_directory_name_slash_message_text);
-						} else if (rawText.length() == 0) {
-							error = getString(R.string.error_directory_name_blank_message_text);
-						} else if (rawText.length() > 32) {
-							error = getString(R.string.error_directory_name_length_message_text);						
-						} else if (!matcher.matches()) {
-							error = getString(R.string.error_directory_name_characters_message_text);					
-						}
-						if (error.equals("")) {
-							((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(input.getWindowToken(), 0);
-							dialog.dismiss();
-							ChangeDirectoryTask c = new ChangeDirectoryTask(getActivity());
-							c.execute(newPath);
-						} else {
-							((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
-							Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
-						}
-					}					
-				});
-				break;
-			case android.R.id.home:
-				dialogAndNavigationListener.goHome();
-				break;
-			default:
-	            return super.onOptionsItemSelected(item);
-		}
-		return true;
-	}
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		menu.clear();
-		inflater.inflate(R.menu.help_sync_folder, menu);
-	    super.onCreateOptionsMenu(menu, inflater);
-	}
-	
 	
 	@Override
 	public Loader<ArrayList<ArchiveShowObj>> onCreateLoader(int id, Bundle args) {
@@ -193,11 +201,10 @@ public class ShowsDownloadedFragment extends Fragment implements
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<ArchiveShowObj>> arg0,
-			ArrayList<ArchiveShowObj> arg1) {
+	public void onLoadFinished(Loader<ArrayList<ArchiveShowObj>> loader, ArrayList<ArchiveShowObj> data) {
 		Logging.Log(LOG_TAG, "Loader Finished");
 		ScrollingShowAdapter showAdapter = new ScrollingShowAdapter(getActivity(), 
-				R.id.DownloadedListView, arg1, db, ScrollingShowAdapter.MENU_DOWNLOAD);
+				R.id.DownloadedListView, data, db, ScrollingShowAdapter.MENU_DOWNLOAD);
 		downloadedList.setAdapter(showAdapter);
 		
 	}
@@ -216,12 +223,6 @@ public class ShowsDownloadedFragment extends Fragment implements
 		NavHostFragment
 				.findNavController(ShowsDownloadedFragment.this)
 				.navigate(R.id.action_menu_downloads_to_frag_show_details, bundle);
-	}
-
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 	
 	private class DirectorySyncTask extends AsyncTask<String, Void, Void> {

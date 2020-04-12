@@ -10,7 +10,6 @@ import android.os.Parcelable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,21 +22,30 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
 
-public class VotesFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<?>>, ActionBar.OnNavigationListener {
+public class VotesFragment extends Fragment implements
+		LoaderManager.LoaderCallbacks<ArrayList<?>>,
+		AdapterView.OnItemSelectedListener {
 	
 	protected static final String LOG_TAG = VotesFragment.class.getName();
 	private DialogAndNavigationListener dialogAndNavigationListener;
@@ -55,11 +63,16 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 	private StaticDataStore db;
 	
 	private boolean moreResults = false;
+
+	private Spinner spinner;
+
+	// TODO: Kept after removing action bar
+	private String actionBarTitle = "";
 	
 	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		if (voteType != Voting.VOTES_SHOWS_BY_ARTIST) {
-			switch(itemPosition){
+			switch(position){
 				case 0:
 					this.voteType = Voting.VOTES_SHOWS;
 					this.voteResultType = Voting.VOTES_NEWEST_VOTED;
@@ -95,11 +108,10 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 				default:
 					this.voteType = Voting.VOTES_SHOWS;
 					this.voteResultType = Voting.VOTES_NEWEST_VOTED;
-					return false;
 			}
 		} else {
 			voteType = Voting.VOTES_SHOWS_BY_ARTIST;
-			switch(itemPosition) {
+			switch(position) {
 				case 0:
 					voteResultType = Voting.VOTES_NEWEST_VOTED;
 					break;
@@ -118,16 +130,18 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			}
 		}
 		Logging.Log(LOG_TAG, "VotesFragment: Execute Refresh from callback");
-		if(currentSelectedMode!=itemPosition){
-			currentSelectedMode=itemPosition;
+		if(currentSelectedMode!=position){
+			currentSelectedMode=position;
 			moreResults = false;
 			offset = 0;
 			executeRefresh();
-
 		}
-		return true;
 	}
-	
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+	}
+
 	// Called right before onCreate(), which is right before onCreateView().
 	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
 	@Override
@@ -175,12 +189,10 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Logging.Log(LOG_TAG, "CREATING VIEW.");
 		// Inflate the fragment and grab a reference to it.
-		View v = inflater.inflate(R.layout.votes_fragment, container, false);
-		this.votedList = (ListView) v.findViewById(R.id.VotesListView);
+		View view = inflater.inflate(R.layout.votes_fragment, container, false);
+		this.votedList = (ListView) view.findViewById(R.id.VotesListView);
 		votedList.setFooterDividersEnabled(false);
-		int[] gradientColors = {0, 0xFF127DD4, 0};
-		votedList.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, gradientColors));
-		votedList.setDividerHeight(1);
+
 		this.moreButton = new Button(getActivity());
 		this.moreButton.setText("More");
 		this.moreButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
@@ -216,7 +228,35 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 				}
 			}
 		});
-		return v;
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				getActivity(),
+				R.array.voting_array,
+				android.R.layout.simple_spinner_dropdown_item);
+
+		spinner = (Spinner) topAppBar.getMenu()
+				.findItem(R.id.ShowsStoredSpinner)
+				.getActionView()
+				.findViewById(R.id.planets_spinner);
+
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(this);
+
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	private void executeRefresh(){
@@ -234,12 +274,15 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			this.voteType = Voting.VOTES_SHOWS_BY_ARTIST;
 			this.voteResultType = Voting.VOTES_ALL_TIME;
 			this.artistId = artist.getArtistId();
-			AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//			appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
-	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
-	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
+
+	        actionBarTitle = "Shows By Artist";
+	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+	        		getActivity(),
+					R.array.voting_by_artist,
+					android.R.layout.simple_spinner_dropdown_item);
+
+			spinner.setAdapter(adapter);
+			spinner.setOnItemSelectedListener(this);
 		}
 	}
 	
@@ -253,11 +296,8 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
 		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-//        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        appCompatActivity.getSupportActionBar().setTitle("Top Voted");
-        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);
-        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
+        actionBarTitle = "Top Voted";
+
 		Bundle b = new Bundle();
 		b.putIntArray("queryArray", new int[] {this.voteType, this.voteResultType, numResults, this.offset, artistId});
 		
@@ -265,31 +305,6 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-	}
-	
-	// Set ActionBar actions.
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item){
-		switch (item.getItemId()){
-			case android.R.id.home:
-				dialogAndNavigationListener.goHome();
-				break;
-			case R.id.HelpButton:
-				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.voting_screen), "Help");
-				break;
-			default:
-				break;
-		}
-        return super.onOptionsItemSelected(item);
-	}
-	
-	// Must call in order to get callback to onOptionsItemSelected()
-	// and thereby create an ActionBar.
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		if(!menu.hasVisibleItems()){
-		inflater.inflate(R.menu.help, menu);
-		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -302,34 +317,37 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void onLoadFinished(Loader<ArrayList<?>> arg0, ArrayList<?> arg1) {
+	public void onLoadFinished(Loader<ArrayList<?>> loader, ArrayList<?> data) {
 		this.dialogAndNavigationListener.hideDialog();
 		Logging.Log(LOG_TAG, "MORERESULTS: " + moreResults);
 		if (moreResults) {
 			Parcelable state = this.votedList.onSaveInstanceState();
-			this.votes.addAll((ArrayList<ArchiveVoteObj>)arg1);
+			this.votes.addAll((ArrayList<ArchiveVoteObj>)data);
 			this.refreshVoteList();
 			this.votedList.onRestoreInstanceState(state);
 			moreResults=false;
 		} else {
-			this.votes = (ArrayList<ArchiveVoteObj>) arg1;
+			this.votes = (ArrayList<ArchiveVoteObj>) data;
 			this.refreshVoteList();
 
 		}
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-		CharSequence title = appCompatActivity.getSupportActionBar().getTitle();
-		if (voteType == Voting.VOTES_SHOWS_BY_ARTIST && title == "Top Voted") {
-//	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	        appCompatActivity.getSupportActionBar().setTitle("Shows By Artist");
-	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_by_artist, android.R.layout.simple_spinner_dropdown_item);
-	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
-		} else if (voteType != Voting.VOTES_SHOWS_BY_ARTIST && title == "Shows By Artist") {
-//	        appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	        appCompatActivity.getSupportActionBar().setTitle("Top Voted");
-	        appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.voting_array, android.R.layout.simple_spinner_dropdown_item);
-	        appCompatActivity.getSupportActionBar().setListNavigationCallbacks(adapter, this);
+
+		if (voteType == Voting.VOTES_SHOWS_BY_ARTIST && actionBarTitle.equals("Top Voted")) {
+	        actionBarTitle = "Shows By Artist";
+	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+	        		getActivity(),
+					R.array.voting_by_artist,
+					android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+			spinner.setOnItemSelectedListener(this);
+		} else if (voteType != Voting.VOTES_SHOWS_BY_ARTIST && actionBarTitle.equals("Shows By Artist")) {
+	        actionBarTitle = "Top Voted";
+	        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+	        		getActivity(),
+					R.array.voting_array,
+					android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+			spinner.setOnItemSelectedListener(this);
 		}
 		moreButton.setVisibility(this.votes.size()>0?View.VISIBLE:View.GONE);
 
@@ -493,9 +511,4 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 			}			
 		}		
 	}
-
-
-	
-
-
 }

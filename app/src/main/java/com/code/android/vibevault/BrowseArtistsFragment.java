@@ -15,10 +15,17 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,9 +92,9 @@ public class BrowseArtistsFragment extends Fragment {
 		initAlphaList();
 
 		// Inflate the fragment and grab a reference to it.
-		View v = inflater.inflate(R.layout.browse_artists_fragment, container, false);
+		View view = inflater.inflate(R.layout.browse_artists_fragment, container, false);
 		// Initialize the ExpandableListView
-		expandableList = (ExpandableListView) v.findViewById(R.id.BrowseArtistsExpandableListView);
+		expandableList = (ExpandableListView) view.findViewById(R.id.BrowseArtistsExpandableListView);
 		ExpandableAdapter expAdapter = new ExpandableAdapter();
 		expandableList.setAdapter(expAdapter);
 		expandableList.setOnGroupClickListener(new OnGroupClickListener() {
@@ -110,9 +117,46 @@ public class BrowseArtistsFragment extends Fragment {
 				return false;
 			}
 		});
-		return v;
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()){
+					case R.id.SearchActionBarButton:
+						NavHostFragment
+								.findNavController(BrowseArtistsFragment.this)
+								.navigate(R.id.frag_search);
+						break;
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+						break;
+					case R.id.HelpButton:
+						dialogAndNavigationListener.showDialog(BrowseArtistsFragment.this.getResources().getString(R.string.browse_artists_screen_help), "Help");
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+		});
+
+		return view;
 	}
-	
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
+	}
+
 	// This method is called right after onCreateView() is called.  "Called when the
 	// fragment's activity has been created and this fragment's view hierarchy instantiated."
 	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
@@ -121,41 +165,6 @@ public class BrowseArtistsFragment extends Fragment {
 	    super.onActivityCreated(savedInstanceState);
 		// Must call in order to get callback to onOptionsItemSelected()
 		// and thereby create an ActionBar.
-	    setHasOptionsMenu(true);
-		AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-	    appCompatActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-	    appCompatActivity.getSupportActionBar().setListNavigationCallbacks(null, null);
-//	    appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	    appCompatActivity.getSupportActionBar().setTitle("Browse");
-	}
-	
-	// This is what the ActionBar is created from.
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		menu.clear();
-		inflater.inflate(R.menu.help, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-	
-	// Set ActionBar actions.
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item){
-		switch (item.getItemId()){
-			case R.id.SearchActionBarButton:
-				NavHostFragment
-						.findNavController(BrowseArtistsFragment.this)
-						.navigate(R.id.frag_search);
-				break;
-			case android.R.id.home:
-				dialogAndNavigationListener.goHome();
-				break;
-			case R.id.HelpButton:
-				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.browse_artists_screen_help), "Help");
-				break;
-			default:
-	            return super.onOptionsItemSelected(item);
-		}
-		return true;
 	}
 	
 	private void initAlphaList() {

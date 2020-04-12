@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<com.google.android.material.appbar.MaterialToolbar
+			android:id="@+id/topAppBar"
+			style="@style/Widget.MaterialComponents.Toolbar.Primary"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:navigationIcon="@drawable/icon"
+			app:menu="@menu/shows_stored_help"/>
+	</com.google.android.material.appbar.AppBarLayout>
 
 	<ListView
 		android:id="@+id/StoredListView"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:layout_alignParentBottom="true"
 		android:overScrollFooter="@null" />
-</RelativeLayout>
+</LinearLayout>

@@ -54,10 +54,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 
@@ -104,8 +109,9 @@ public class SearchFragment extends Fragment
 	// Listeners for dialogs and for triggering a new Activity/Fragment when a
 	// user clicks on a show.
 	private DialogAndNavigationListener dialogAndNavigationListener;
-	
-	
+
+	private Toolbar topAppBar;
+
 	/** Overriden fragment lifecycle methods  */
 	
 	// Ensures parent activity implements proper interfaces.
@@ -153,16 +159,46 @@ public class SearchFragment extends Fragment
 //						Toast.LENGTH_SHORT).show();
 //			}
 //		}
+
+		db = StaticDataStore.getInstance(getActivity());
+		Logging.Log(LOG_TAG,"Setting prefs.");
+		numResultsPref = Integer.valueOf(db.getPref("numResults"));
+		sortPref = db.getPref("sortOrder");
+
+
+		if(this.getArguments() != null && this.getArguments().containsKey("Artist")){
+			String artist = this.getArguments().getString("Artist");
+			if(artist!=null){
+				this.browseArtist(artist);
+				this.getArguments().remove("Artist");
+			}
+		}
+		// Must call in order to get callback to onOptionsItemSelected()
+		setHasOptionsMenu(true);
+		AppCompatActivity myActivity = (AppCompatActivity) getActivity();
+//		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//		myActivity.getSupportActionBar().setTitle("Search");
+		LoaderManager lm = this.getLoaderManager();
+		if(lm.getLoader(0)!=null){
+			// The second argument is the query for a new loader, but here we are trying to
+			// reconnect to an already existing loader, and "If a loader already exists
+			// (a new one does not need to be created), this parameter will be ignored and
+			// the last arguments continue to be used.If a loader already exists (a new one
+			// does not need to be created), this parameter will be ignored and the last arguments
+			// continue to be used.
+			// http://developer.android.com/reference/android/app/LoaderManager.html
+			lm.initLoader(0, null, this);
+		}
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Logging.Log(LOG_TAG, "CREATING VIEW.");
 		// Inflate the fragment and grab a reference to it.
-		View v = inflater.inflate(R.layout.search_fragment, container, false);
+		View view = inflater.inflate(R.layout.search_fragment, container, false);
 		// Initialize the various elements of the SearchScreen.
-		this.searchList = (ListView) v.findViewById(R.id.ResultsListView);
-		this.searchButton = (ImageButton) v.findViewById(R.id.SearchButton);
+		this.searchList = (ListView) view.findViewById(R.id.ResultsListView);
+		this.searchButton = (ImageButton) view.findViewById(R.id.SearchButton);
 		searchList.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 			@Override
 			public void onCreateContextMenu(ContextMenu menu, View v,
@@ -213,119 +249,47 @@ public class SearchFragment extends Fragment
 						.navigate(R.id.action_frag_search_to_frag_show_details, bundle);
 			}
 		});
-		
-		return v;
-	}
-	
-	// This method is called right after onCreateView() is called. "Called when the
-	// fragment's activity has been created and this fragment's view hierarchy instantiated."
-	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
 
-	@Override	
-	public void onPause() {
-		super.onPause();
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-//		if(getActivity().getFragmentManager().getBackStackEntryCount()<1){
-//			getActivity().finish();
-//		}
-	}
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-		db = StaticDataStore.getInstance(getActivity());
-		Logging.Log(LOG_TAG,"Setting prefs.");
-		numResultsPref = Integer.valueOf(db.getPref("numResults"));
-		sortPref = db.getPref("sortOrder");
-		
-		
-		if(this.getArguments() != null && this.getArguments().containsKey("Artist")){
-			String artist = this.getArguments().getString("Artist");
-			if(artist!=null){
-				this.browseArtist(artist);
-				this.getArguments().remove("Artist");
+		topAppBar = (Toolbar) view.findViewById(R.id.topAppBar);
+		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()){
+					case android.R.id.home:
+						dialogAndNavigationListener.goHome();
+						break;
+					case R.id.HelpButton:
+						dialogAndNavigationListener.showDialog(SearchFragment.this.getResources().getString(R.string.search_screen_help), "Help");
+						break;
+					case R.id.SettingsButton:
+						Bundle bundle = new Bundle();
+						bundle.putString("order", SearchFragment.this.sortPref);
+						bundle.putInt("number", SearchFragment.this.numResultsPref);
+						bundle.putInt("month", SearchFragment.this.month);
+						bundle.putInt("day", SearchFragment.this.day);
+						bundle.putInt("year", SearchFragment.this.year);
+						bundle.putInt("datepos", SearchFragment.this.dateSearchModifierPos);
+						dialogAndNavigationListener.showSettingsDialog(bundle);
+						break;
+					default:
+						return false;
+				}
+				return true;
 			}
-	}
-		// Must call in order to get callback to onOptionsItemSelected()
-		setHasOptionsMenu(true);
-		AppCompatActivity myActivity = (AppCompatActivity) getActivity();
-//		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		myActivity.getSupportActionBar().setTitle("Search");
-		LoaderManager lm = this.getLoaderManager();
-		if(lm.getLoader(0)!=null){
-			// The second argument is the query for a new loader, but here we are trying to
-			// reconnect to an already existing loader, and "If a loader already exists
-			// (a new one does not need to be created), this parameter will be ignored and
-			// the last arguments continue to be used.If a loader already exists (a new one
-			// does not need to be created), this parameter will be ignored and the last arguments
-			// continue to be used.
-			// http://developer.android.com/reference/android/app/LoaderManager.html
-			lm.initLoader(0, null, this);
-		}
-	}
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-	}	
-	
-	// Set ActionBar actions.
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item){
-		switch (item.getItemId()){
-			case android.R.id.home:
-				dialogAndNavigationListener.goHome();
-				break;
-			case R.id.HelpButton:
-				dialogAndNavigationListener.showDialog(this.getResources().getString(R.string.search_screen_help), "Help");
-				break;
-			case R.id.SettingsButton:
-				Bundle b = new Bundle();
-				b.putString("order", this.sortPref);
-				b.putInt("number", this.numResultsPref);
-				b.putInt("month", this.month);
-				b.putInt("day", this.day);
-				b.putInt("year", this.year);
-				b.putInt("datepos", this.dateSearchModifierPos);
-				dialogAndNavigationListener.showSettingsDialog(b);
-				break;
-			default:
-	            return super.onOptionsItemSelected(item);
-		}
-		return true;
+		});
+
+		initTopAppBar();
+
+		return view;
 	}
 
-	@Override
-	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-	}
-
-	// Must call in order to get callback to onOptionsItemSelected()
-	// and thereby create an ActionBar.
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		if (menu.hasVisibleItems()) {
-			refreshSearchList();
-			return;
-		}
-
+	private void initTopAppBar() {
 		Logging.Log(LOG_TAG, "Creating actionbar.");
+
+		Menu menu = topAppBar.getMenu();
+
 		this.actionBarMenu = menu;
-		inflater.inflate(R.menu.search_help_options, menu);
 		MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
 
 		final ImageButton artistSearchButton = (ImageButton) menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
@@ -379,7 +343,7 @@ public class SearchFragment extends Fragment
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				Logging.Log(LOG_TAG, event.toString());
-				if ((event != null)) {
+				if (event != null) {
 					if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 						if (event.getAction() == KeyEvent.ACTION_UP) {
 							// Act like the search button has been pressed.
@@ -446,8 +410,50 @@ public class SearchFragment extends Fragment
 		// MenuItem to expand to the search action view.
 		refreshSearchList();
 	}
-	
 
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+
+		NavController navController = Navigation.findNavController(view);
+		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+				.Builder(navController.getGraph())
+				.build();
+		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
+	}
+	
+	// This method is called right after onCreateView() is called. "Called when the
+	// fragment's activity has been created and this fragment's view hierarchy instantiated."
+	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+
+	@Override	
+	public void onPause() {
+		super.onPause();
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+//		if(getActivity().getFragmentManager().getBackStackEntryCount()<1){
+//			getActivity().finish();
+//		}
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+	}
 
 	// private Vibrator vibrator;
 

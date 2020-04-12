@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/menu_browse_artists">
     <fragment
         android:id="@+id/frag_search"
         android:name="com.code.android.vibevault.SearchFragment"
-        android:label="SearchFragment" >
+        android:label="SearchFragment"
+        tools:layout="@layout/search_fragment">
         <action
             android:id="@+id/action_frag_search_to_frag_show_details"
             app:destination="@id/frag_show_details" />
@@ -14,7 +16,8 @@
     <fragment
         android:id="@id/menu_your_shows"
         android:name="com.code.android.vibevault.ShowsStoredFragment"
-        android:label="ShowsStoredFragment" >
+        android:label="ShowsStoredFragment"
+        tools:layout="@layout/shows_stored_fragment">
         <action
             android:id="@+id/action_menu_your_shows_to_frag_show_details"
             app:destination="@id/frag_show_details" />
@@ -25,7 +28,8 @@
     <fragment
         android:id="@id/menu_downloads"
         android:name="com.code.android.vibevault.ShowsDownloadedFragment"
-        android:label="ShowsDownloadedFragment" >
+        android:label="ShowsDownloadedFragment"
+        tools:layout="@layout/downloaded_shows_fragment">
         <action
             android:id="@+id/action_menu_downloads_to_frag_show_details"
             app:destination="@id/frag_show_details" />
@@ -36,7 +40,8 @@
     <fragment
         android:id="@id/menu_now_playing"
         android:name="com.code.android.vibevault.NowPlayingFragment"
-        android:label="NowPlayingFragment" >
+        android:label="NowPlayingFragment"
+        tools:layout="@layout/now_playing">
         <action
             android:id="@+id/action_menu_now_playing_to_frag_search"
             app:destination="@id/frag_search" />
@@ -44,7 +49,8 @@
     <fragment
         android:id="@id/menu_browse_artists"
         android:name="com.code.android.vibevault.BrowseArtistsFragment"
-        android:label="BrowseArtistsFragment" >
+        android:label="BrowseArtistsFragment"
+        tools:layout="@layout/browse_artists_fragment">
         <action
             android:id="@+id/action_menu_browse_artists_to_frag_search"
             app:destination="@id/frag_search" />
@@ -52,7 +58,8 @@
     <fragment
         android:id="@+id/frag_show_details"
         android:name="com.code.android.vibevault.ShowDetailsFragment"
-        android:label="ShowDetailsFragment">
+        android:label="ShowDetailsFragment"
+        tools:layout="@layout/show_details_fragment">
         <action
             android:id="@+id/action_frag_show_details_to_menu_now_playing"
             app:destination="@id/menu_now_playing" />
@@ -72,7 +79,8 @@
     <fragment
         android:id="@id/menu_votes"
         android:name="com.code.android.vibevault.VotesFragment"
-        android:label="VotesFragment" >
+        android:label="VotesFragment"
+        tools:layout="@layout/votes_fragment">
         <action
             android:id="@+id/action_menu_votes_to_frag_show_details"
             app:destination="@id/frag_show_details" />
