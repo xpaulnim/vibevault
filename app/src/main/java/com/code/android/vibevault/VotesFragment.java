@@ -33,8 +33,7 @@ import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
-
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
+import androidx.navigation.fragment.NavHostFragment;
 
 import java.util.ArrayList;
 
@@ -56,13 +55,6 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 	private StaticDataStore db;
 	
 	private boolean moreResults = false;
-	
-	private VotesActionListener votesActionListener;
-	private SearchActionListener searchActionListener;
-	
-	public interface VotesActionListener {
-		public void openArtistShowList(ArchiveArtistObj artist);
-	}
 	
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
@@ -146,17 +138,6 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString() + " must implement DialogListener");
 		}
-		try{
-			votesActionListener = (VotesActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement VotesActionListener");
-		}
-		try{
-			searchActionListener = (SearchActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement ShowDetailsActionListener");
-		}
-		
 	}
 	
 	// Called when the fragment is first created.  According to the Android API,
@@ -217,13 +198,20 @@ public class VotesFragment extends Fragment implements LoaderManager.LoaderCallb
 		this.votedList.setOnItemClickListener(new OnItemClickListener(){
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-				Object o = a.getAdapter().getItem(position);
-				if(o != null){
-					if(o instanceof ArchiveShowObj){
-						searchActionListener.onShowSelected(((ArchiveShowObj)o));
+				Object object = a.getAdapter().getItem(position);
+				if(object != null){
+					if(object instanceof ArchiveShowObj){
+						Logging.Log(LOG_TAG, "Show selected, making new ShowDetailsFragment.");
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("show", ((ArchiveShowObj)object));
+						NavHostFragment.findNavController(VotesFragment.this)
+								.navigate(R.id.frag_show_details, bundle);
 					}
-					else if(o instanceof ArchiveArtistObj){
-						votesActionListener.openArtistShowList((ArchiveArtistObj)o);
+					else if(object instanceof ArchiveArtistObj){
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("ArchiveArtist", ((ArchiveArtistObj)object));
+						NavHostFragment.findNavController(VotesFragment.this)
+								.navigate(R.id.action_menu_votes_self, bundle);
 					}
 				}
 			}

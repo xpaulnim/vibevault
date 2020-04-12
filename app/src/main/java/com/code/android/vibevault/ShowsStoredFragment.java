@@ -20,8 +20,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-
 import java.util.ArrayList;
 
 public class ShowsStoredFragment extends Fragment implements
@@ -38,8 +36,6 @@ public class ShowsStoredFragment extends Fragment implements
 
 	private StaticDataStore db;
 
-	private SearchActionListener searchActionListener;
-	
 	private int stored_type = -1;
 
 	public void onAttach(Activity activity) {

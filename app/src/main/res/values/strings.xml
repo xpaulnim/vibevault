@@ -41,10 +41,10 @@
     	<string name="vibe_vault_app_title">Vibe Vault 4</string>
     	<string name="vibe_vault_app_title_vertical">Vibe\nVault\n4</string>
     	<string name="Search">Search</string>
-    	<string name="Your_Shows">Your Shows</string>
+    	<string name="Your_Shows">Shows</string>
     	<string name="Downloads">Downloads</string>
     	<string name="Now_Playing">Now Playing</string>
-    	<string name="User_Votes">User Votes</string>
+    	<string name="User_Votes">Votes</string>
     	<string name="Browse_Artists">Artists</string>
     	<string name="okay_text">Okay</string>
     	<string name="year_text">YYYY</string>

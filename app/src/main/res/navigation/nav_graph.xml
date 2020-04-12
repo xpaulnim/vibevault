@@ -69,4 +69,15 @@
             android:id="@+id/deepLink5"
             app:uri="archive.org/download/" />
     </fragment>
+    <fragment
+        android:id="@id/menu_votes"
+        android:name="com.code.android.vibevault.VotesFragment"
+        android:label="VotesFragment" >
+        <action
+            android:id="@+id/action_menu_votes_to_frag_show_details"
+            app:destination="@id/frag_show_details" />
+        <action
+            android:id="@+id/action_menu_votes_self"
+            app:destination="@id/menu_votes" />
+    </fragment>
 </navigation>

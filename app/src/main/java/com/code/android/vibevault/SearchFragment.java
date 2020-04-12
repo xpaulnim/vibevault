@@ -103,13 +103,7 @@ public class SearchFragment extends Fragment
 
 	// Listeners for dialogs and for triggering a new Activity/Fragment when a
 	// user clicks on a show.
-	private SearchActionListener searchActionListener;
 	private DialogAndNavigationListener dialogAndNavigationListener;
-
-	// A parent activity will have to implement this callback interface.
-	public interface SearchActionListener {
-		public void onShowSelected(ArchiveShowObj show);
-	}
 	
 	
 	/** Overriden fragment lifecycle methods  */
@@ -120,11 +114,7 @@ public class SearchFragment extends Fragment
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		try {
-			searchActionListener = (SearchActionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement ActionListener");
-		}
+
 		try{
 			dialogAndNavigationListener = (DialogAndNavigationListener) activity;
 		} catch (ClassCastException e) {

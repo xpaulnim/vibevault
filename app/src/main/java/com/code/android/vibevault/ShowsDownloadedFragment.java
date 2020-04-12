@@ -27,8 +27,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.code.android.vibevault.SearchFragment.SearchActionListener;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -46,9 +44,7 @@ public class ShowsDownloadedFragment extends Fragment implements
 	private ListView downloadedList;
 		
 	private StaticDataStore db;
-	
-	private SearchActionListener searchActionListener;
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
