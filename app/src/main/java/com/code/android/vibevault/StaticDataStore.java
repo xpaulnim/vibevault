@@ -172,7 +172,7 @@ public class StaticDataStore extends SQLiteOpenHelper {
 					cur.getString(cur.getColumnIndex(SHOW_ARTIST)) + " Live at " + cur.getString(cur.getColumnIndex(SHOW_TITLE)),
 					cur.getString(cur.getColumnIndex(SHOW_IDENT)),
 					cur.getString(cur.getColumnIndex(SHOW_ARTIST)),
-					Boolean.valueOf(cur.getString(cur.getColumnIndex(SONG_DOWNLOADED))),
+					Boolean.parseBoolean(cur.getString(cur.getColumnIndex(SONG_DOWNLOADED))),
 					cur.getInt(cur.getColumnIndex(PLAYLISTSONG_SONG_KEY))));
 		}
 		
@@ -585,7 +585,7 @@ public class StaticDataStore extends SQLiteOpenHelper {
 	
 	//Returns cursor of songs associated with playlist
 	public ArrayList<ArchiveSongObj> getSongsFromPlaylist(long key){
-		Cursor cur = db.rawQuery("SELECT pls._id,pls.song_id,song.fileName,song.songTitle,song.isDownloaded,song.folderName," 
+		Cursor cur = db.rawQuery("SELECT pls._id,pls.song_id,song.fileName,song.songTitle,song.isDownloaded,song.folderName,"
 				+ "show.showIdent,show.showArtist,show.showTitle "
 				+ "FROM playlistSongsTbl pls "
 				+ "INNER JOIN songTbl song ON song._id = pls.song_id "

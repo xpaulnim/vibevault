@@ -114,7 +114,7 @@ public class PlaybackService extends Service implements
 	private StaticDataStore db;
 
 	private TelephonyManager telephonyManager;
-	private PhoneStateListener listener;
+	private PhoneStateListener phoneStateListener;
 	private boolean isPausedInCall = false;
 	private boolean isPausedByFocus = false;
 	private boolean isDuckedByFocus = false;
@@ -135,17 +135,20 @@ public class PlaybackService extends Service implements
 			nowPlayingPosition = Integer.parseInt(db.getPref("nowPlayingPosition"));
 		}
 		
-		wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL, "vvLock");
+		wifiLock = ((WifiManager) getApplicationContext()
+				.getSystemService(Context.WIFI_SERVICE))
+				.createWifiLock(WifiManager.WIFI_MODE_FULL, "vvLock");
 		
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		remoteReceiver = new ComponentName(this, RemoteControlReceiver.class);
-		albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.big_icon);
-		
 		telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+
+		remoteReceiver = new ComponentName(this, RemoteControlReceiver.class);
+
+		albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.big_icon);
+
 		// Create a PhoneStateListener to watch for offhook and idle events
-		listener = new PhoneStateListener() {
+		phoneStateListener = new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
 				switch (state) {
@@ -170,7 +173,7 @@ public class PlaybackService extends Service implements
 		};
 
 		// Register the listener with the telephony manager.
-		telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 		playerStatus = STATUS_STOPPED;
 		Logging.Log(LOG_TAG,"PlaybackService: Creating Service - Done");
 	}
@@ -230,7 +233,7 @@ public class PlaybackService extends Service implements
 		Logging.Log(LOG_TAG,"PlaybackService destroy");
 		playerStatus = PlaybackService.STATUS_STOPPED; 
 		releaseResources();		
-		telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
+		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 	}
 
 	@Override
@@ -349,45 +352,45 @@ public class PlaybackService extends Service implements
 		int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 		if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)  {
 			playerStatus = STATUS_STOPPED;
+			return;
 		}
-		else {
-			Logging.Log(LOG_TAG, "Starting mediaplayer");
-			mediaPlayer.setVolume(1.0f, 1.0f);
-			mediaPlayer.start();
-	
-			
-			if (updateProgressThread != null) {
-				updateProgressThread.interrupt();
+
+		Logging.Log(LOG_TAG, "Starting mediaplayer");
+		mediaPlayer.setVolume(1.0f, 1.0f);
+		mediaPlayer.start();
+
+		if (updateProgressThread != null) {
+			updateProgressThread.interrupt();
+			try {
+				updateProgressThread.join(500);
+			} catch (InterruptedException e) {
+			}
+		}
+		updateProgressThread = new Thread() {
+			public void run() {
 				try {
-					updateProgressThread.join(500);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
+					return;
+				}
+				while (!this.isInterrupted()) {
+					sendPositionChangeBroadcast();
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						break;
+					}
 				}
 			}
-			updateProgressThread = new Thread() {
-				public void run() {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						return;
-					}
-					while (!this.isInterrupted()) {
-						sendPositionChangeBroadcast();
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-							break;
-						}
-					}
-				}
-			};
-			updateProgressThread.start();
-			playerStatus = STATUS_PLAYING;
-			setUpRemoteControl(false);
-			setUpNotification();		
-			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-			sendStateChangeBroadcast();
-		}
+		};
+		updateProgressThread.start();
+		playerStatus = STATUS_PLAYING;
+		setUpRemoteControl(false);
+		setUpNotification();
+		remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+		sendStateChangeBroadcast();
+
 	}
 	
 	private void setUpRemoteControl(boolean buffering) {

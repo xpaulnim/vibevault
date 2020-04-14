@@ -249,14 +249,6 @@ public class VotesFragment extends Fragment implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
-
-		NavController navController = Navigation.findNavController(view);
-		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-				.Builder(navController.getGraph())
-				.build();
-		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	private void executeRefresh(){

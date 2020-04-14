@@ -3,14 +3,24 @@
     <style name="Base.Theme.VibeVault" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/green_700</item>
-<!--        <item name="colorOnSurface">@color/black</item>-->
-<!--        <item name="colorAccent">@color/colorAccent</item>-->
-<!--        <item name="colorSurface">@color/colorSurface</item>-->
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorSurface">@color/colorSurface</item>
 
-<!--        <item name="colorSecondary">@color/yellow_500</item>-->
+        <item name="colorSecondary">@color/colorSecondary</item>
+    </style>
 
-<!--        <item name="android:colorBackground">@color/gray_50</item>-->
+    <style name="BgAsColorPrimary">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorOnPrimary</item>
+    </style>
+
+    <style name="PlaybackBtn" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/white</item>
+        <item name="android:foregroundTint">@color/colorPrimary</item>
+        <item name="iconTint">@color/colorPrimary</item>
     </style>
 </resources>

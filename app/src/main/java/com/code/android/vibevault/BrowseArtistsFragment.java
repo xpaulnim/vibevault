@@ -147,14 +147,6 @@ public class BrowseArtistsFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
-
-		NavController navController = Navigation.findNavController(view);
-		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-				.Builder(navController.getGraph())
-				.build();
-		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 
 	// This method is called right after onCreateView() is called.  "Called when the

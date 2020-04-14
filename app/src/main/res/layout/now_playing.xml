@@ -31,7 +31,6 @@
         android:scrollHorizontally="true"
         android:text="Nothing Playing..."
         android:textSize="@dimen/text_height_label"
-        android:textStyle="italic"
         android:singleLine="true" />
 
     <com.code.android.vibevault.DraggableListView
@@ -43,15 +42,13 @@
     <TableLayout
         android:id="@+id/PlayerBackground"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        style="@style/BgAsColorPrimary">
 
         <RelativeLayout
             android:id="@+id/ButtonHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dip"
-            android:layout_marginBottom="5dip"
             android:gravity="center_horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -60,16 +57,17 @@
                 android:layout_height="50dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
-                app:icon="@drawable/ic_skip_previous_black_18dp" />
+                app:icon="@drawable/ic_skip_previous_black_18dp"
+                style="@style/PlaybackBtn"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/StopButton"
                 android:layout_width="50dip"
                 android:layout_height="50dip"
-                android:layout_marginLeft="5dip"
-                android:layout_marginRight="5dip"
+                android:layout_marginHorizontal="5dip"
                 android:layout_toEndOf="@id/PrevButton"
-                app:icon="@drawable/ic_stop_24px" />
+                app:icon="@drawable/ic_stop_24px"
+                style="@style/PlaybackBtn"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/PauseButton"
@@ -78,7 +76,8 @@
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
                 android:layout_toEndOf="@id/StopButton"
-                app:icon="@drawable/ic_pause_24px" />
+                app:icon="@drawable/ic_pause_24px"
+                style="@style/PlaybackBtn"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/NextButton"
@@ -87,7 +86,8 @@
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
                 android:layout_toEndOf="@id/PauseButton"
-                app:icon="@drawable/ic_skip_next_black_18dp" />
+                app:icon="@drawable/ic_skip_next_black_18dp"
+                style="@style/PlaybackBtn"/>
         </RelativeLayout>
 
     </TableLayout>
@@ -95,9 +95,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="fill_parent"
         android:layout_height="30dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginHorizontal="10dip"
-        android:layout_marginBottom="5dip">
+        style="@style/BgAsColorPrimary">
 
         <TextView
             android:id="@+id/TimeCurrent"
@@ -109,7 +107,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/SeekBarNowPlaying"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/colorOnPrimary"/>
 
         <SeekBar
             android:id="@+id/SeekBarNowPlaying"
@@ -130,7 +130,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/SeekBarNowPlaying"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/colorOnPrimary"
+            android:layout_marginEnd="10dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

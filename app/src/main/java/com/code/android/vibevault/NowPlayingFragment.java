@@ -28,14 +28,11 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,7 +41,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import com.google.android.material.button.MaterialButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
@@ -57,16 +53,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -84,22 +77,22 @@ public class NowPlayingFragment extends Fragment {
 	
     // private Vibrator vibrator;
 	
-	protected TextView nowPlayingTextView;
+	private TextView nowPlayingTextView;
 
-	protected TableLayout playerLayout;
-	protected RelativeLayout buttonHolder;
+	private TableLayout playerLayout;
+	private RelativeLayout buttonHolder;
 	
-	protected MaterialButton previous;
-	protected MaterialButton stop;
-	protected MaterialButton pause;
-	protected MaterialButton next;
+	private MaterialButton previous;
+	private MaterialButton stop;
+	private MaterialButton pause;
+	private MaterialButton next;
 	
-	protected SeekBar progressBar;
-	protected TextView timeCurrent;
-	protected TextView timeTotal;
+	private SeekBar progressBar;
+	private TextView timeCurrent;
+	private TextView timeTotal;
 
-	protected DraggableListView songsListView;
-	protected PlaylistAdapter adapter = null;
+	private DraggableListView songsListView;
+	private PlaylistAdapter adapter = null;
 			
 	private PlayerListener playerListener;
 	
@@ -272,14 +265,6 @@ public class NowPlayingFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
-
-		NavController navController = Navigation.findNavController(view);
-		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-				.Builder(navController.getGraph())
-				.build();
-		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	
@@ -309,8 +294,8 @@ public class NowPlayingFragment extends Fragment {
 
 		this.pause.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				v.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_TOGGLE));
+			public void onClick(View view) {
+				view.getContext().startService(defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_TOGGLE));
 			}
 		});
 
@@ -332,10 +317,10 @@ public class NowPlayingFragment extends Fragment {
 		
 		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				if (fromUser) {
-					Intent intent = defaultPlaybackServiceIntent().setAction(PlaybackService.ACTION_SEEK)
+					Intent intent = defaultPlaybackServiceIntent()
+							.setAction(PlaybackService.ACTION_SEEK)
 							.putExtra(PlaybackService.EXTRA_SEEK_POSITON, progress);
 					NowPlayingFragment.this.getActivity().startService(intent);
 				}
@@ -381,8 +366,10 @@ public class NowPlayingFragment extends Fragment {
 	
 	private void refreshTrackList(ArrayList<ArchiveSongObj> list){
 		Logging.Log(LOG_TAG, "Refresh called...");
+
 		adapter = new PlaylistAdapter(getActivity(), R.layout.playlist_row, list);
 		songsListView.setAdapter(adapter);
+
 		if(draggableListViewState!=null){
 			this.songsListView.onRestoreInstanceState(draggableListViewState);
 		}
@@ -390,7 +377,7 @@ public class NowPlayingFragment extends Fragment {
 		// FIXME
 		// There seems to be some sort of race condition issue here.  If we don't wait,
 		// we are unable to play songs, because
-		if(newExternalPositionPlayed == true && !adapter.isEmpty()) {
+		if(newExternalPositionPlayed && !adapter.isEmpty()) {
 			Logging.Log(LOG_TAG, "newExternalPositionPlayed is set to true, adapter has songs.");
 			songsListView.postDelayed(new Runnable() {
 				@Override
@@ -506,7 +493,6 @@ public class NowPlayingFragment extends Fragment {
 			}
 
 			pause.setIconResource(pauseIcon);
-			hideGUIFeaturesIfOldSDK(status);
 		}
 	}
 	
@@ -520,20 +506,6 @@ public class NowPlayingFragment extends Fragment {
 				progressBar.setSecondaryProgress(intent.getIntExtra(PlaybackService.EXTRA_BUFFER_PROGRESS, 0));
 				timeCurrent.setText(getElapsedTimeHoursMinutesSecondsString(intent.getIntExtra(PlaybackService.EXTRA_PLAY_PROGRESS, 0)));
 				timeTotal.setText(getElapsedTimeHoursMinutesSecondsString(intent.getIntExtra(PlaybackService.EXTRA_PLAY_DURATION, 0)));
-			}
-		}
-	}
-	
-	private void hideGUIFeaturesIfOldSDK(int status){
-		if (Build.VERSION.SDK_INT < 8) {
-			if (status != PlaybackService.STATUS_STOPPED) {
-				progressBar.setVisibility(View.GONE);
-				timeCurrent.setVisibility(View.GONE);
-				timeTotal.setVisibility(View.GONE);
-			} else{
-				progressBar.setVisibility(View.VISIBLE);
-				timeCurrent.setVisibility(View.VISIBLE);
-				timeTotal.setVisibility(View.VISIBLE);
 			}
 		}
 	}

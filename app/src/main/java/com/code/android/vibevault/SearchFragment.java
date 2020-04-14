@@ -414,14 +414,6 @@ public class SearchFragment extends Fragment
 		super.onViewCreated(view, savedInstanceState);
 
 		initTopAppBar();
-
-		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
-
-		NavController navController = Navigation.findNavController(view);
-		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-				.Builder(navController.getGraph())
-				.build();
-		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
 	}
 	
 	// This method is called right after onCreateView() is called. "Called when the
