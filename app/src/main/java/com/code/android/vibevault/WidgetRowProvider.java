@@ -22,9 +22,9 @@ public class WidgetRowProvider extends AppWidgetProvider {
 	public void onReceive(Context ctx, Intent intent) {
 		String action = intent.getAction();
 		if (action.equals(WidgetRowProvider.WIDGET_TOGGLE)) {
-			ctx.startService(new Intent(PlaybackService.ACTION_TOGGLE));				
+			ctx.startService(new Intent(ctx, PlaybackService.class).setAction(PlaybackService.ACTION_TOGGLE));
 		} else if (action.equals(WidgetRowProvider.WIDGET_NEXT)) {
-			ctx.startService(new Intent(PlaybackService.ACTION_NEXT));				
+			ctx.startService(new Intent(ctx, PlaybackService.class).setAction(PlaybackService.ACTION_NEXT));
 		}
 		super.onReceive(ctx, intent);
 	}
@@ -49,7 +49,8 @@ public class WidgetRowProvider extends AppWidgetProvider {
 		setButtons(context, remoteViews);
 		// Update Widget.
 		appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
-		Intent serviceIntent = new Intent(PlaybackService.ACTION_POLL);
+		Intent serviceIntent = new Intent(context, PlaybackService.class)
+				.setAction(PlaybackService.ACTION_POLL);
 		context.startService(serviceIntent);
 	}
 	

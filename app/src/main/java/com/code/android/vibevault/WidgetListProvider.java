@@ -29,20 +29,20 @@ public class WidgetListProvider extends AppWidgetProvider {
 	public void onReceive(Context context, Intent intent) {
 		Logging.Log(LOG_TAG, "WidgetList:  onReceive()");
 		if (intent.getAction().equals(WIDGET_LIST)) {
-			Intent playIntent = new Intent(PlaybackService.ACTION_PLAY_POSITION);
+			Intent playIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_PLAY_POSITION);
 			playIntent.putExtra(PlaybackService.EXTRA_PLAYLIST_POSITION, intent.getIntExtra(WIDGET_EXTRA, 0));
 			context.startService(playIntent);
 		} else if(intent.getAction().equals(WIDGET_NEXT)){
-			Intent playIntent = new Intent(PlaybackService.ACTION_NEXT);
+			Intent playIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_NEXT);
 			context.startService(playIntent);
 		}  else if(intent.getAction().equals(WIDGET_PREV)){
-			Intent playIntent = new Intent(PlaybackService.ACTION_PREV);
+			Intent playIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_PREV);
 			context.startService(playIntent);
 		} else if(intent.getAction().equals(WIDGET_TOGGLE)){
-			Intent playIntent = new Intent(PlaybackService.ACTION_TOGGLE);
+			Intent playIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_TOGGLE);
 			context.startService(playIntent);
 		} else if(intent.getAction().equals(WIDGET_STOP)){
-			Intent playIntent = new Intent(PlaybackService.ACTION_STOP);
+			Intent playIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_STOP);
 			context.startService(playIntent);
 		}
 		super.onReceive(context, intent);
@@ -71,7 +71,7 @@ public class WidgetListProvider extends AppWidgetProvider {
 		remoteViews.setTextViewText(R.id.WidgetListShowInfo, artist);
 		// Update Widget.
 		appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
-		Intent serviceIntent = new Intent(PlaybackService.ACTION_POLL);
+		Intent serviceIntent = new Intent(context, PlaybackService.class).setAction(PlaybackService.ACTION_POLL);
 		context.startService(serviceIntent);
 	}
 	
