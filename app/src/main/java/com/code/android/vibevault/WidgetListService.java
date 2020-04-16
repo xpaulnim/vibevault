@@ -58,7 +58,8 @@ class WidgetListViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 		RemoteViews row = new RemoteViews(ctx.getPackageName(), R.layout.widget_list_row);
 		row.setTextViewText(R.id.SongTitle, songs.get(position).getSongTitle());
 				
-		int color = (position == nowPlayingPosition) ? Color.YELLOW : Color.rgb(18, 125, 212);
+		int color = (position == nowPlayingPosition) ? ctx.getResources().getColor(R.color.colorSecondary) : ctx.getResources().getColor(R.color.colorOnPrimary);
+
 		row.setTextColor(R.id.SongTitle, color);
 		
 		Intent fillInIntent = new Intent();

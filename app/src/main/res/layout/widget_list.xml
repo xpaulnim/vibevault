@@ -1,82 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@drawable/roundedbackground" >
-	    <TextView android:id="@+id/WidgetListShowInfo"
-				android:textColor="#FFFFFF"
-	            android:textSize="@dimen/widget_text_list_height"
-	            android:layout_marginLeft="@dimen/widget_list_margin"
-	            android:layout_marginRight="@dimen/widget_list_margin"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textStyle="italic"
-				android:singleLine="true" 
-        		android:ellipsize="marquee"
-        		android:marqueeRepeatLimit ="marquee_forever"
-        		android:scrollHorizontally="true"
-        		android:focusable="true"
-        		android:focusableInTouchMode="true"
-				android:duplicateParentState="true">
-    <requestFocus android:focusable="true" android:focusableInTouchMode="true"
-        android:duplicateParentState="true" />
-				 </TextView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:background="@color/colorPrimary"
+	android:orientation="vertical"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<TextView
+		android:id="@+id/WidgetListShowInfo"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/widget_list_margin"
+		android:layout_marginRight="@dimen/widget_list_margin"
+		android:duplicateParentState="true"
+		android:ellipsize="marquee"
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:marqueeRepeatLimit="marquee_forever"
+		android:scrollHorizontally="true"
+		android:singleLine="true"
+		android:textColor="@color/colorOnPrimary"
+		android:textSize="@dimen/widget_text_list_height"
+		android:textStyle="italic">
+
+		<requestFocus
+			android:duplicateParentState="true"
+			android:focusable="true"
+			android:focusableInTouchMode="true" />
+	</TextView>
 
 	<RelativeLayout
-	    android:id="@+id/ButtonHolder"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_marginTop="5dip"
-	    android:gravity="center_horizontal" >
+		android:id="@+id/ButtonHolder"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="5dip"
+		android:gravity="center_horizontal">
 
-        <Button
-            android:id="@+id/PrevButton"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
-            android:background="@drawable/mediapreviousbutton" >
-        </Button>
+		<Button
+			android:id="@+id/PrevButton"
+			android:layout_width="50dip"
+			android:layout_height="50dip"
+			android:layout_marginLeft="5dip"
+			android:layout_marginRight="5dip"
+			android:backgroundTint="@color/colorOnPrimary"
+			android:background="@drawable/ic_skip_previous_black_18dp" />
 
-        <Button
-            android:id="@+id/StopButton"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
-            android:layout_toRightOf="@id/PrevButton"
-            android:background="@drawable/mediastopbutton" >
-        </Button>
+		<Button
+			android:id="@+id/StopButton"
+			android:layout_width="50dip"
+			android:layout_height="50dip"
+			android:layout_marginLeft="5dip"
+			android:layout_marginRight="5dip"
+			android:layout_toRightOf="@id/PrevButton"
+			android:backgroundTint="@color/colorOnPrimary"
+			android:background="@drawable/ic_stop_24px" />
 
-        <Button
-            android:id="@+id/PauseButton"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
-            android:layout_toRightOf="@id/StopButton"
-            android:background="@drawable/mediaplaybutton" >
-        </Button>
+		<Button
+			android:id="@+id/PauseButton"
+			android:layout_width="50dip"
+			android:layout_height="50dip"
+			android:layout_marginLeft="5dip"
+			android:layout_marginRight="5dip"
+			android:layout_toRightOf="@id/StopButton"
+			android:backgroundTint="@color/colorOnPrimary"
+			android:background="@drawable/ic_play_arrow_24px" >
+		</Button>
 
-        <Button
-            android:id="@+id/NextButton"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
-            android:layout_toRightOf="@id/PauseButton"
-            android:background="@drawable/medianextbutton" >
-        </Button>
-    </RelativeLayout>
-    
-    <ListView
-	    android:id="@+id/WidgetListView"
-	    android:layout_width="wrap_content"
-	    android:layout_height="0dip"
-	    android:layout_weight="1"
-	    android:divider="@drawable/divider"
-	    android:dividerHeight="1dp"
-	    android:layout_margin="@dimen/widget_list_margin" />
+		<Button
+			android:id="@+id/NextButton"
+			android:layout_width="50dip"
+			android:layout_height="50dip"
+			android:layout_marginLeft="5dip"
+			android:layout_marginRight="5dip"
+			android:layout_toRightOf="@id/PauseButton"
+			android:backgroundTint="@color/colorOnPrimary"
+			android:background="@drawable/ic_skip_next_black_18dp" >
+		</Button>
+	</RelativeLayout>
+
+	<ListView
+		android:id="@+id/WidgetListView"
+		android:layout_width="wrap_content"
+		android:layout_height="0dip"
+		android:layout_margin="@dimen/widget_list_margin"
+		android:layout_weight="1"
+		android:dividerHeight="1dp"
+		tools:listitem="@layout/widget_row"/>
 
 </LinearLayout>

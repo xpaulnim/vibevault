@@ -62,12 +62,12 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/StopButton"
+                style="@style/PlaybackBtn"
                 android:layout_width="50dip"
                 android:layout_height="50dip"
                 android:layout_marginHorizontal="5dip"
                 android:layout_toEndOf="@id/PrevButton"
-                app:icon="@drawable/ic_stop_24px"
-                style="@style/PlaybackBtn"/>
+                app:icon="@drawable/ic_stop_24px" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/PauseButton"
@@ -81,13 +81,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/NextButton"
+                style="@style/PlaybackBtn"
                 android:layout_width="50dip"
                 android:layout_height="50dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="5dip"
                 android:layout_toEndOf="@id/PauseButton"
-                app:icon="@drawable/ic_skip_next_black_18dp"
-                style="@style/PlaybackBtn"/>
+                app:icon="@drawable/ic_skip_next_black_18dp" />
         </RelativeLayout>
 
     </TableLayout>
@@ -115,6 +115,8 @@
             android:id="@+id/SeekBarNowPlaying"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:progressBackgroundTint="@color/colorOnPrimary"
+            android:thumbTint="@color/colorOnPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/TimeTotal"
             app:layout_constraintStart_toEndOf="@id/TimeCurrent"
