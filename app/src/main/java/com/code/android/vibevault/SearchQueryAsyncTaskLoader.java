@@ -39,7 +39,8 @@ public class SearchQueryAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Archiv
 		if(mSearchResults == null || !sameArtist){
 			mSearchResults = new ArrayList<ArchiveShowObj>();
 		}
-		Searching.getShows(mQuery, mSearchResults);
+
+		Searching.getShows(mQuery, mSearchResults, getContext().getApplicationContext());
 		return mSearchResults;
 	}
 	

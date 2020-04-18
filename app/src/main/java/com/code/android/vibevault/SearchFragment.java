@@ -162,7 +162,7 @@ public class SearchFragment extends Fragment
 
 		db = StaticDataStore.getInstance(getActivity());
 		Logging.Log(LOG_TAG,"Setting prefs.");
-		numResultsPref = Integer.valueOf(db.getPref("numResults"));
+		numResultsPref = Integer.parseInt(db.getPref("numResults"));
 		sortPref = db.getPref("sortOrder");
 
 
@@ -176,9 +176,7 @@ public class SearchFragment extends Fragment
 		// Must call in order to get callback to onOptionsItemSelected()
 		setHasOptionsMenu(true);
 		AppCompatActivity myActivity = (AppCompatActivity) getActivity();
-//		myActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//		myActivity.getSupportActionBar().setTitle("Search");
-		LoaderManager lm = this.getLoaderManager();
+		LoaderManager lm = LoaderManager.getInstance(this);
 		if(lm.getLoader(0)!=null){
 			// The second argument is the query for a new loader, but here we are trying to
 			// reconnect to an already existing loader, and "If a loader already exists
@@ -462,16 +460,16 @@ public class SearchFragment extends Fragment
 
 	private void executeSearch(String query) {
 		dateChanged = false;
-		Bundle b = new Bundle();
-		b.putString("query", query);
-		LoaderManager lm = this.getLoaderManager();
+		Bundle bundle = new Bundle();
+		bundle.putString("query", query);
+		LoaderManager lm = LoaderManager.getInstance(this);
 		if(lm.getLoader(0)!=null){
 			// We already have a loader.
 			Logging.Log(LOG_TAG, "RESTART.");
-			lm.restartLoader(0, b, this);
+			lm.restartLoader(0, bundle, this);
 		} else{
 			// We need a new loader.
-			lm.initLoader(0, b, this);
+			lm.initLoader(0, bundle, this);
 		}
 	}
 
@@ -507,16 +505,17 @@ public class SearchFragment extends Fragment
 	}
 
 	// Pop up a loading dialog and pass the query to a SearchQueryAsyncTaskLoader for parsing.
+	@NonNull
 	@Override
-	public Loader<List<ArchiveShowObj>> onCreateLoader(int id, Bundle b) {
+	public Loader<List<ArchiveShowObj>> onCreateLoader(int id, Bundle bundle) {
 		Logging.Log(LOG_TAG, "NEW LOADER.");
 		dialogAndNavigationListener.showLoadingDialog("Searching...");
-		return (Loader) new SearchQueryAsyncTaskLoader(getActivity(), b.getString("query"));
+		return (Loader) new SearchQueryAsyncTaskLoader(getActivity(), bundle.getString("query"));
 	}
 
 	// Set the search results to those returned by the loader, and refresh the search list.
 	@Override
-	public void onLoadFinished(Loader<List<ArchiveShowObj>> loader, List<ArchiveShowObj> data) {
+	public void onLoadFinished(@NonNull Loader<List<ArchiveShowObj>> loader, List<ArchiveShowObj> data) {
 		Logging.Log(LOG_TAG, "LOADER FINISHED.");
 		if(isSearchMore){
 			isSearchMore=false;
@@ -524,7 +523,7 @@ public class SearchFragment extends Fragment
 			searchResults.addAll(data);
 			this.refreshSearchList();
 			this.searchList.onRestoreInstanceState(state);
-		} else if(!searchResults.containsAll(searchResults)||searchResults.isEmpty()){
+		} else if(!searchResults.containsAll(searchResults) || searchResults.isEmpty()){
 			// The containsAll() call above is necessary because onLoadFinished() is being called on rotations,
 			// and otherwise it will replace the searchResults with whatever the Loader most recently returned.
 			searchResults = (ArrayList<ArchiveShowObj>) data;

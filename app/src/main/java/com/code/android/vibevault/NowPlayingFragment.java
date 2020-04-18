@@ -44,10 +44,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,9 +76,6 @@ public class NowPlayingFragment extends Fragment {
     // private Vibrator vibrator;
 	
 	private TextView nowPlayingTextView;
-
-	private TableLayout playerLayout;
-	private RelativeLayout buttonHolder;
 	
 	private MaterialButton previous;
 	private MaterialButton stop;
@@ -150,7 +145,6 @@ public class NowPlayingFragment extends Fragment {
 		View view = inflater.inflate(R.layout.now_playing, container, false);
 		
 		// Initialize the interface.
-		playerLayout = (TableLayout) view.findViewById(R.id.PlayerBackground);
 		previous = (MaterialButton) view.findViewById(R.id.PrevButton);
 		stop = (MaterialButton) view.findViewById(R.id.StopButton);
 		pause = (MaterialButton) view.findViewById(R.id.PauseButton);
@@ -159,8 +153,7 @@ public class NowPlayingFragment extends Fragment {
 		timeCurrent = (TextView) view.findViewById(R.id.TimeCurrent);
 		timeTotal = (TextView) view.findViewById(R.id.TimeTotal);
 		nowPlayingTextView = (TextView) view.findViewById(R.id.PlayingLabelTextView);
-		buttonHolder = (RelativeLayout) view.findViewById(R.id.ButtonHolder);
-		
+
 		// Initialize the DraggableListView of songs, settings listeners for clicking,
 		// long-pressing, dragging, and removing.
 		songsListView = (DraggableListView) view.findViewById(R.id.PlayListListView);
@@ -671,7 +664,7 @@ public class NowPlayingFragment extends Fragment {
 	}
 	
 	private class VoteTask extends AsyncTask<String, Void, String> {
-				
+
 		@Override
 		protected void onPreExecute() {
 			Toast.makeText(getActivity().getBaseContext(), R.string.confirm_voting_message_text, Toast.LENGTH_SHORT).show();
@@ -679,7 +672,7 @@ public class NowPlayingFragment extends Fragment {
 
 		@Override
 		protected String doInBackground(String... showFields) {
-			return Voting.vote(showFields[0], showFields[1], showFields[2], showFields[3], db);
+			return Voting.vote(showFields[0], showFields[1], showFields[2], showFields[3], db, getActivity().getApplicationContext());
 		}
 
 		@Override

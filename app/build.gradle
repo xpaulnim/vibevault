@@ -42,9 +42,8 @@ dependencies {
     // Dynamic Feature Module Support
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
 
-    implementation 'org.apache.httpcomponents:httpclient:4.4.1'
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.2'
-    implementation 'com.android.volley:volley:1.0.0'
+    implementation 'com.android.volley:volley:1.1.1'
 
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
     implementation 'com.google.android.material:material:1.1.0'

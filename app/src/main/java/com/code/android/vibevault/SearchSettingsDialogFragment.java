@@ -54,7 +54,7 @@ public class SearchSettingsDialogFragment extends DialogFragment {
 	
 	private SearchSettingsDialogInterface dialogListener;
 	
-	public static SearchSettingsDialogFragment newInstanceSearchSettingsDialogFragment(String resultType, int resultNumber, int dateTypePos, int resultMonth, int resultDay, int resultYear){
+	public static SearchSettingsDialogFragment newInstance(String resultType, int resultNumber, int dateTypePos, int resultMonth, int resultDay, int resultYear){
 		SearchSettingsDialogFragment frag = new SearchSettingsDialogFragment();
 		frag.resultOrder = resultType;
 		frag.resultNumber = resultNumber;
@@ -96,13 +96,10 @@ public class SearchSettingsDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.scrollable_settings_dialog,
-				container);
-		v.setBackgroundResource(android.R.drawable.dialog_holo_dark_frame);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.scrollable_settings_dialog, container);
 		seek = (SeekBar) v.findViewById(R.id.NumResultsSeekBar);
-		seek.setProgress(Integer.valueOf(db.getPref("numResults")) - 10);
+		seek.setProgress(Integer.parseInt(db.getPref("numResults")) - 10);
 		sortSpin = (Spinner) v.findViewById(R.id.SortSpinner);
 		dateSpin = (Spinner) v.findViewById(R.id.DateSpinner);
 		seekValue = (TextView) v.findViewById(R.id.SeekBarValue);

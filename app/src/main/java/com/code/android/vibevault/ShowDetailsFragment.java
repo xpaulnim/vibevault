@@ -25,6 +25,7 @@
 package com.code.android.vibevault;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -290,9 +291,6 @@ public class ShowDetailsFragment extends Fragment {
 			for(int i = 0; i < showArray.length(); i ++){
 				showObject = showArray.getJSONObject(i);
 				if(showObject.has("format") && showObject.getString("format").equals("VBR MP3")){
-					songTitle = "";
-					songLink = "";
-					showTitle = "";
 					if(showObject.has("title")) songTitle = showObject.getString("title");
 					if(showObject.has("name")) songLink = "http://archive.org/download/" + showIdent + "/" + showObject.getString("name");
 					if(showObject.has("album")) showTitle = showObject.getString("album");
@@ -485,7 +483,7 @@ public class ShowDetailsFragment extends Fragment {
 
 		@Override
 		protected String doInBackground(ArchiveShowObj... shows) {
-			return Voting.vote(shows[0], db);
+			return Voting.vote(shows[0], db, getActivity().getApplicationContext());
 		}
 
 		@Override

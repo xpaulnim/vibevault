@@ -19,9 +19,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -46,8 +48,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class PlaybackService extends Service implements 
-		OnPreparedListener, OnBufferingUpdateListener, OnCompletionListener,
-		OnErrorListener, AudioManager.OnAudioFocusChangeListener{
+		OnPreparedListener,
+		OnBufferingUpdateListener,
+		OnCompletionListener,
+		OnErrorListener,
+		AudioManager.OnAudioFocusChangeListener{
 
 	private static final String LOG_TAG = PlaybackService.class.getName();
 
@@ -124,6 +129,8 @@ public class PlaybackService extends Service implements
 	// Amount of time to rewind playback when resuming after call
 	private final static int RESUME_REWIND_TIME = 3000;
 
+	private BroadcastReceiver widgetIntentReceiver = new WidgetIntentReceiver();
+
 	@Override
 	public void onCreate() {
 		Logging.Log(LOG_TAG,"PlaybackService: Creating Service");
@@ -185,10 +192,10 @@ public class PlaybackService extends Service implements
 			Logging.Log(LOG_TAG,"PlaybackService: onStart action - " + action);
 			if (action == ACTION_TOGGLE) togglePlayPause();
 			else if (action == ACTION_PLAY) play();
-			else if (action == ACTION_PLAY_POSITION) playPos(intent); 
-			else if (action == ACTION_PAUSE) pause(); 
-			else if (action == ACTION_NEXT) next(); 
-			else if (action == ACTION_PREV) previous(); 
+			else if (action == ACTION_PLAY_POSITION) playPos(intent);
+			else if (action == ACTION_PAUSE) pause();
+			else if (action == ACTION_NEXT) next();
+			else if (action == ACTION_PREV) previous();
 			else if (action == ACTION_STOP) stop();
 			else if (action == ACTION_SEEK) seekTo(intent);
 			else if (action == ACTION_QUEUE_SONG) queueSong(intent);
@@ -201,6 +208,8 @@ public class PlaybackService extends Service implements
 				sendPositionChangeBroadcast();
 			}
 		}
+
+		registerReceiver(widgetIntentReceiver, new IntentFilter(PlaybackService.SERVICE_STATE));
 		
 		return START_NOT_STICKY;
 	}
@@ -234,6 +243,7 @@ public class PlaybackService extends Service implements
 		playerStatus = PlaybackService.STATUS_STOPPED; 
 		releaseResources();		
 		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+		unregisterReceiver(widgetIntentReceiver);
 	}
 
 	@Override
@@ -416,7 +426,6 @@ public class PlaybackService extends Service implements
 			.apply();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void setUpNotification() {
 		ArchiveSongObj currentSong = getCurrentSong();
 		String state = "";

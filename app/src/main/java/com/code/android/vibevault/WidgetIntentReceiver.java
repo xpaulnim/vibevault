@@ -23,13 +23,13 @@ public class WidgetIntentReceiver extends BroadcastReceiver{
 			int status = intent.getIntExtra(PlaybackService.EXTRA_STATUS, PlaybackService.STATUS_STOPPED);
 			switch(status){
 				case PlaybackService.STATUS_PLAYING:
-					remoteRowViews.setInt(R.id.WidgetRowToggleButton, "setBackgroundResource", R.drawable.mediapausebutton);
-					remoteListViews.setInt(R.id.PauseButton, "setBackgroundResource", R.drawable.mediapausebutton);
+					remoteRowViews.setInt(R.id.WidgetRowToggleButton, "setBackgroundResource", R.drawable.ic_pause_24px);
+					remoteListViews.setInt(R.id.PauseButton, "setBackgroundResource", R.drawable.ic_pause_24px);
 					break;
 				case PlaybackService.STATUS_PAUSED:
 				case PlaybackService.STATUS_STOPPED:
-					remoteRowViews.setInt(R.id.WidgetRowToggleButton, "setBackgroundResource", R.drawable.mediaplaybutton);
-					remoteListViews.setInt(R.id.PauseButton, "setBackgroundResource", R.drawable.mediaplaybutton);
+					remoteRowViews.setInt(R.id.WidgetRowToggleButton, "setBackgroundResource", R.drawable.ic_play_arrow_24px);
+					remoteListViews.setInt(R.id.PauseButton, "setBackgroundResource", R.drawable.ic_play_arrow_24px);
 					break;
 				default:
 			}

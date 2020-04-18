@@ -45,15 +45,15 @@ public class VotesQueryAsyncTaskLoader<T> extends AsyncTaskLoader<ArrayList<?>> 
 		switch(this.voteQueryType){
 			case Voting.VOTES_SHOWS:
 				Logging.Log(LOG_TAG, "Getting votes.");
-				votes = Voting.getShows(this.voteQueryResultType, queryResults, queryOffset, db);
+				votes = Voting.getShows(this.voteQueryResultType, queryResults, queryOffset, db, getContext().getApplicationContext());
 				break;
 			case Voting.VOTES_ARTISTS:
 				Logging.Log(LOG_TAG, "Getting votes.");
-				votes = Voting.getArtists(this.voteQueryResultType, queryResults, queryOffset, db);
+				votes = Voting.getArtists(this.voteQueryResultType, queryResults, queryOffset, db, getContext().getApplicationContext());
 				break;
 			case Voting.VOTES_SHOWS_BY_ARTIST:
 				Logging.Log(LOG_TAG, "Getting votes.");
-				votes = Voting.getShowsByArtist(this.voteQueryResultType, queryResults, queryOffset, artistId, db);
+				votes = Voting.getShowsByArtist(this.voteQueryResultType, queryResults, queryOffset, artistId, db, getContext().getApplicationContext());
 				break;
 			default:
 				votes = new ArrayList<ArchiveVoteObj>();

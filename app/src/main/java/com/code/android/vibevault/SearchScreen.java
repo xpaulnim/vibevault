@@ -16,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -208,7 +207,13 @@ public class SearchScreen extends AppCompatActivity implements
 	
 	@Override
 	public void showSettingsDialog(Bundle b) {
-		SearchSettingsDialogFragment settingsFrag = SearchSettingsDialogFragment.newInstanceSearchSettingsDialogFragment(b.getString("type"), b.getInt("number"), b.getInt("datepos"), b.getInt("month"), b.getInt("day"), b.getInt("year"));
+		SearchSettingsDialogFragment settingsFrag = SearchSettingsDialogFragment.newInstance(
+				b.getString("type"),
+				b.getInt("number"),
+				b.getInt("datepos"),
+				b.getInt("month"),
+				b.getInt("day"),
+				b.getInt("year"));
 		// DialogFragment.show() will take care of adding the fragment
 		// in a transaction. We also want to remove any currently showing
 		// dialog, so make our own transaction and take care of that here.
@@ -386,7 +391,7 @@ public class SearchScreen extends AppCompatActivity implements
 
 			//Update Artists if necessary
 			if (needsArtistFetching()) {
-				Searching.updateArtists(db);
+				Searching.updateArtists(db, parentScreen.getApplicationContext());
 				publishProgress(75);
 			}
 

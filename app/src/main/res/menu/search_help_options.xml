@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:id="@+id/SearchActionBarButton"
         android:icon="@drawable/ic_search_24px"
         android:title="@string/Search"
         app:actionLayout="@layout/search_bar"
+        app:showAsAction="ifRoom|collapseActionView"/>
+
+    <item
+        android:id="@+id/SettingsButton"
+        android:icon="@drawable/ic_settings_24px"
+        android:title="@string/settings_text"
         app:showAsAction="ifRoom" />
 </menu>
