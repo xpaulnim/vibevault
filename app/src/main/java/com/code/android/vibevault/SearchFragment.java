@@ -24,7 +24,6 @@
 
 package com.code.android.vibevault;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -52,23 +51,22 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<List<ArchiveShowObj>>,
-        SearchSettingsDialogInterface {
+public class SearchFragment extends Fragment implements SearchSettingsDialogInterface {
 
     private static final String LOG_TAG = SearchFragment.class.getName();
 
@@ -76,18 +74,16 @@ public class SearchFragment extends Fragment
     private static final int MENU_BOOKMARK = 1;
     private static final int MENU_EMAIL = 2;
 
-    protected ListView searchList;
-    protected File appRootDir;
-    protected TextView labelText;
+    private ListView searchList;
+    private File appRootDir;
+    private TextView labelText;
 
+    private ImageButton artistSearchButton;
+    private AutoCompleteTextView artistSearchInput;
+    private Button searchMoreButton;
+    private TextView searchHintTextView;
+    private Menu actionBarMenu;
 
-    protected AutoCompleteTextView artistSearchInput;
-    protected ImageButton searchButton;
-    protected Button searchMoreButton;
-    protected TextView searchHintTextView;
-    protected Menu actionBarMenu;
-
-    // These are now initialized in onCreate().
     private int pageNum;
     private boolean isSearchMore = false;
     private boolean dateChanged = false;
@@ -116,13 +112,13 @@ public class SearchFragment extends Fragment
     // Called right before onCreate(), which is right before onCreateView().
     // http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
 
         try {
-            dialogAndNavigationListener = (DialogAndNavigationListener) activity;
+            dialogAndNavigationListener = (DialogAndNavigationListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement DialogListener");
+            throw new ClassCastException(context.toString() + " must implement DialogListener");
         }
     }
 
@@ -133,7 +129,7 @@ public class SearchFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Logging.Log(LOG_TAG, "onCreate");
-        searchResults = new ArrayList<ArchiveShowObj>();
+        searchResults = new ArrayList<>();
         artistSearchText = "";
         month = 0;
         day = 0;
@@ -163,28 +159,18 @@ public class SearchFragment extends Fragment
         numResultsPref = Integer.parseInt(db.getPref("numResults"));
         sortPref = db.getPref("sortOrder");
 
-
         if (this.getArguments() != null && this.getArguments().containsKey("Artist")) {
             String artist = this.getArguments().getString("Artist");
             if (artist != null) {
-                this.browseArtist(artist);
-                this.getArguments().remove("Artist");
+                searchResults.clear();
+                artistSearchText = artist;
+
+//                this.browseArtist(artist);
+//                this.getArguments().remove("Artist");
             }
         }
         // Must call in order to get callback to onOptionsItemSelected()
         setHasOptionsMenu(true);
-        AppCompatActivity myActivity = (AppCompatActivity) getActivity();
-        LoaderManager lm = LoaderManager.getInstance(this);
-        if (lm.getLoader(0) != null) {
-            // The second argument is the query for a new loader, but here we are trying to
-            // reconnect to an already existing loader, and "If a loader already exists
-            // (a new one does not need to be created), this parameter will be ignored and
-            // the last arguments continue to be used.If a loader already exists (a new one
-            // does not need to be created), this parameter will be ignored and the last arguments
-            // continue to be used.
-            // http://developer.android.com/reference/android/app/LoaderManager.html
-            lm.initLoader(0, null, this);
-        }
     }
 
     @Override
@@ -193,24 +179,22 @@ public class SearchFragment extends Fragment
         // Inflate the fragment and grab a reference to it.
         View view = inflater.inflate(R.layout.search_fragment, container, false);
         // Initialize the various elements of the SearchScreen.
-        this.searchList = view.findViewById(R.id.ResultsListView);
-        this.searchButton = view.findViewById(R.id.SearchButton);
+        searchList = view.findViewById(R.id.ResultsListView);
         searchList.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v,
                                             ContextMenu.ContextMenuInfo menuInfo) {
-                menu.add(Menu.NONE, MENU_EMAIL, Menu.NONE,
-                        "Email Link to Show");
-                menu.add(Menu.NONE, MENU_INFO, Menu.NONE,
-                        "Show Info");
-                menu.add(Menu.NONE, MENU_BOOKMARK,
-                        Menu.NONE, "Bookmark Show");
+                menu.add(Menu.NONE, MENU_EMAIL, Menu.NONE, "Email Link to Show");
+                menu.add(Menu.NONE, MENU_INFO, Menu.NONE, "Show Info");
+                menu.add(Menu.NONE, MENU_BOOKMARK, Menu.NONE, "Bookmark Show");
             }
         });
-        this.searchMoreButton = new Button(getActivity());
-        this.searchMoreButton.setText("Get More Results");
-        this.searchMoreButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-        this.searchMoreButton.setOnClickListener(new OnClickListener() {
+
+//        ImageButton searchButton = view.findViewById(R.id.SearchButton);
+        searchMoreButton = new Button(getActivity());
+        searchMoreButton.setText("Get More Results");
+        searchMoreButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        searchMoreButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Logging.Log(LOG_TAG, "MORE BUTTON.");
@@ -226,11 +210,13 @@ public class SearchFragment extends Fragment
             }
         });
         searchList.addFooterView(searchMoreButton);
+
         if (searchResults.size() != 0) {
-            this.searchMoreButton.setVisibility(View.VISIBLE);
+            searchMoreButton.setVisibility(View.VISIBLE);
         } else {
-            this.searchMoreButton.setVisibility(View.GONE);
+            searchMoreButton.setVisibility(View.GONE);
         }
+
         searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> a, View v, int position, long id) {
@@ -278,17 +264,21 @@ public class SearchFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        initTopAppBar();
+    }
+
     private void initTopAppBar() {
         Logging.Log(LOG_TAG, "Creating actionbar.");
 
-        Menu menu = topAppBar.getMenu();
+        actionBarMenu = topAppBar.getMenu();
 
-        this.actionBarMenu = menu;
-        MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
+        artistSearchButton = actionBarMenu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
 
-        final ImageButton artistSearchButton = MenuItemCompat.getActionView(menu.findItem(R.id.SearchActionBarButton)).findViewById(R.id.SearchButton);
-        artistSearchInput = MenuItemCompat.getActionView(menu.findItem(R.id.SearchActionBarButton)).findViewById(R.id.ArtistSearchBox);
-
+        artistSearchInput = actionBarMenu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.ArtistSearchBox);
         artistSearchInput.setText(artistSearchText);
         // This changes the appearance of the search button to reflect whether or not we are searching for "more" shows with the same query.
         artistSearchInput.addTextChangedListener(new TextWatcher() {
@@ -315,25 +305,15 @@ public class SearchFragment extends Fragment
             }
         });
 
-        artistSearchInput.post(new Runnable() {
-            @Override
-            public void run() {
-                Logging.Log(LOG_TAG, "Requesting focus.");
-                artistSearchInput.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);
-            }
-        });
-
         // Set the adapter for autocomplete.
         if (!db.getPref("artistUpdate").equals("2010-01-01")) {
-            artistSearchInput.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.artist_search_row, db.getArtistsStrings()));
+            artistSearchInput.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.artist_search_row, db.getArtistsStrings()));
         }
         // Set listeners in the show details and artist search bars for the enter key.
         // This is not guaranteed to work for soft keyboards because they are IME devices (read online).
         // Analogous code is in the onTextChanged() method overriden in the artistSearchInput's
         // TextChangedListener.
-        this.artistSearchInput.setOnKeyListener(new View.OnKeyListener() {
+        artistSearchInput.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 Logging.Log(LOG_TAG, event.toString());
@@ -350,6 +330,7 @@ public class SearchFragment extends Fragment
                 return false;
             }
         });
+
         artistSearchButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -357,7 +338,6 @@ public class SearchFragment extends Fragment
                 if (artistSearchInput.getText().toString().equals("")) {
                     // vibrator.vibrate(50);
                     Toast.makeText(getActivity(), R.string.error_no_query_message_text, Toast.LENGTH_SHORT).show();
-                    return;
                 }
                 // Search more
                 else if (isMoreSearch(artistSearchInput.getText().toString())) {
@@ -385,7 +365,9 @@ public class SearchFragment extends Fragment
 
             }
         });
-        MenuItemCompat.setOnActionExpandListener(menuItem, new MenuItemCompat.OnActionExpandListener() {
+
+        MenuItem searchActionBarMenuItem = actionBarMenu.findItem(R.id.SearchActionBarButton);
+        searchActionBarMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 return true;  // Return true to collapse action view
@@ -397,75 +379,75 @@ public class SearchFragment extends Fragment
             }
         });
 
-        // FIXME I really do not like having this here, but it is necessary in order to have
-        // the ActionBar MenuItem for searching being expanded into its action layout by default.
-        // Calling refreshSearchList() at other points in the code (like at the end of onActivityCreated()
-        // or something), ends up being reached before the ActionBar is created, so that there is no
-        // MenuItem to expand to the search action view.
-        refreshSearchList();
+        if (artistSearchText != null && !artistSearchText.equals("")) {
+            searchActionBarMenuItem.expandActionView();
+            executeSearch(Searching.makeSearchURLString(pageNum++, month, day, year, artistSearchText, numResultsPref, sortPref, dateSearchModifierPos));
+        } else {
+            Logging.Log(LOG_TAG, "Requesting focus.");
+            searchActionBarMenuItem.expandActionView();
+            artistSearchInput.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        initTopAppBar();
-    }
-
-    // This method is called right after onCreateView() is called. "Called when the
-    // fragment's activity has been created and this fragment's view hierarchy instantiated."
-    // http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//		if(getActivity().getFragmentManager().getBackStackEntryCount()<1){
-//			getActivity().finish();
-//		}
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    // private Vibrator vibrator;
-
-
-    // Search and display the shows for a passed artist.
-    public void browseArtist(String artist) {
-        searchResults.clear();
-        artistSearchText = artist;
-        executeSearch(Searching.makeSearchURLString(pageNum++, month, day, year, artistSearchText, numResultsPref, sortPref, dateSearchModifierPos));
-    }
-
 
     private void executeSearch(String query) {
         dateChanged = false;
-        Bundle bundle = new Bundle();
-        bundle.putString("query", query);
-        LoaderManager lm = LoaderManager.getInstance(this);
-        if (lm.getLoader(0) != null) {
-            // We already have a loader.
-            Logging.Log(LOG_TAG, "RESTART.");
-            lm.restartLoader(0, bundle, this);
+        getShows(query);
+    }
+
+    private void getShows(final String query) {
+        dialogAndNavigationListener.showLoadingDialog("Searching...");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, query, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Logging.Log(LOG_TAG, "Search finished.");
+
+                searchFinished(new ArrayList<>(Searching.parseSearchResults(response)));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Logging.Log(LOG_TAG, "Search error: " + error.getMessage());
+            }
+        });
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                Searching.TIMEOUT,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueueSingleton.getInstance(getContext()).addToRequestQueue(stringRequest);
+    }
+
+    private void searchFinished(ArrayList<ArchiveShowObj> searchResponse) {
+        Logging.Log(LOG_TAG, "LOADER FINISHED.");
+        if (isSearchMore) {
+            isSearchMore = false;
+            Parcelable state = this.searchList.onSaveInstanceState();
+            searchResults.addAll(searchResponse);
+            this.searchList.onRestoreInstanceState(state);
+        } else if (!searchResults.containsAll(searchResults) || searchResults.isEmpty()) {
+            // The containsAll() call above is necessary because onLoadFinished() is being called on rotations,
+            // and otherwise it will replace the searchResults with whatever the Loader most recently returned.
+            searchResults.clear();
+            searchResults.addAll(searchResponse);
+        }
+
+        this.refreshSearchList();
+        dialogAndNavigationListener.hideDialog();
+        if (searchResults.size() != 0) {
+            if (searchResponse.size() > 5) {
+                this.searchMoreButton.setVisibility(View.VISIBLE);
+            } else {
+                this.searchMoreButton.setVisibility(View.GONE);
+            }
+            this.searchMoreButton.setEnabled(true);
+            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
         } else {
-            // We need a new loader.
-            lm.initLoader(0, bundle, this);
+            Toast.makeText(getActivity(), R.string.no_search_results_message_text, Toast.LENGTH_SHORT).show();
+            this.searchMoreButton.setVisibility(View.GONE);
+            this.searchMoreButton.setEnabled(false);
         }
     }
 
@@ -500,54 +482,6 @@ public class SearchFragment extends Fragment
         }
     }
 
-    // Pop up a loading dialog and pass the query to a SearchQueryAsyncTaskLoader for parsing.
-    @NonNull
-    @Override
-    public Loader<List<ArchiveShowObj>> onCreateLoader(int id, Bundle bundle) {
-        Logging.Log(LOG_TAG, "NEW LOADER.");
-        dialogAndNavigationListener.showLoadingDialog("Searching...");
-        return (Loader) new SearchQueryAsyncTaskLoader(getActivity(), bundle.getString("query"));
-    }
-
-    // Set the search results to those returned by the loader, and refresh the search list.
-    @Override
-    public void onLoadFinished(@NonNull Loader<List<ArchiveShowObj>> loader, List<ArchiveShowObj> data) {
-        Logging.Log(LOG_TAG, "LOADER FINISHED.");
-        if (isSearchMore) {
-            isSearchMore = false;
-            Parcelable state = this.searchList.onSaveInstanceState();
-            searchResults.addAll(data);
-            this.refreshSearchList();
-            this.searchList.onRestoreInstanceState(state);
-        } else if (!searchResults.containsAll(searchResults) || searchResults.isEmpty()) {
-            // The containsAll() call above is necessary because onLoadFinished() is being called on rotations,
-            // and otherwise it will replace the searchResults with whatever the Loader most recently returned.
-            searchResults = (ArrayList<ArchiveShowObj>) data;
-            this.refreshSearchList();
-        }
-        dialogAndNavigationListener.hideDialog();
-        if (searchResults.size() != 0) {
-            if (data.size() > 5) {
-                this.searchMoreButton.setVisibility(View.VISIBLE);
-            } else {
-                this.searchMoreButton.setVisibility(View.GONE);
-            }
-            this.searchMoreButton.setEnabled(true);
-            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(artistSearchInput.getWindowToken(), 0);
-        } else {
-            Toast.makeText(getActivity(), R.string.no_search_results_message_text, Toast.LENGTH_SHORT).show();
-            this.searchMoreButton.setVisibility(View.GONE);
-            this.searchMoreButton.setEnabled(false);
-
-        }
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<ArchiveShowObj>> arg0) {
-        // FIXME.
-    }
-
     private void refreshSearchList() {
         Logging.Log(LOG_TAG, "RESULT SIZE: " + searchResults.size());
         searchList.setAdapter(new RatingsAdapter(getActivity(), R.layout.search_list_row, searchResults));
@@ -555,25 +489,22 @@ public class SearchFragment extends Fragment
             Logging.Log(LOG_TAG, "Refreshing...  Empty list.");
             if (actionBarMenu != null) {
                 Logging.Log(LOG_TAG, "Expanding ActionBar MenuItem.");
-                MenuItemCompat.expandActionView(actionBarMenu.findItem(R.id.SearchActionBarButton));
-                artistSearchInput.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);
+                actionBarMenu.findItem(R.id.SearchActionBarButton).expandActionView();
             }
-//			getActivity().getActionBar()
         }
     }
 
     // ArrayAdapter for the ListView of shows with ratings.
     private class RatingsAdapter extends ArrayAdapter<ArchiveShowObj> {
 
-        public RatingsAdapter(Context context, int textViewResourceId,
-                              List<ArchiveShowObj> objects) {
+        RatingsAdapter(Context context, int textViewResourceId,
+                       List<ArchiveShowObj> objects) {
             super(context, textViewResourceId, objects);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             ArchiveShowObj show = (ArchiveShowObj) searchList
                     .getItemAtPosition(position);
 
@@ -629,7 +560,6 @@ public class SearchFragment extends Fragment
             return convertView;
         }
     }
-
 
     @Override
     public void onSettingsOkayButtonPressed(String sortType, int numResults, int datePos, int month, int day, int year) {

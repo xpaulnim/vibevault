@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +44,7 @@ public class Searching {
     public static final String EXTRA_TOTAL = SEARCHING_PREFIX + "EXTRA_TOTAL";
     public static final String EXTRA_COMPLETED = SEARCHING_PREFIX + "EXTRA_COMPLETED";
 
-    private final static int timeout = (int) (15 * DateUtils.SECOND_IN_MILLIS);
+    public final static int TIMEOUT = (int) (15 * DateUtils.SECOND_IN_MILLIS);
 
     public static final int STATUS_DOWNLOADING = 0;
     public static final int STATUS_INSERTING = 1;
@@ -171,62 +172,44 @@ public class Searching {
         return queryString.toString();
     }
 
-    public static void getShows(final String query, final ArrayList<ArchiveShowObj> searchResults, final Context applicationContext) {
+    public static List<ArchiveShowObj> parseSearchResults(String response) {
+        List<ArchiveShowObj> searchResults = new ArrayList<>();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, query, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                /*
-                 * Parse the JSON String (queryResult) that we got from archive.org. If the
-                 * mediatype is etree, create an ArchiveShowObj which encapsulates
-                 * the information for a particular result from the archive.org
-                 * query. Populate the ArrayList which backs the ListView, and call
-                 * the inherited refreshSearchList().
-                 */
-                JSONObject jObject;
-                try {
-                    Logging.Log(LOG_TAG, "JSON grabbed.");
-                    jObject = new JSONObject(response).getJSONObject("response");
-                    JSONArray docsArray = jObject.getJSONArray("docs");
-                    int numItems = docsArray.length();
-                    if (numItems == 0) {
-                        Logging.Log(LOG_TAG, "Artist may not have content on archive.org...");
-                    }
-                    for (int i = 0; i < numItems; i++) {
-                        if (docsArray.getJSONObject(i).optString("mediatype").equals("etree")) {
-                            // Might be inefficient to keep getting size().
-                            searchResults.add(
-                                    searchResults.size(),
-                                    new ArchiveShowObj(
-                                            docsArray.getJSONObject(i).optString("title"),
-                                            docsArray.getJSONObject(i).optString("identifier"),
-                                            docsArray.getJSONObject(i).optString("date"),
-                                            docsArray.getJSONObject(i).optDouble("avg_rating"),
-                                            docsArray.getJSONObject(i).optString("format"),
-                                            docsArray.getJSONObject(i).optString("source")));
-                        }
-                    }
-                } catch (JSONException e) {
-                    // DEBUG
-                    Logging.Log(LOG_TAG, "JSON error: " + response);
-                    Logging.Log(LOG_TAG, e.toString());
+        /*
+         * Parse the JSON String (queryResult) that we got from archive.org. If the
+         * mediatype is etree, create an ArchiveShowObj which encapsulates
+         * the information for a particular result from the archive.org
+         * query. Populate the ArrayList which backs the ListView, and call
+         * the inherited refreshSearchList().
+         */
+        try {
+            Logging.Log(LOG_TAG, "JSON grabbed.");
+            JSONObject jObject = new JSONObject(response).getJSONObject("response");
+            JSONArray docsArray = jObject.getJSONArray("docs");
+            int numItems = docsArray.length();
+            if (numItems == 0) {
+                Logging.Log(LOG_TAG, "Artist may not have content on archive.org...");
+            }
+            for (int i = 0; i < numItems; i++) {
+                if (docsArray.getJSONObject(i).optString("mediatype").equals("etree")) {
+                    // Might be inefficient to keep getting size().
+                    searchResults.add(
+                            new ArchiveShowObj(
+                                    docsArray.getJSONObject(i).optString("title"),
+                                    docsArray.getJSONObject(i).optString("identifier"),
+                                    docsArray.getJSONObject(i).optString("date"),
+                                    docsArray.getJSONObject(i).optDouble("avg_rating"),
+                                    docsArray.getJSONObject(i).optString("format"),
+                                    docsArray.getJSONObject(i).optString("source")));
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        } catch (JSONException e) {
+            // DEBUG
+            Logging.Log(LOG_TAG, "JSON error: " + response);
+            Logging.Log(LOG_TAG, e.toString());
+        }
 
-            }
-        });
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                timeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        RequestQueueSingleton.getInstance(applicationContext).addToRequestQueue(stringRequest);
-
-        Logging.Log(LOG_TAG, "Returning results.");
+        return searchResults;
     }
 
     public static Boolean updateArtists(final StaticDataStore db, final Context applicationContext) {
@@ -285,7 +268,7 @@ public class Searching {
         });
 
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                timeout,
+                TIMEOUT,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
