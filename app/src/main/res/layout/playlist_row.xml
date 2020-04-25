@@ -12,7 +12,7 @@
         android:layout_height="@dimen/row_icon_heightwidth"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@drawable/ic_drag_handle_24px" />
+        app:srcCompat="@drawable/ic_drag_indicator_24px" />
 
     <ImageView
         android:id="@+id/menuIcon"
@@ -20,7 +20,7 @@
         android:layout_height="@dimen/home_buffer_large"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@drawable/ic_more_vert_24px"
+        app:srcCompat="@drawable/ic_arrow_drop_down_24"
         android:visibility="visible" />
 
     <TextView

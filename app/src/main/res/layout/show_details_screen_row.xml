@@ -3,48 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="?attr/listPreferredItemHeight"
-    android:padding="6dip"
-    >
+    android:padding="6dip">
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="@dimen/row_icon_heightwidth"
         android:layout_height="@dimen/row_icon_heightwidth"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@drawable/downloadedicon"
         android:visibility="gone"
-        android:layout_alignParentLeft="true"
-    />
-        
-        <TextView android:id="@+id/SongTitle"
+        app:srcCompat="@drawable/downloadedicon" />
+
+    <TextView
+        android:id="@+id/SongTitle"
         android:layout_width="wrap_content"
-                    android:maxLines="1"
-            android:textSize="@dimen/text_height_tall"
-            android:textColor="#127DD4"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:lines="1"
-            android:scrollHorizontally="true"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/icon"
-                android:text="test"
-        
-		/>
-		
-		<TextView android:id="@+id/ArtistTitle"
-        android:layout_width="wrap_content"
-        	    android:lines="1"
-        
-        android:maxLines="1"
-            android:textSize="@dimen/text_height_small"
-            android:textColor="#FFFFFF"
-            android:textStyle="italic"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            android:layout_below="@id/SongTitle"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/icon"
+        android:layout_toEndOf="@id/icon"
+        android:ellipsize="marquee"
+		android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
         android:text="test"
-		/>
+        android:textColor="#127DD4"
+        android:textSize="@dimen/text_height_tall"
+		android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/ArtistTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/SongTitle"
+        android:layout_toEndOf="@id/icon"
+        android:ellipsize="marquee"
+		android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:text="test"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/text_height_small"
+        android:textStyle="italic"
+		android:singleLine="true" />
 </RelativeLayout>
