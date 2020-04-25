@@ -1,9 +1,10 @@
 package com.code.android.vibevault;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 
 public class DisplayDialog extends DialogFragment {
 	

@@ -340,9 +340,8 @@ public class ShowDetailsFragment extends Fragment {
 						showSongs = parseShowJSON(response);
 						show = passedShow;
 						if(!showSongs.isEmpty()){
-							db.insertShow(show);
-							db.setShowExists(show);
 							db.insertRecentShow(show);
+							db.setShowExists(show);
 							for(ArchiveSongObj song : showSongs){
 								db.insertSong(song);
 							}
@@ -356,7 +355,9 @@ public class ShowDetailsFragment extends Fragment {
 				new Response.ErrorListener() {
 					@Override
 					public void onErrorResponse(VolleyError error) {
+						Logging.Log(LOG_TAG, "Something happened: " + error.getMessage());
 
+						dialogAndNavigationListener.hideDialog();
 					}
 				});
 		RequestQueueSingleton.getInstance(this.getActivity().getApplicationContext()).addToRequestQueue(jsObjRequest);

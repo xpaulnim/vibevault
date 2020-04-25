@@ -605,7 +605,7 @@ public class PlaybackService extends Service implements
 			ArchiveSongObj currentSong = getCurrentSong();
 			Logging.Log(LOG_TAG, "CURRENT SONG: " + currentSong.getSongTitle());
 			try {
-				listen(currentSong.getSongPath(db),!currentSong.doesExist(db));
+				listen(currentSong.getSongPath(db),!currentSong.exists(db));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

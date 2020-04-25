@@ -1,6 +1,5 @@
 package com.code.android.vibevault;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -12,9 +11,10 @@ import android.database.SQLException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -75,8 +75,8 @@ public class SearchScreen extends AppCompatActivity implements
 	}
 	
 	private void clearBackStack(){
-		for(int i = 0; i<this.getFragmentManager().getBackStackEntryCount(); ++i){
-			this.getFragmentManager().popBackStack();
+		for(int i = 0; i<this.getSupportFragmentManager().getBackStackEntryCount(); ++i){
+			this.getSupportFragmentManager().popBackStack();
 		}
 	}
 
@@ -105,8 +105,6 @@ public class SearchScreen extends AppCompatActivity implements
 		}
 	}
 
-	private UpgradeTask upgradeTask;
-
 	private boolean dialogShown;
 
 	private StaticDataStore db;
@@ -116,32 +114,9 @@ public class SearchScreen extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_screen);
 
-		Object retained = getLastNonConfigurationInstance();
-
-		if(retained instanceof UpgradeTask){
-			Logging.Log(LOG_TAG,"UpgradeTask retained");
-			upgradeTask = (SearchScreen.UpgradeTask)retained;
-			upgradeTask.setActivity(this);
-		} else{
-			//upgradeTask = new UpgradeTask(this);
-		}
 		db = StaticDataStore.getInstance(this);
 
 		BottomNavigationView bottomBarView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
-
-		if (db.needsUpgrade && upgradeTask == null) { //DB needs updating
-			bottomBarView.setClickable(false);
-			Toast.makeText(SearchScreen.this, R.string.db_upgrade_message_text, Toast.LENGTH_SHORT).show();
-			upgradeTask = new UpgradeTask(SearchScreen.this);
-			upgradeTask.execute();
-		} else { // DB Up to date, check artist date
-			bottomBarView.setClickable(true);
-
-			if (needsArtistFetching() && upgradeTask == null) {
-				upgradeTask = new UpgradeTask(SearchScreen.this);
-				upgradeTask.execute();
-			}
-		}
 
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		NavigationUI.setupWithNavController(bottomBarView, navController);
@@ -312,133 +287,6 @@ public class SearchScreen extends AppCompatActivity implements
 	public void unregisterReceivers(BroadcastReceiver stateChangedBroadcast, BroadcastReceiver positionChangedBroadcast) {
 		unregisterReceiver(stateChangedBroadcast);
 		unregisterReceiver(positionChangedBroadcast);
-	}
-
-	private class UpgradeTask extends AsyncTask<String, Integer, String> {
-
-		private SearchScreen parentScreen;
-		private boolean success = false;
-		private boolean completed = false;
-
-		private UpgradeTask(SearchScreen activity){
-			this.parentScreen = activity;
-		}
-
-		protected void onPreExecute(){
-			Logging.Log(LOG_TAG, "Starting UpgradeTask");
-			if (db.needsUpgrade) {
-				parentScreen.showDialog(UPGRADE_DB);
-			}
-		}
-
-		@Override
-		protected String doInBackground(String... upgradeString) {
-			/*Upgrade or copy*/
-			//Upgrade existing
-			if (db.needsUpgrade) {
-				Logging.Log(LOG_TAG, "Upgrading DB");
-				success = db.upgradeDB();
-				//Copy new one if failure upgrading
-
-				if(!success){
-					try {
-						db.copyDB();
-					} catch (IOException e) {
-						throw new Error("Error copying database");
-					}
-				}
-				//Finally open DB
-				try {
-					db.openDataBase();
-				} catch (SQLException e) {
-					Logging.Log(LOG_TAG, "Unable to open database");
-					Logging.Log(LOG_TAG, e.getStackTrace().toString());
-				}
-				//DB is now ready to use
-				db.updatePref("splashShown", "true");
-				publishProgress(25);
-			}
-
-			//Fix bad shows
-			ArrayList<ArchiveShowObj> shows = db.getBadShows();
-			Logging.Log(LOG_TAG, "Looking for shows to fix, found "  + shows.size());
-			if (shows.size() > 0) {
-				Logging.Log(LOG_TAG, "Starting to fix shows");
-				for (final ArchiveShowObj s : shows) {
-					JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, "https://archive.org/metadata/" + s.getIdentifier(), null,
-							new Response.Listener<JSONObject>() {
-								@Override
-								public void onResponse(JSONObject response) {
-									Logging.Log(LOG_TAG, "JSON for show with bad DB entry...  Size: " + response.toString().length());
-									ArrayList<ArchiveSongObj> showSongs = ShowDetailsFragment.parseShowJSON(response);
-									if(!showSongs.isEmpty()){
-										db.setShowExists(s);
-										db.insertRecentShow(s);
-									}
-								}
-							},
-							new Response.ErrorListener() {
-								@Override
-								public void onErrorResponse(VolleyError error) {
-
-								}
-							});
-					RequestQueueSingleton.getInstance(getApplicationContext()).addToRequestQueue(jsObjRequest);
-
-				}
-				publishProgress(50);
-			}
-
-			//Update Artists if necessary
-			if (needsArtistFetching()) {
-				Searching.updateArtists(db, parentScreen.getApplicationContext());
-				publishProgress(75);
-			}
-
-			Downloading.syncFilesDirectory(parentScreen, db);
-
-			return "Completed";
-		}
-
-		protected void onPostExecute(String upgradeString) {
-		}
-
-		protected void onProgressUpdate(Integer... progress) {
-			if (progress[0] == 25) {
-				parentScreen.dismissDialog(UPGRADE_DB);
-//				setImageButtonToFragments();
-				completed=true;
-				notifyActivityTaskCompleted();
-			}
-			if (progress[0] == 50) {
-				Logging.Log(LOG_TAG, "Finished fixing shows");
-			}
-			if (progress[0] == 75) {
-				String message = "Updated Artists";
-				Toast.makeText(SearchScreen.this, message, Toast.LENGTH_SHORT).show();
-			}
-		}
-
-		// The parent could be null if you changed orientations
-		// and this method was called before the new SearchScreen
-		// could set itself as this Thread's parent.
-		private void notifyActivityTaskCompleted(){
-			if(parentScreen!=null){
-				parentScreen.onTaskCompleted();
-			}
-		}
-
-		// When a SearchScreen is reconstructed (like after an orientation change),
-		// we call this method on the retained SearchScreen (if one exists) to set
-		// its parent Activity as the new SearchScreen because the old one has been destroyed.
-		// This prevents leaking any of the data associated with the old SearchScreen.
-		private void setActivity(SearchScreen activity){
-			this.parentScreen = activity;
-			if(completed){
-				notifyActivityTaskCompleted();
-			}
-		}
-
 	}
 
 	/** Persist worker Thread across orientation changes.

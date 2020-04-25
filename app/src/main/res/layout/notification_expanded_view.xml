@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="128.0dip">
     <ImageView
@@ -9,7 +10,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:scaleType="centerInside"
-        android:src="@drawable/notification_icon" />
+        app:srcCompat="@drawable/notification_icon" />
     <LinearLayout
         android:id="@+id/notification_expanded_buttons"
         android:layout_width="match_parent"
@@ -31,7 +32,7 @@
             android:layout_weight="1"
             android:padding="8.0dip"
             android:scaleType="fitCenter"
-            android:src="@drawable/mediapreviousbutton"
+            app:srcCompat="@drawable/mediapreviousbutton"
             android:background="@android:color/transparent" />
         <ImageButton
             android:id="@+id/notification_expanded_play"
@@ -42,7 +43,7 @@
             android:layout_weight="1"
             android:padding="8.0dip"
             android:scaleType="fitCenter"
-            android:src="@drawable/mediaplaybutton"
+            app:srcCompat="@drawable/mediaplaybutton"
             android:background="@android:color/transparent" />
         <ImageButton
             android:id="@+id/notification_expanded_next"
@@ -53,7 +54,7 @@
             android:layout_weight="1"
             android:padding="8.0dip"
             android:scaleType="fitCenter"
-            android:src="@drawable/medianextbutton"
+            app:srcCompat="@drawable/medianextbutton"
             android:background="@android:color/transparent" />
         </LinearLayout>
         <ImageView
@@ -62,14 +63,14 @@
         android:layout_above="@id/notification_expanded_buttons"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/notification_expanded_image"
-        android:background="?android:dividerHorizontal" />
+        android:background="?attr/dividerHorizontal" />
             <ImageButton
         android:id="@+id/notification_expanded_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/notification_exit"
+        app:srcCompat="@drawable/notification_exit"
         android:background="@android:color/transparent" />
     <TextView 
         android:id="@+id/notification_expanded_title"

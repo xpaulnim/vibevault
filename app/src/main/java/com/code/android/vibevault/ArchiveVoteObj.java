@@ -1,5 +1,7 @@
 package com.code.android.vibevault;
 
+import androidx.room.Ignore;
+
 import java.io.Serializable;
 
 public abstract class ArchiveVoteObj implements Serializable {
@@ -7,6 +9,7 @@ public abstract class ArchiveVoteObj implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	@Ignore
 	protected int votes;
 	protected int DBID;
 	

@@ -233,9 +233,7 @@ public class NowPlayingFragment extends Fragment {
 							if(voteSong!=null){
 								ArchiveShowObj bookmarkShow = db.getShow(voteSong.getShowIdentifier());
 								if(bookmarkShow!=null){
-									db.openDataBase();
 									db.insertFavoriteShow(bookmarkShow);
-									db.close();
 									Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
 									return true;
 								}
@@ -551,7 +549,7 @@ public class NowPlayingFragment extends Fragment {
 			final PopupMenu menu = new PopupMenu(getActivity(), menuIcon);
 			// If we have an ArchiveSongObject for this View's position, set the data to display.
 			if(song != null){
-				songText.setText(song.toString());
+				songText.setText(song.getSongTitle());
 				artistText.setText(song.getShowArtist());
 				if(position == currentPos){
 					// TODO: Use better color

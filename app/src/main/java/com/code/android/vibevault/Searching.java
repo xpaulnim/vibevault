@@ -264,9 +264,10 @@ public class Searching {
 						}
 					}
 					if (artists.size() > 0) {
+						Logging.Log(LOG_TAG, String.format(Locale.getDefault(), "Inserting %d artists", artists.size()));
 						db.insertArtistBulk(artists);
-						String s = DateFormat.format("yyyy-MM-dd", new GregorianCalendar().getTime()).toString();
-						db.updatePref("artistUpdate", s);
+						String artistUpdateDate = DateFormat.format("yyyy-MM-dd", new GregorianCalendar().getTime()).toString();
+						db.updatePref("artistUpdate", artistUpdateDate);
 						Logging.Log(LOG_TAG, "Finished Fetching Artists");
 					} else {
 						Logging.Log(LOG_TAG, "Error Fetching Artists");

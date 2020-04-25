@@ -3,8 +3,6 @@ package com.code.android.vibevault;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.TypedValue;
@@ -35,11 +33,7 @@ import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
 
@@ -235,9 +229,8 @@ public class VotesFragment extends Fragment implements
 				R.array.voting_array,
 				android.R.layout.simple_spinner_dropdown_item);
 
-		spinner = (Spinner) topAppBar.getMenu()
-				.findItem(R.id.ShowsStoredSpinner)
-				.getActionView()
+		spinner = (Spinner) MenuItemCompat.getActionView(topAppBar.getMenu()
+				.findItem(R.id.ShowsStoredSpinner))
 				.findViewById(R.id.planets_spinner);
 
 		spinner.setAdapter(adapter);

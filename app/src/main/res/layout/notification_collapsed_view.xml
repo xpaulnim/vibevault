@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="match_parent">
     <ImageView
@@ -7,7 +8,7 @@
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
         android:scaleType="centerInside"
-        android:src="@drawable/icon" />
+        app:srcCompat="@drawable/icon" />
     <TextView 
         android:id="@+id/notification_collapsed_title"
         android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
             android:padding="8.0dip"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
-            android:src="@drawable/mediaplaybutton" />
+            app:srcCompat="@drawable/mediaplaybutton" />
         <ImageButton android:id="@+id/notification_collapsed_next"
             android:layout_width="0dp"
 	        android:layout_height="@dimen/notification_button_height"
@@ -64,7 +65,7 @@
             android:padding="8.0dip"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
-            android:src="@drawable/medianextbutton" />
+            app:srcCompat="@drawable/medianextbutton" />
         <ImageButton android:id="@+id/notification_collapsed_close"
             android:layout_width="0dp"
 	        android:layout_height="@dimen/notification_button_height"
@@ -74,6 +75,6 @@
             android:padding="8.0dip"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
-            android:src="@drawable/notification_exit"/>
+            app:srcCompat="@drawable/notification_exit"/>
         </LinearLayout>
 </RelativeLayout>

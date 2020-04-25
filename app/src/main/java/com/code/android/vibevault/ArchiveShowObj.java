@@ -24,6 +24,8 @@
 
 package com.code.android.vibevault;
 
+import androidx.room.Ignore;
+
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,86 +38,97 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final String ArchiveShowPrefix = "http://www.archive.org/details/";
-	
+	static final String ArchiveShowPrefix = "http://www.archive.org/details/";
+
+	@Ignore
 	private String wholeTitle = "";
-	private URL showURL = null;
-	private String identifier = "";
+	@Ignore
 	private String date = "";
+	@Ignore
 	private double rating = 0.0;
-	private String source = "";
-	private String showArtist = "";
-	private String showTitle = "";
-	private boolean vbrShow = false;
-	private boolean lbrShow = false;
+	@Ignore
+	private URL showURL = null;
+	@Ignore
 	private boolean hasSelectedSong = false;
+	@Ignore
 	private String selectedSong = "";
+
+	private String identifier = "";
+	private String showTitle = "";
+	private String showArtist = "";
+	private String source = "";
+	private boolean hasVBR = false;
+	private boolean hasLBR = false;
+
 	
 	/** Create an object which represents a show returned from an archive.org search.
 	 * 
-	 * @param tit Show's title.
-	 * @param id Show's "identifier" (unique part of its URL).
-	 * @param dat Show's date.
-	 * @param rat Show's rating.
+	 * @param wholeTitle Show's title.
+	 * @param identifier Show's "identifier" (unique part of its URL).
+	 * @param date Show's date.
+	 * @param rating Show's rating.
 	 * @param format Show's format list.
-	 * @parm src Show's source.
+	 * @param src Show's source.
 	 */
-	public ArchiveShowObj(String tit, String id, String dat, double rat, String format, String src) {
-		wholeTitle = tit;
-		String artistAndShowTitle[] = tit.split(" Live at ");
+	public ArchiveShowObj(String wholeTitle,
+						  String identifier,
+						  String date,
+						  double rating,
+						  String format,
+						  String src) {
+		this.wholeTitle = wholeTitle;
+
+		String[] artistAndShowTitle = wholeTitle.split(" Live at ");
 		if(artistAndShowTitle.length < 2){
-			artistAndShowTitle = tit.split(" Live @ ");
+			artistAndShowTitle = wholeTitle.split(" Live @ ");
 		}
 		if(artistAndShowTitle.length < 2){
-			artistAndShowTitle = tit.split(" Live ");
+			artistAndShowTitle = wholeTitle.split(" Live ");
 		}
 		showArtist = artistAndShowTitle[0].replaceAll(" - ", "").replaceAll("-","");
 		if(artistAndShowTitle.length >= 2){
 			showTitle = artistAndShowTitle[1];
 		}
-		identifier = id;
-		date = dat;
-		rating = rat;
+		this.identifier = identifier;
+		this.date = date;
+		this.rating = rating;
 		source = src;
 		this.parseFormatList(format);
 		try{
-			showURL = new URL(ArchiveShowPrefix + identifier);
+			showURL = new URL(ArchiveShowPrefix + this.identifier);
 		} catch(MalformedURLException e){
 			// url is null in this case!
 		}
 	}
 	
-	public String getShowSource(){
-		return source;
-	}
-	
-	public String getShowArtist(){
-		return showArtist;
-	}
-	
-	public String getShowTitle(){
-		return showTitle;
-	}
-	
 	// Constructor called from DB version > 5
-	public ArchiveShowObj(String ident, String title, String artist, String src, String hasVBR, String hasLBR, int dbid){
-		wholeTitle = artist + " Live at " + title;
-		identifier = ident;
-		showTitle = title;
-		showArtist = artist;
-		source = src;
-		vbrShow = Boolean.valueOf(hasVBR);
-		lbrShow = Boolean.valueOf(hasLBR);
-		DBID = dbid;
+	public ArchiveShowObj(String identifier,
+						  String showTitle,
+						  String showArtist,
+						  String source,
+						  boolean hasVBR,
+						  boolean hasLBR,
+						  int DBID){
+		wholeTitle = showArtist + " Live at " + showTitle;
+		this.identifier = identifier;
+		this.showTitle = showTitle;
+		this.showArtist = showArtist;
+		this.source = source;
+		this.hasVBR = hasVBR;
+		this.hasLBR = hasLBR;
+		this.DBID = DBID;
 		try{
-			showURL = new URL(ArchiveShowPrefix + identifier);
+			showURL = new URL(ArchiveShowPrefix + this.identifier);
 		} catch(MalformedURLException e){
 			// url is null in this case!
 		}
 	}
 	
 	// Constructor called from DB version <= 5
-	public ArchiveShowObj(String id, String tit, String hasVBR, String hasLBR){
+	public ArchiveShowObj(String id,
+						  String tit,
+						  String hasVBR,
+						  String hasLBR){
 		wholeTitle = tit;
 		String artistAndShowTitle[] = tit.split(" Live at ");
 		if(artistAndShowTitle.length < 2){
@@ -130,10 +143,10 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 		}
 		identifier = id;
 		if(hasVBR.equals("1")){
-			vbrShow = true;
+			this.hasVBR = true;
 		}
 		if(hasLBR.equals("1")){
-			lbrShow = true;
+			this.hasLBR = true;
 		}
 		try{
 			showURL = new URL(ArchiveShowPrefix + identifier);
@@ -142,15 +155,16 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 		}
 	}
 	
-	public ArchiveShowObj(String linkString, boolean hasSelected) {
+	public ArchiveShowObj(String linkString,
+						  boolean hasSelected) {
 		wholeTitle = "";
 		// This should take care of any prefix (eg. http://, http://www., www.).
 		identifier = linkString.split("archive.org/details/")[1];
 		showTitle = "";
 		showArtist = "";
 		source = "";
-		vbrShow = true;
-		lbrShow = true;
+		hasVBR = true;
+		hasLBR = true;
 		hasSelectedSong = hasSelected;
 		try{
 			showURL = new URL(linkString);
@@ -160,7 +174,13 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 	}
 	
 	// Constructor called from vote return
-	public ArchiveShowObj(String ident, String title, String artist, String date, String src, double rat, int numVotes){
+	public ArchiveShowObj(String ident,
+						  String title,
+						  String artist,
+						  String date,
+						  String src,
+						  double rat,
+						  int numVotes){
 		wholeTitle = title;
 		identifier = ident;
 		showTitle = title;
@@ -176,8 +196,8 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 			showTitle = artistAndShowTitle[1];
 		}
 		source = src;
-		vbrShow = true;
-		lbrShow = false;
+		hasVBR = true;
+		hasLBR = false;
 		rating = rat;
 		votes = numVotes;
 		try{
@@ -206,25 +226,25 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 
 	private void parseFormatList(String formatList){
 		if(formatList.contains("64Kbps MP3")){
-			lbrShow = true;
+			hasLBR = true;
 		}
 		if(formatList.contains("64Kbps M3U")){
-			lbrShow = true;
+			hasLBR = true;
 		}
 		if(formatList.contains("VBR MP3")){
-			vbrShow = true;
+			hasVBR = true;
 		}
 		if(formatList.contains("VBR M3U")){
-			vbrShow = true;
+			hasVBR = true;
 		}
 	}
 	
 	public boolean hasVBR(){
-		return vbrShow;
+		return hasVBR;
 	}
 	
 	public boolean hasLBR(){
-		return lbrShow;
+		return hasLBR;
 	}
 	
 	//should only be called from the voted shows activity
@@ -240,9 +260,16 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 		return date;
 	}
 
-	@Override
-	public String toString() {
-		return String.format(wholeTitle);
+	public String getShowSource(){
+		return source;
+	}
+
+	public String getShowArtist(){
+		return showArtist;
+	}
+
+	public String getShowTitle(){
+		return showTitle;
 	}
 
 	public String getArtistAndTitle(){
@@ -280,7 +307,56 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 	public URL getShowURL() {
 		return showURL;
 	}
-	
+
+	public void setWholeTitle(String wholeTitle) {
+		this.wholeTitle = wholeTitle;
+	}
+
+	public void setShowURL(URL showURL) {
+		this.showURL = showURL;
+	}
+
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public void setShowArtist(String showArtist) {
+		this.showArtist = showArtist;
+	}
+
+	public void setShowTitle(String showTitle) {
+		this.showTitle = showTitle;
+	}
+
+	public void setHasVBR(boolean hasVBR) {
+		this.hasVBR = hasVBR;
+	}
+
+	public void setHasLBR(boolean hasLBR) {
+		this.hasLBR = hasLBR;
+	}
+
+	public void setHasSelectedSong(boolean hasSelectedSong) {
+		this.hasSelectedSong = hasSelectedSong;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(wholeTitle);
+	}
+
 	@Override
 	public boolean equals(Object obj){
 		ArchiveShowObj show = (ArchiveShowObj) obj;
@@ -291,5 +367,4 @@ public class ArchiveShowObj extends ArchiveVoteObj implements Serializable {
 			return false;
 		}
 	}
-
 }

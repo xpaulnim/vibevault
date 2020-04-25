@@ -26,29 +26,32 @@ package com.code.android.vibevault;
 
 import android.os.Environment;
 
+import androidx.room.Ignore;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	// I'm pretty sure that URL objects are bigger
 	// than String objects, so we don't store the
 	// URL's as actual URL's unless the user indicates
 	// that we are actually going to download or stream.
+	@Ignore
 	private String urlString;
-	private String title;
+	private String songTitle;
 	private String showTitle;
 	private String showIdent;
 	private String showArtist;
 	private String fileName;
 	private String folderName;
+
+	@Ignore
 	private int status;
+	@Ignore
 	private ArchiveShowObj downloadShow;
 
 	protected static final String LOG_TAG = ArchiveSongObj.class.getName();
@@ -63,49 +66,64 @@ public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
 	 * completed. Otherwise, the song has not been downloaded (or started to be
 	 * downloaded).
 	 * 
-	 * @param tit The title of the song.
-	 * @param showTit The title of the show which the song is a part of.
+	 * @param songTitle The title of the song.
+	 * @param showTitle The title of the show which the song is a part of.
 	 */
-	public ArchiveSongObj(String tit, String urlStr, String showTit, String showIdent, String showArt){
+	@Ignore
+	public ArchiveSongObj(String songTitle,
+						  String urlString,
+						  String showTitle,
+						  String showIdent,
+						  String showArtist) {
 		Logging.Log(LOG_TAG, "Creating show: ");
 
-		title = tit.replace("&apos;", "'").replace("&gt;", ">").replace("&lt;", "<").replace("&quot;", "\"").replace("&amp;","&");
-		showTitle = showTit;
-		
-
-		showArtist = showArt;
-		urlString = urlStr;
-		status = -1;
-		
-		
+		this.songTitle = songTitle.replace("&apos;", "'")
+				.replace("&gt;", ">")
+				.replace("&lt;", "<")
+				.replace("&quot;", "\"")
+				.replace("&amp;", "&");
+		this.showTitle = showTitle;
+		this.showArtist = showArtist;
+		this.urlString = urlString;
 		this.showIdent = showIdent;
-		String splitArray[] = urlStr.split("/");
-		fileName = splitArray[splitArray.length-1];
-		if (showIdent.equalsIgnoreCase(splitArray[splitArray.length-3])) {
-			folderName = splitArray[splitArray.length-2];
-		}
-		else {
+
+		status = -1;
+
+		String[] splitArray = urlString.split("/");
+		fileName = splitArray[splitArray.length - 1];
+
+		if (showIdent.equalsIgnoreCase(splitArray[splitArray.length - 3])) {
+			folderName = splitArray[splitArray.length - 2];
+		} else {
 			folderName = "";
 		}
 	}
 	
 	// Constructor from DB
-	public ArchiveSongObj(String tit, String folder, String fileStr, String showTit, String showIdent, String showArt, boolean isDownloaded, int ID){
-		if (!folder.equals("")) {
-			urlString = "http://www.archive.org/download/" + showIdent + "/" +  folder + "/" + fileStr;
+	public ArchiveSongObj(String songTitle,
+						  String folderName,
+						  String fileName,
+						  String showTitle,
+						  String showIdent,
+						  String showArtist,
+						  int DBID){
+		if (!folderName.equals("")) {
+			urlString = "http://www.archive.org/download/" + showIdent + "/" +  folderName + "/" + fileName;
 		} else {
-			urlString = "http://www.archive.org/download/" + showIdent + "/" + fileStr;
+			urlString = "http://www.archive.org/download/" + showIdent + "/" + fileName;
 		}
-		folderName = folder;
+		this.folderName = folderName;
 		status = -1;
-		title = tit.replace("&apos;", "'").replace("&gt;", ">").replace("&lt;", "<").replace("&quot;", "\"").replace("&amp;","&");
-		showTitle = showTit;
-		showArtist = showArt;
-
-
+		this.songTitle = songTitle.replace("&apos;", "'")
+				.replace("&gt;", ">")
+				.replace("&lt;", "<")
+				.replace("&quot;", "\"")
+				.replace("&amp;", "&");
+		this.showTitle = showTitle;
+		this.showArtist = showArtist;
 		this.showIdent = showIdent;
-		fileName = fileStr;
-		DBID = ID;
+		this.fileName = fileName;
+		this.DBID = DBID;
 	}
 	
 	public static String sanitizeForFilename(String s){
@@ -115,21 +133,19 @@ public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
 	public String getFileName(){
 		return fileName;
 	}
-	
-	public boolean doesExist(StaticDataStore db){
-		if(db.songIsDownloaded(fileName) && new File(getFilePath(db)).exists()){
-			return true;
-		}
-		else{
-			return false;
-		}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public boolean exists(StaticDataStore db){
+		return db.songIsDownloaded(fileName) && new File(getFilePath(db)).exists();
 	}
 	
 	public String getSongPath(StaticDataStore db){
-		if(db.songIsDownloaded(fileName) && new File(getFilePath(db)).exists()){
+		if(exists(db)) {
 			return getFilePath(db);
-		}
-		else{
+		} else {
 			return getLowBitRate().toString();
 		}
 	}
@@ -172,11 +188,11 @@ public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
 	}
 	
 	public String getSongTitle(){
-		return title;
+		return songTitle;
 	}
 	
 	public String getSongArtistAndTitle(){
-		return showArtist + " - " + title;
+		return showArtist + " - " + songTitle;
 	}
 
 	/** Returns a URL object of the lowest bitrate for a song.
@@ -201,13 +217,36 @@ public class ArchiveSongObj extends ArchiveVoteObj implements Serializable {
 		return !folderName.equals("");
 	}
 	
-	public String getFolder() {
+	public String getFolderName() {
 		return folderName;
 	}
-	
-	@Override
-	public String toString(){
-		return title;
+
+	public void setUrlString(String urlString) {
+		this.urlString = urlString;
+	}
+
+	public void setSongTitle(String songTitle) {
+		this.songTitle = songTitle;
+	}
+
+	public void setShowTitle(String showTitle) {
+		this.showTitle = showTitle;
+	}
+
+	public void setShowIdent(String showIdent) {
+		this.showIdent = showIdent;
+	}
+
+	public void setShowArtist(String showArtist) {
+		this.showArtist = showArtist;
+	}
+
+	public void setFolderName(String folderName) {
+		this.folderName = folderName;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 	@Override

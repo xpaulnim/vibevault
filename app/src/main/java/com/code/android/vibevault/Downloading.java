@@ -28,13 +28,12 @@ public class Downloading{
 		return db.getPref("downloadPath");
 	}
 	
-	public static final boolean createArchiveDir(Context context, StaticDataStore db)
+	public static final boolean createArchiveDir(Context context, final StaticDataStore db)
 	{
 		String dir = getAppDirectory(db);
 		File appRootDir = new File(Environment.getExternalStorageDirectory(),dir);
 		if (!appRootDir.isFile() || !appRootDir.isDirectory()) {
-			if (Environment.getExternalStorageState().equals(
-					Environment.MEDIA_MOUNTED)) {
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 				appRootDir.mkdirs();
 			} else {
 				return false;
@@ -64,7 +63,7 @@ public class Downloading{
 //				isDownloading = true;
 //		}
 //		cur.close();
-		if (createShowDirIfNonExistent(song, db) && !isDownloading && !song.doesExist(db))
+		if (createShowDirIfNonExistent(song, db) && !isDownloading && !song.exists(db))
 		{
 			Uri source = Uri.parse(song.getLowBitRate().toString());
 			Uri destination = Uri.fromFile(new File(song.getFilePath(db)));
@@ -137,11 +136,13 @@ public class Downloading{
 		File[] dirs = appRootDir.listFiles();
 		if (dirs != null) {
 			if (dirs.length > 0) {
-				for (final File d : dirs) {
-					if (d.isDirectory()) {
-						String showIdent = d.getName();
+				for (final File file : dirs) {
+					if (file.isDirectory()) {
+						String showIdent = file.getName();
 						Logging.Log(LOG_TAG,"Found " + showIdent);
+
 						final ArchiveShowObj show = new ArchiveShowObj(ArchiveShowObj.ArchiveShowPrefix + showIdent,false);
+
 						if (!db.getShowExists(show)) {
 							Logging.Log(LOG_TAG,showIdent + " doesn't exist in DB");
 							ArrayList<ArchiveSongObj> songs = new ArrayList<ArchiveSongObj>();
@@ -153,15 +154,14 @@ public class Downloading{
 											Logging.Log(LOG_TAG, "JSON for show with bad DB entry...  Size: " + response.toString().length());
 											ArrayList<ArchiveSongObj> showSongs = ShowDetailsFragment.parseShowJSON(response);
 											if(!showSongs.isEmpty()){
-												db.insertShow(show);
-												db.setShowExists(show);
 												db.insertRecentShow(show);
+												db.setShowExists(show);
 												for(ArchiveSongObj song : showSongs){
 													db.insertSong(song);
 												}
 											}
 
-											File[] files = d.listFiles();
+											File[] files = file.listFiles();
 											if (files != null) {
 												if (files.length > 0) {
 													for (File f : files) {
@@ -187,7 +187,7 @@ public class Downloading{
 							ArrayList<ArchiveSongObj> songs = db.getSongsFromShow(show.getIdentifier());
 							int localSongs = 0;
 							Logging.Log(LOG_TAG,showIdent + " not fully downloaded");
-							File[] files = d.listFiles();
+							File[] files = file.listFiles();
 							if (files != null) {
 								if (files.length > 0) {
 									for (File f : files) {
@@ -248,7 +248,6 @@ public class Downloading{
 				}
 			}
 		}
-		return;
 	}
 	
 	//in bytes

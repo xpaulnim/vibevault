@@ -35,7 +35,6 @@ import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,14 +54,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.code.android.vibevault.SearchSettingsDialogFragment.SearchSettingsDialogInterface;
 
@@ -288,8 +284,8 @@ public class SearchFragment extends Fragment
 		this.actionBarMenu = menu;
 		MenuItem menuItem = menu.findItem(R.id.SearchActionBarButton);
 
-		final ImageButton artistSearchButton = (ImageButton) menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.SearchButton);
-		artistSearchInput = (AutoCompleteTextView) menu.findItem(R.id.SearchActionBarButton).getActionView().findViewById(R.id.ArtistSearchBox);
+		final ImageButton artistSearchButton = (ImageButton) MenuItemCompat.getActionView(menu.findItem(R.id.SearchActionBarButton)).findViewById(R.id.SearchButton);
+		artistSearchInput = (AutoCompleteTextView) MenuItemCompat.getActionView(menu.findItem(R.id.SearchActionBarButton)).findViewById(R.id.ArtistSearchBox);
 
 		artistSearchInput.setText(artistSearchText);
 		// This changes the appearance of the search button to reflect whether or not we are searching for "more" shows with the same query.
@@ -387,7 +383,7 @@ public class SearchFragment extends Fragment
 
 			}
 		});
-		menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+		MenuItemCompat.setOnActionExpandListener(menuItem, new MenuItemCompat.OnActionExpandListener() {
 			@Override
 			public boolean onMenuItemActionCollapse(MenuItem item) {
 				return true;  // Return true to collapse action view
@@ -559,7 +555,7 @@ public class SearchFragment extends Fragment
 			Logging.Log(LOG_TAG, "Refreshing...  Empty list.");
 			if(actionBarMenu!=null){
 				Logging.Log(LOG_TAG, "Expanding ActionBar MenuItem.");
-				actionBarMenu.findItem(R.id.SearchActionBarButton).expandActionView();
+				MenuItemCompat.expandActionView(actionBarMenu.findItem(R.id.SearchActionBarButton));
 				artistSearchInput.requestFocus();
 				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.showSoftInput(artistSearchInput, InputMethodManager.SHOW_IMPLICIT);

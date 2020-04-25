@@ -3,8 +3,6 @@ package com.code.android.vibevault;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +13,8 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
@@ -115,9 +112,8 @@ public class ShowsStoredFragment extends Fragment implements
 				R.array.stored_array,
 				android.R.layout.simple_spinner_dropdown_item);
 
-		Spinner spinner = (Spinner) topAppBar.getMenu()
-				.findItem(R.id.ShowsStoredSpinner)
-				.getActionView()
+		Spinner spinner = (Spinner) MenuItemCompat.getActionView(topAppBar.getMenu()
+				.findItem(R.id.ShowsStoredSpinner))
 				.findViewById(R.id.planets_spinner);
 
 		spinner.setAdapter(adapter);
@@ -172,7 +168,6 @@ public class ShowsStoredFragment extends Fragment implements
 		NavHostFragment
 				.findNavController(ShowsStoredFragment.this)
 				.navigate(R.id.action_menu_your_shows_to_frag_show_details, bundle);
-
 	}
 
 	@Override
@@ -184,13 +179,11 @@ public class ShowsStoredFragment extends Fragment implements
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<ArchiveShowObj>> loader,
-			ArrayList<ArchiveShowObj> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<ArchiveShowObj>> loader, ArrayList<ArchiveShowObj> data) {
 		Logging.Log("Stored Frag", "Loader Finished");
 		this.dialogAndNavigationListener.hideDialog();
 
-		ScrollingShowAdapter showAdapter = new ScrollingShowAdapter(
-				getActivity(), R.id.StoredListView, data, db, stored_type);
+		ScrollingShowAdapter showAdapter = new ScrollingShowAdapter(getActivity(), R.id.StoredListView, data, db, stored_type);
 		storedList.setAdapter(showAdapter);
 	}
 
