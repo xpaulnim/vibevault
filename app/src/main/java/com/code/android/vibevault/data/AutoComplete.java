@@ -31,13 +31,11 @@ public class AutoComplete {
         if (o == this) return true;
         if (!(o instanceof AutoComplete)) return false;
         final AutoComplete other = (AutoComplete) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$searchText = this.getSearchText();
         final Object other$searchText = other.getSearchText();
-        if (!Objects.equals(this$searchText, other$searchText))
-            return false;
-        return true;
+        return Objects.equals(this$searchText, other$searchText);
     }
 
     protected boolean canEqual(final Object other) {

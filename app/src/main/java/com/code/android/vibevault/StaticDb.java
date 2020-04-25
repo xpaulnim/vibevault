@@ -50,12 +50,19 @@ import java.util.concurrent.Executors;
 public abstract class StaticDb extends RoomDatabase {
 
     public abstract ArtistDao artistDao();
+
     public abstract DownloadDao downloadDao();
+
     public abstract FavouriteShowDao favouriteShowDao();
+
     public abstract PlaylistDao playlistDao();
+
     public abstract PrefDao prefDao();
+
     public abstract RecentShowDao recentShowDao();
+
     public abstract ShowDao showDao();
+
     public abstract SongDao songDao();
 
     private static final int NUMBER_OF_THREADS = 2;

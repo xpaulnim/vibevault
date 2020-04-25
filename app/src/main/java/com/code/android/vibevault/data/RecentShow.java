@@ -33,10 +33,9 @@ public class RecentShow {
         if (o == this) return true;
         if (!(o instanceof RecentShow)) return false;
         final RecentShow other = (RecentShow) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
-        if (this.getShowId() != other.getShowId()) return false;
-        return true;
+        return this.getShowId() == other.getShowId();
     }
 
     protected boolean canEqual(final Object other) {

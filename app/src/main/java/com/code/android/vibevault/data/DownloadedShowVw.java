@@ -92,7 +92,7 @@ public class DownloadedShowVw {
         if (o == this) return true;
         if (!(o instanceof DownloadedShowVw)) return false;
         final DownloadedShowVw other = (DownloadedShowVw) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$showIdent = this.getShowIdent();
         final Object other$showIdent = other.getShowIdent();
@@ -120,9 +120,7 @@ public class DownloadedShowVw {
             return false;
         final Object this$hasLBR = this.getHasLBR();
         final Object other$hasLBR = other.getHasLBR();
-        if (!Objects.equals(this$hasLBR, other$hasLBR))
-            return false;
-        return true;
+        return Objects.equals(this$hasLBR, other$hasLBR);
     }
 
     protected boolean canEqual(final Object other) {

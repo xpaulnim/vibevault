@@ -41,7 +41,7 @@ public class SongRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
@@ -97,7 +97,7 @@ public class SongRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
@@ -117,7 +117,7 @@ public class SongRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }
@@ -142,7 +142,7 @@ public class SongRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }

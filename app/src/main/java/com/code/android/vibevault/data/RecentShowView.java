@@ -87,7 +87,7 @@ public class RecentShowView {
         if (o == this) return true;
         if (!(o instanceof RecentShowView)) return false;
         final RecentShowView other = (RecentShowView) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$showIdent = this.getShowIdent();
         final Object other$showIdent = other.getShowIdent();
@@ -115,9 +115,7 @@ public class RecentShowView {
             return false;
         final Object this$hasLBR = this.getHasLBR();
         final Object other$hasLBR = other.getHasLBR();
-        if (this$hasLBR == null ? other$hasLBR != null : !this$hasLBR.equals(other$hasLBR))
-            return false;
-        return true;
+        return this$hasLBR == null ? other$hasLBR == null : this$hasLBR.equals(other$hasLBR);
     }
 
     protected boolean canEqual(final Object other) {

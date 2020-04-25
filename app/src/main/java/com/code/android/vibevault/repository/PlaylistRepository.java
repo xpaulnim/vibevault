@@ -29,7 +29,7 @@ public class PlaylistRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }

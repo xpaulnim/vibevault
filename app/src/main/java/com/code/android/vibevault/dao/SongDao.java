@@ -56,7 +56,7 @@ public interface SongDao {
     void setSongDeleted(String song_filename);
 
     @Query("SELECT 1 " +
-            " FROM songTbl song "+
+            " FROM songTbl song " +
             "WHERE song.fileName = :song_filename " +
             "  AND song.isDownloaded LIKE 'true'")
     List<Integer> songIsDownloaded(String song_filename);

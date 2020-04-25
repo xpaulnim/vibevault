@@ -34,13 +34,11 @@ public class FavoriteShow {
         if (o == this) return true;
         if (!(o instanceof FavoriteShow)) return false;
         final FavoriteShow other = (FavoriteShow) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$showId = this.getShowId();
         final Object other$showId = other.getShowId();
-        if (!Objects.equals(this$showId, other$showId))
-            return false;
-        return true;
+        return Objects.equals(this$showId, other$showId);
     }
 
     protected boolean canEqual(final Object other) {

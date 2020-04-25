@@ -1,16 +1,16 @@
 /*
  * ShowDetailsFragment.java
  * VERSION X.
- * 
+ *
  * Copyright 2012 Andrew Pearson and Sanders DeNardi.
- * 
+ *
  * This file is part of Vibe Vault.
- * 
+ *
  * Vibe Vault is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,20 +18,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  */
 
 package com.code.android.vibevault;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +40,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
@@ -69,190 +65,190 @@ import java.util.Comparator;
 
 public class ShowDetailsFragment extends Fragment {
 
-	protected static final String LOG_TAG = ShowDetailsFragment.class.getName();
-	
-	private ArrayList<ArchiveSongObj> showSongs;
-	
-	private TextView showLabel;
-	private ListView trackList;
+    protected static final String LOG_TAG = ShowDetailsFragment.class.getName();
 
-	private String showTitle;
-	
-	private ArchiveShowObj show;
-	
-	private ShareActionProvider mShareActionProvider;
+    private ArrayList<ArchiveSongObj> showSongs;
 
-	private StaticDataStore db;
-	
-	private DialogAndNavigationListener dialogAndNavigationListener;
-	private ShowDetailsActionListener showDetailsActionListener;
-	
-	public interface ShowDetailsActionListener{
-		public void playShow(int pos, ArrayList<ArchiveSongObj> showSongs);
-	}
-	
-	// Called right before onCreate(), which is right before onCreateView().
-	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try{
-			dialogAndNavigationListener = (DialogAndNavigationListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement DialogListener");
-		}
-	}
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		// Control whether a fragment instance is retained across Activity re-creation (such as from a configuration change).
-		this.setRetainInstance(true);
+    private TextView showLabel;
+    private ListView trackList;
 
-		db = StaticDataStore.getInstance(getActivity());
-	}
-	
-	@Override
+    private String showTitle;
+
+    private ArchiveShowObj show;
+
+    private ShareActionProvider mShareActionProvider;
+
+    private StaticDataStore db;
+
+    private DialogAndNavigationListener dialogAndNavigationListener;
+    private ShowDetailsActionListener showDetailsActionListener;
+
+    public interface ShowDetailsActionListener {
+        void playShow(int pos, ArrayList<ArchiveSongObj> showSongs);
+    }
+
+    // Called right before onCreate(), which is right before onCreateView().
+    // http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            dialogAndNavigationListener = (DialogAndNavigationListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement DialogListener");
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Control whether a fragment instance is retained across Activity re-creation (such as from a configuration change).
+        this.setRetainInstance(true);
+
+        db = StaticDataStore.getInstance(getActivity());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Inflate the fragment and grab a reference to it.
-		View view = inflater.inflate(R.layout.show_details_fragment, container, false);
-		// Initialize the show's label and its list of tracks.  Set the appropriate listeners.
-		showLabel = (TextView) view.findViewById(R.id.ShowLabel);
-		trackList = (ListView) view.findViewById(R.id.SongsListView);
-		trackList.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> a, View v, int position,	long id) {
-				playShow(position);
-			}
-		});
-		// If, for some reason, we already have links, show them.
-		if(showSongs!=null && !showSongs.isEmpty()){
-			refreshTrackList();
-		}
+        // Inflate the fragment and grab a reference to it.
+        View view = inflater.inflate(R.layout.show_details_fragment, container, false);
+        // Initialize the show's label and its list of tracks.  Set the appropriate listeners.
+        showLabel = view.findViewById(R.id.ShowLabel);
+        trackList = view.findViewById(R.id.SongsListView);
+        trackList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
+                playShow(position);
+            }
+        });
+        // If, for some reason, we already have links, show them.
+        if (showSongs != null && !showSongs.isEmpty()) {
+            refreshTrackList();
+        }
 
-		Toolbar topAppBar = (Toolbar) view.findViewById(R.id.topAppBar);
-		topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.VoteButton:
-						if (!showSongs.isEmpty()) {
-							new VoteTask().execute(show);
-						} else {
-							Toast.makeText(getActivity(), R.string.error_empty_show_vote, Toast.LENGTH_SHORT).show();
-						}
-						return true;
-					case R.id.BookmarkButton:
-						Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
-						db.insertFavoriteShow(show);
-						return true;
-					case R.id.HelpButton:
-						dialogAndNavigationListener.showDialog(ShowDetailsFragment.this.getResources().getString(R.string.show_details_screen_help), "Help");
-						return true;
-					case R.id.DownloadButton:
-						DownloadingAsyncTask task = new DownloadingAsyncTask(getActivity());
-						task.execute(showSongs.toArray(new ArchiveSongObj[showSongs.size()]));
-						return true;
-					case android.R.id.home:
-						dialogAndNavigationListener.goHome();
-					default:
-						return false;
-				}
-			}
-		});
+        Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+        topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.VoteButton:
+                        if (!showSongs.isEmpty()) {
+                            new VoteTask().execute(show);
+                        } else {
+                            Toast.makeText(getActivity(), R.string.error_empty_show_vote, Toast.LENGTH_SHORT).show();
+                        }
+                        return true;
+                    case R.id.BookmarkButton:
+                        Toast.makeText(getActivity(), R.string.confirm_bookmarked_message_text, Toast.LENGTH_SHORT).show();
+                        db.insertFavoriteShow(show);
+                        return true;
+                    case R.id.HelpButton:
+                        dialogAndNavigationListener.showDialog(ShowDetailsFragment.this.getResources().getString(R.string.show_details_screen_help), "Help");
+                        return true;
+                    case R.id.DownloadButton:
+                        DownloadingAsyncTask task = new DownloadingAsyncTask(getActivity());
+                        task.execute(showSongs.toArray(new ArchiveSongObj[showSongs.size()]));
+                        return true;
+                    case android.R.id.home:
+                        dialogAndNavigationListener.goHome();
+                    default:
+                        return false;
+                }
+            }
+        });
 
-		MenuItem item = topAppBar.getMenu().findItem(R.id.ShareButton);
-		mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        MenuItem item = topAppBar.getMenu().findItem(R.id.ShareButton);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 //	    mShareActionProvider.setShareHistoryFileName(null);
 
-		return view;
-	}
+        return view;
+    }
 
-	@Override
-	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-		Toolbar topAppBar = view.findViewById(R.id.topAppBar);
+        Toolbar topAppBar = view.findViewById(R.id.topAppBar);
 
-		NavController navController = Navigation.findNavController(view);
-		AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-				.Builder(navController.getGraph())
-				.build();
-		NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
-	}
-	
-	// This method is called right after onCreateView() is called.  "Called when the
-	// fragment's activity has been created and this fragment's view hierarchy instantiated."
-	// http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState){
-	    super.onActivityCreated(savedInstanceState);
+        NavController navController = Navigation.findNavController(view);
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration
+                .Builder(navController.getGraph())
+                .build();
+        NavigationUI.setupWithNavController(topAppBar, navController, appBarConfiguration);
+    }
 
-	    // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
-		if(this.getArguments()!=null){
-			ArchiveShowObj passedShow = null;
+    // This method is called right after onCreateView() is called.  "Called when the
+    // fragment's activity has been created and this fragment's view hierarchy instantiated."
+    // http://developer.android.com/guide/topics/fundamentals/fragments.html#Lifecycle
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-			// See if this Fragment was spawned by the user clicking on a link.
-			// If so, form an ArchiveShowObj from the URL.
-			Object deepLinkObj = getArguments().get("android-support-nav:controller:deepLinkIntent");
-			if (deepLinkObj != null) {
-				String linkString = ((Intent) deepLinkObj).getDataString();
+        // If this ShowDetailsFragment has an argument (it should be the passed show), grab it and parse it.
+        if (this.getArguments() != null) {
+            ArchiveShowObj passedShow = null;
 
-				if(linkString != null) {
-					if (linkString.contains("/download/")) {
-						String[] paths = linkString.split("/");
-						for (int i = 0; i < paths.length; i++) {
-							if (paths[i].equals("download")) {
-								passedShow = new ArchiveShowObj("https://www.archive.org/details/" + paths[i + 1], true);
-								passedShow.setSelectedSong(linkString);
-							}
-						}
-						// Show link clicked on (not an individual song link).
-					} else {
-						passedShow = new ArchiveShowObj(linkString, false);
-					}
-				}
-			} else if (getArguments().getSerializable("show") != null) {
-				passedShow = (ArchiveShowObj) getArguments().getSerializable("show");
-			}
+            // See if this Fragment was spawned by the user clicking on a link.
+            // If so, form an ArchiveShowObj from the URL.
+            Object deepLinkObj = getArguments().get("android-support-nav:controller:deepLinkIntent");
+            if (deepLinkObj != null) {
+                String linkString = ((Intent) deepLinkObj).getDataString();
 
-			// If This ShowDetailsFragment's show object is null, set it to the passed show.
-			// FIXME Maybe put in a check for a null passedShow?
-			if(show==null){
-				Logging.Log(LOG_TAG, "SHOW IS NULL.");
-				if(showSongs==null){
-					showSongs = new ArrayList<ArchiveSongObj>();
-				}
-				if(passedShow!=null){
-					show = passedShow;
-					Logging.Log(LOG_TAG, "SHOW PASSED: " + show.getIdentifier());
-				}
-				if(show!=null){
-					Logging.Log(LOG_TAG,"Show passed, checking tracks.");
-					Logging.Log(LOG_TAG, show.getIdentifier());
-					getShowTracks(show);
-				} else{
-					return;
-				}
-			}
-			// Otherwise, if the ShowDetailsFragment's show is the same as the passed
-			// (non-null) show, make sure that its songs list isn't null.  If the shows
-			// are different, start parsing the new show.
-			else {
-				if(show.equals(passedShow)){
-					if(showSongs==null){
-						getShowTracks(show);
-					} else {
-						refreshTrackList();
-					}
-				} else {
-					refreshTrackList();
-					getShowTracks(show);
-				}
-			}
-		}
-	}
+                if (linkString != null) {
+                    if (linkString.contains("/download/")) {
+                        String[] paths = linkString.split("/");
+                        for (int i = 0; i < paths.length; i++) {
+                            if (paths[i].equals("download")) {
+                                passedShow = new ArchiveShowObj("https://www.archive.org/details/" + paths[i + 1], true);
+                                passedShow.setSelectedSong(linkString);
+                            }
+                        }
+                        // Show link clicked on (not an individual song link).
+                    } else {
+                        passedShow = new ArchiveShowObj(linkString, false);
+                    }
+                }
+            } else if (getArguments().getSerializable("show") != null) {
+                passedShow = (ArchiveShowObj) getArguments().getSerializable("show");
+            }
+
+            // If This ShowDetailsFragment's show object is null, set it to the passed show.
+            // FIXME Maybe put in a check for a null passedShow?
+            if (show == null) {
+                Logging.Log(LOG_TAG, "SHOW IS NULL.");
+                if (showSongs == null) {
+                    showSongs = new ArrayList<ArchiveSongObj>();
+                }
+                if (passedShow != null) {
+                    show = passedShow;
+                    Logging.Log(LOG_TAG, "SHOW PASSED: " + show.getIdentifier());
+                }
+                if (show != null) {
+                    Logging.Log(LOG_TAG, "Show passed, checking tracks.");
+                    Logging.Log(LOG_TAG, show.getIdentifier());
+                    getShowTracks(show);
+                } else {
+                    return;
+                }
+            }
+            // Otherwise, if the ShowDetailsFragment's show is the same as the passed
+            // (non-null) show, make sure that its songs list isn't null.  If the shows
+            // are different, start parsing the new show.
+            else {
+                if (show.equals(passedShow)) {
+                    if (showSongs == null) {
+                        getShowTracks(show);
+                    } else {
+                        refreshTrackList();
+                    }
+                } else {
+                    refreshTrackList();
+                    getShowTracks(show);
+                }
+            }
+        }
+    }
 
 //	// Get a show's details.
 //	private void executeShowDetailsTask(ArchiveShowObj show) {
@@ -269,102 +265,102 @@ public class ShowDetailsFragment extends Fragment {
 //	}
 
 
-	public static ArrayList<ArchiveSongObj> parseShowJSON(JSONObject json){
-		ArrayList<ArchiveSongObj> songs = new ArrayList<ArchiveSongObj>();
-		String songTitle = "";
-		String songLink = "";
-		String showTitle = "";
-		String showIdent = "";
-		String showArtist = "";
-		int trackNo = 0;
+    public static ArrayList<ArchiveSongObj> parseShowJSON(JSONObject json) {
+        ArrayList<ArchiveSongObj> songs = new ArrayList<ArchiveSongObj>();
+        String songTitle = "";
+        String songLink = "";
+        String showTitle = "";
+        String showIdent = "";
+        String showArtist = "";
+        int trackNo = 0;
 
-		Logging.Log(LOG_TAG, "Attempting to parse show JSON...");
-		try {
-			JSONObject showMetadata = json.getJSONObject("metadata");
-			showIdent = showMetadata.getString("identifier");
+        Logging.Log(LOG_TAG, "Attempting to parse show JSON...");
+        try {
+            JSONObject showMetadata = json.getJSONObject("metadata");
+            showIdent = showMetadata.getString("identifier");
 
-			// Get the MP3 files listed in the JSON response.
-			// TODO Add in logic for other codecs.
-			JSONArray showArray = json.getJSONArray("files");
-			JSONObject showObject = new JSONObject();
-			Logging.Log(LOG_TAG, "Number of files: " + showArray.length());
-			for(int i = 0; i < showArray.length(); i ++){
-				showObject = showArray.getJSONObject(i);
-				if(showObject.has("format") && showObject.getString("format").equals("VBR MP3")){
-					if(showObject.has("title")) songTitle = showObject.getString("title");
-					if(showObject.has("name")) songLink = "http://archive.org/download/" + showIdent + "/" + showObject.getString("name");
-					if(showObject.has("album")) showTitle = showObject.getString("album");
-					if(showObject.has("track")) trackNo = showObject.getInt("track");
-					if(showObject.has("creator")) showArtist = showObject.getString("creator");
-					Logging.Log(LOG_TAG, "Retrieved: " + trackNo + " " + songTitle + " from " + showTitle);
-					ArchiveSongObj song = new ArchiveSongObj(songTitle, songLink, showTitle, showIdent, showArtist);
-					songs.add(song);
-				}
-			}
-			// If we didn't collect any songs...
-			if(songs.isEmpty()){
-				Logging.Log(LOG_TAG, "Sorry, no mp3's for this show.  This might be because the show was recently released commercially.");
-				return songs;
-			}
+            // Get the MP3 files listed in the JSON response.
+            // TODO Add in logic for other codecs.
+            JSONArray showArray = json.getJSONArray("files");
+            JSONObject showObject = new JSONObject();
+            Logging.Log(LOG_TAG, "Number of files: " + showArray.length());
+            for (int i = 0; i < showArray.length(); i++) {
+                showObject = showArray.getJSONObject(i);
+                if (showObject.has("format") && showObject.getString("format").equals("VBR MP3")) {
+                    if (showObject.has("title")) songTitle = showObject.getString("title");
+                    if (showObject.has("name"))
+                        songLink = "http://archive.org/download/" + showIdent + "/" + showObject.getString("name");
+                    if (showObject.has("album")) showTitle = showObject.getString("album");
+                    if (showObject.has("track")) trackNo = showObject.getInt("track");
+                    if (showObject.has("creator")) showArtist = showObject.getString("creator");
+                    Logging.Log(LOG_TAG, "Retrieved: " + trackNo + " " + songTitle + " from " + showTitle);
+                    ArchiveSongObj song = new ArchiveSongObj(songTitle, songLink, showTitle, showIdent, showArtist);
+                    songs.add(song);
+                }
+            }
+            // If we didn't collect any songs...
+            if (songs.isEmpty()) {
+                Logging.Log(LOG_TAG, "Sorry, no mp3's for this show.  This might be because the show was recently released commercially.");
+                return songs;
+            }
 
-			// Archive's JSON doesn't always list the tracks in order.
-			// Sort by filename to get proper song order.
-			Collections.sort(songs, new Comparator<ArchiveSongObj>() {
-				@Override
-				public int compare(ArchiveSongObj song1, ArchiveSongObj song2) {
-					return song1.getFileName().compareTo(song2.getFileName());
-				}
-			});
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return songs;
-	}
+            // Archive's JSON doesn't always list the tracks in order.
+            // Sort by filename to get proper song order.
+            Collections.sort(songs, new Comparator<ArchiveSongObj>() {
+                @Override
+                public int compare(ArchiveSongObj song1, ArchiveSongObj song2) {
+                    return song1.getFileName().compareTo(song2.getFileName());
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return songs;
+    }
 
-	private void getShowTracks(final ArchiveShowObj passedShow) {
-		if(db.getShowExists(passedShow)){
-			Logging.Log(LOG_TAG, "Show exists.  Setting title to: " + db.getShow(passedShow.getIdentifier()).getArtistAndTitle());
-			showSongs.addAll(db.getSongsFromShow(passedShow.getIdentifier()));
-			show.setFullTitle(db.getShow(passedShow.getIdentifier()).getArtistAndTitle());
-			return;
-		}
+    private void getShowTracks(final ArchiveShowObj passedShow) {
+        if (db.getShowExists(passedShow)) {
+            Logging.Log(LOG_TAG, "Show exists.  Setting title to: " + db.getShow(passedShow.getIdentifier()).getArtistAndTitle());
+            showSongs.addAll(db.getSongsFromShow(passedShow.getIdentifier()));
+            show.setFullTitle(db.getShow(passedShow.getIdentifier()).getArtistAndTitle());
+            return;
+        }
 
-		Logging.Log(LOG_TAG, "getShowTracks() called.  Attempting to fetch show JSON from archive.");
-		dialogAndNavigationListener.showLoadingDialog("Loading show...");
-		JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, "https://archive.org/metadata/" + passedShow.getIdentifier(), null,
-				new Response.Listener<JSONObject>() {
-					@Override
-					public void onResponse(JSONObject response) {
-						Logging.Log(LOG_TAG, "Size of JSON response: " + response.toString().length());
+        Logging.Log(LOG_TAG, "getShowTracks() called.  Attempting to fetch show JSON from archive.");
+        dialogAndNavigationListener.showLoadingDialog("Loading show...");
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, "https://archive.org/metadata/" + passedShow.getIdentifier(), null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Logging.Log(LOG_TAG, "Size of JSON response: " + response.toString().length());
 
-						showSongs = parseShowJSON(response);
-						show = passedShow;
-						if(!showSongs.isEmpty()){
-							db.insertRecentShow(show);
-							db.setShowExists(show);
-							for(ArchiveSongObj song : showSongs){
-								db.insertSong(song);
-							}
+                        showSongs = parseShowJSON(response);
+                        show = passedShow;
+                        if (!showSongs.isEmpty()) {
+                            db.insertRecentShow(show);
+                            db.setShowExists(show);
+                            for (ArchiveSongObj song : showSongs) {
+                                db.insertSong(song);
+                            }
 
-						}
+                        }
 
-						refreshTrackList();
-						dialogAndNavigationListener.hideDialog();
-					}
-				},
-				new Response.ErrorListener() {
-					@Override
-					public void onErrorResponse(VolleyError error) {
-						Logging.Log(LOG_TAG, "Something happened: " + error.getMessage());
+                        refreshTrackList();
+                        dialogAndNavigationListener.hideDialog();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Logging.Log(LOG_TAG, "Something happened: " + error.getMessage());
 
-						dialogAndNavigationListener.hideDialog();
-					}
-				});
-		RequestQueueSingleton.getInstance(this.getActivity().getApplicationContext()).addToRequestQueue(jsObjRequest);
-	}
+                        dialogAndNavigationListener.hideDialog();
+                    }
+                });
+        RequestQueueSingleton.getInstance(this.getActivity().getApplicationContext()).addToRequestQueue(jsObjRequest);
+    }
 
 
-	
 //	// Pop up a loading dialog and pass the show to a ShowDetailsAsyncTaskLoader for parsing.
 //	@Override
 //	public Loader<Bundle> onCreateLoader(int id, Bundle args) {
@@ -402,94 +398,93 @@ public class ShowDetailsFragment extends Fragment {
 //	@Override
 //	public void onLoaderReset(Loader<Bundle> arg0) {
 //	}
-	
-	public ArchiveShowObj getShow(){
-		return show;
-	}
 
-	private void refreshScreenTitle() {
-		if(show!=null){
-			showTitle = show.getArtistAndTitle();
-			showLabel.setText(showTitle);
-		}
-	}
+    public ArchiveShowObj getShow() {
+        return show;
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		Logging.Log(LOG_TAG,"ONRESUME.");
-		refreshTrackList();
-	}
+    private void refreshScreenTitle() {
+        if (show != null) {
+            showTitle = show.getArtistAndTitle();
+            showLabel.setText(showTitle);
+        }
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        Logging.Log(LOG_TAG, "ONRESUME.");
+        refreshTrackList();
+    }
 
-	@Override
-	public void onDetach() {
-	    super.onDetach();
-	    Logging.Log(LOG_TAG, "DETACHING.");
-	    // FIXME this should now cancel the loader.
-	    // VibeVault.showDetailsTask.cancel(true);
-	}
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Logging.Log(LOG_TAG, "DETACHING.");
+        // FIXME this should now cancel the loader.
+        // VibeVault.showDetailsTask.cancel(true);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
 //		if(getActivity().getFragmentManager().getBackStackEntryCount()<1){
 //			getActivity().finish();
 //		}
-	}
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-	}
-	
-	private void playShow(int pos) {
-		Bundle bundle = new Bundle();
+    }
 
-		if(pos >=0 && showSongs != null){
-			bundle.putSerializable("position", pos);
-			bundle.putSerializable("showsongs", showSongs);
-			Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
-		}
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
-		NavHostFragment
-				.findNavController(ShowDetailsFragment.this)
-				.navigate(R.id.action_frag_show_details_to_menu_now_playing, bundle);
-	}
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
 
-	/**
-	 * Refresh the track list with whatever data List of songs contains.
-	 * 
-	 */
-	private void refreshTrackList() {
-		Logging.Log(LOG_TAG, String.valueOf(showSongs.size()));
-		trackList.setAdapter(new SongAdapter(getActivity(), R.layout.show_details_screen_row, showSongs, db));
-		refreshScreenTitle();
-	}
+    private void playShow(int pos) {
+        Bundle bundle = new Bundle();
 
-	private class VoteTask extends AsyncTask<ArchiveShowObj, Void, String> {
-		@Override
-		protected void onPreExecute() {
-			Toast.makeText(getActivity(), R.string.confirm_voting_message_text, Toast.LENGTH_SHORT).show();
-		}
+        if (pos >= 0 && showSongs != null) {
+            bundle.putSerializable("position", pos);
+            bundle.putSerializable("showsongs", showSongs);
+            Logging.Log(LOG_TAG, "Creating Bundle with position and songs.");
+        }
 
-		@Override
-		protected String doInBackground(ArchiveShowObj... shows) {
-			return Voting.vote(shows[0], db, getActivity().getApplicationContext());
-		}
+        NavHostFragment
+                .findNavController(ShowDetailsFragment.this)
+                .navigate(R.id.action_frag_show_details_to_menu_now_playing, bundle);
+    }
 
-		@Override
-		protected void onPostExecute(String result) {
-			Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
-		}
-	}
+    /**
+     * Refresh the track list with whatever data List of songs contains.
+     */
+    private void refreshTrackList() {
+        Logging.Log(LOG_TAG, String.valueOf(showSongs.size()));
+        trackList.setAdapter(new SongAdapter(getActivity(), R.layout.show_details_screen_row, showSongs, db));
+        refreshScreenTitle();
+    }
+
+    private class VoteTask extends AsyncTask<ArchiveShowObj, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            Toast.makeText(getActivity(), R.string.confirm_voting_message_text, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected String doInBackground(ArchiveShowObj... shows) {
+            return Voting.vote(shows[0], db, getActivity().getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

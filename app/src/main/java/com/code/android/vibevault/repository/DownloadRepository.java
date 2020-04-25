@@ -35,7 +35,7 @@ public class DownloadRepository {
 
         try {
             return future.get();
-        } catch(InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }

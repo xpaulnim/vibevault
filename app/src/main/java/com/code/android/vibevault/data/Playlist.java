@@ -32,13 +32,11 @@ public class Playlist {
         if (o == this) return true;
         if (!(o instanceof Playlist)) return false;
         final Playlist other = (Playlist) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$playlistName = this.getPlaylistName();
         final Object other$playlistName = other.getPlaylistName();
-        if (!Objects.equals(this$playlistName, other$playlistName))
-            return false;
-        return true;
+        return Objects.equals(this$playlistName, other$playlistName);
     }
 
     protected boolean canEqual(final Object other) {

@@ -45,16 +45,14 @@ public class Pref {
         if (o == this) return true;
         if (!(o instanceof Pref)) return false;
         final Pref other = (Pref) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         final Object this$name = this.getName();
         final Object other$name = other.getName();
         if (!Objects.equals(this$name, other$name)) return false;
         final Object this$value = this.getValue();
         final Object other$value = other.getValue();
-        if (!Objects.equals(this$value, other$value))
-            return false;
-        return true;
+        return Objects.equals(this$value, other$value);
     }
 
     protected boolean canEqual(final Object other) {

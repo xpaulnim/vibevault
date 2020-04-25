@@ -51,12 +51,11 @@ public class PlaylistSong {
         if (o == this) return true;
         if (!(o instanceof PlaylistSong)) return false;
         final PlaylistSong other = (PlaylistSong) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.get_id() != other.get_id()) return false;
         if (this.getPlaylistId() != other.getPlaylistId()) return false;
         if (this.getSongId() != other.getSongId()) return false;
-        if (this.getTrackNum() != other.getTrackNum()) return false;
-        return true;
+        return this.getTrackNum() == other.getTrackNum();
     }
 
     protected boolean canEqual(final Object other) {
